@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.13 2004/12/30 19:00:49 gimmi Exp $
+ * $Id: IWSlideServiceBean.java,v 1.14 2004/12/31 03:32:46 gimmi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -30,10 +30,10 @@ import com.idega.slide.schema.SlideSchemaCreator;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/30 19:00:49 $ by $Author: gimmi $
+ *  Last modified: $Date: 2004/12/31 03:32:46 $ by $Author: gimmi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.14 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -362,7 +362,7 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 	 * @param loginName
 	 * @return
 	 */
-	private String getUserHomeFolderPath(String loginName) {
+	public String getUserHomeFolderPath(String loginName) {
 		return PATH_USERS_HOME_FOLDERS+SLASH+loginName;
 	}
 	

@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideService.java,v 1.11 2004/12/22 20:13:18 gummi Exp $
+ * $Id: IWSlideService.java,v 1.12 2004/12/31 03:32:46 gimmi Exp $
  * Created on 21.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -21,10 +21,10 @@ import com.idega.business.IBOService;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/22 20:13:18 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/31 03:32:46 $ by $Author: gimmi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.12 $
  */
 public interface IWSlideService extends IBOService {
 
@@ -106,4 +106,7 @@ public interface IWSlideService extends IBOService {
 	 * @see com.idega.slide.business.IWSlideServiceBean#generateUserFolders
 	 */
 	public boolean generateUserFolders(String loginName) throws HttpException, IOException, java.rmi.RemoteException;
+	
+	public String getUserHomeFolderPath(String loginName);
+
 }
