@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideJDBCStore.java,v 1.1 2004/10/19 12:13:04 gummi Exp $
+ * $Id: IWSlideJDBCStore.java,v 1.2 2004/11/01 10:09:31 aron Exp $
  * Created on 19.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -11,23 +11,27 @@ package com.idega.slide.store;
 
 import java.sql.Connection;
 import java.util.Hashtable;
+
 import org.apache.slide.common.ServiceParameterErrorException;
 import org.apache.slide.common.ServiceParameterMissingException;
 import org.apache.slide.store.impl.rdbms.DB2RDBMSAdapter;
+import org.apache.slide.store.impl.rdbms.HsqlRDBMSAdapter;
 import org.apache.slide.store.impl.rdbms.JDBCStore;
 import org.apache.slide.store.impl.rdbms.MySql41RDBMSAdapter;
 import org.apache.slide.store.impl.rdbms.OracleRDBMSAdapter;
 import org.apache.slide.store.impl.rdbms.SQLServerRDBMSAdapter;
-import com.idega.data.DatastoreInterface;
+
+import com.idega.slide.entity.SlideSchemaCreator;
 import com.idega.util.database.PoolManager;
+import com.idega.util.dbschema.SQLSchemaAdapter;
 
 
 /**
  * 
- *  Last modified: $Date: 2004/10/19 12:13:04 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/11/01 10:09:31 $ by $Author: aron $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class IWSlideJDBCStore extends JDBCStore {	
 	
@@ -36,25 +40,28 @@ public class IWSlideJDBCStore extends JDBCStore {
     public IWSlideJDBCStore() {
         PoolManager pManager = PoolManager.getInstance();
         Connection conn = pManager.getConnection();
-        String datastorType = DatastoreInterface.getDataStoreType(conn);
+        String datastoreType = SQLSchemaAdapter.detectDataStoreType(conn);
         String adapter = "";
         
-        if(datastorType == DatastoreInterface.DBTYPE_ORACLE){
+        if(datastoreType.equals(SQLSchemaAdapter.DBTYPE_ORACLE)){
         		adapter = OracleRDBMSAdapter.class.getName();
-        } else if(datastorType == DatastoreInterface.DBTYPE_MSSQLSERVER){
+        } else if(datastoreType.equals(SQLSchemaAdapter.DBTYPE_MSSQLSERVER)){
     			adapter = SQLServerRDBMSAdapter.class.getName();
-        } else if(datastorType == DatastoreInterface.DBTYPE_MYSQL){
+        } else if(datastoreType.equals(SQLSchemaAdapter.DBTYPE_MYSQL)){
     			adapter = MySql41RDBMSAdapter.class.getName();
-        } else if(datastorType == DatastoreInterface.DBTYPE_DB2){
+        } else if(datastoreType.equals(SQLSchemaAdapter.DBTYPE_DB2)){
     			adapter = DB2RDBMSAdapter.class.getName();
+        } else if(datastoreType.equals(SQLSchemaAdapter.DBTYPE_HSQL)){
+        		adapter = HsqlRDBMSAdapter.class.getName();
         } 
+        
 //        else if(datastorType == DatastoreInterface.DBTYPE_POSTGRES){
 //			adapter = PostgresRDBMSAdapter.class.getName();
 //        } else if(datastorType == DatastoreInterface.DBTYPE_SYBASE){
 //			adapter = SybaseRDBMSAdapter.class.getName();
 //        }
         else {
-        		throw new RuntimeException("Datastore of type "+datastorType+" is not supported by Slide");
+        		throw new RuntimeException("Datastore of type "+datastoreType+" is not supported by Slide");
         }
         
         
@@ -75,6 +82,14 @@ public class IWSlideJDBCStore extends JDBCStore {
         _parameters.put("user",pManager.getUserNameForPool());
         _parameters.put("password",pManager.getPasswordForPool());
         _parameters.put("maxPooledConnections",String.valueOf(pManager.getMaximumConnectionCount()));
+        _parameters.put("dbcpPooling","false");
+        
+        try {
+			new SlideSchemaCreator().createEntities(datastoreType);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     		
     }
 
