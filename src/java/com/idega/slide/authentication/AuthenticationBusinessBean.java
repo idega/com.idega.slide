@@ -1,5 +1,5 @@
 /*
- * $Id: AuthenticationBusinessBean.java,v 1.7 2004/12/22 20:13:18 gummi Exp $
+ * $Id: AuthenticationBusinessBean.java,v 1.8 2005/01/07 19:06:03 gummi Exp $
  * Created on 9.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -26,22 +26,23 @@ import com.idega.business.IBOServiceBean;
 import com.idega.core.accesscontrol.business.LoginBusinessBean;
 import com.idega.presentation.IWContext;
 import com.idega.slide.business.IWSlideService;
+import com.idega.slide.util.IWSlideConstants;
 import com.idega.slide.util.PropertyParser;
 import com.idega.util.StringHandler;
 
 
 /**
  * 
- *  Last modified: $Date: 2004/12/22 20:13:18 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/01/07 19:06:03 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public class AuthenticationBusinessBean extends IBOServiceBean  implements AuthenticationBusiness{
 	
-	private static final String PATH_USERS = "/users";
-	private static final String PATH_GROUPS = "/groups";
-	private static final String PATH_ROLES = "/roles";
+	private static final String PATH_USERS = IWSlideConstants.PATH_USERS;
+	private static final String PATH_GROUPS = IWSlideConstants.PATH_GROUPS;
+	private static final String PATH_ROLES = IWSlideConstants.PATH_ROLES;
 	private static final String SLASH = "/";
 	private static final String SLIDE_ROLE_NAME_ROOT = "root";
 	private static final String SLIDE_DEFAULT_ROOT_USER = "root";
