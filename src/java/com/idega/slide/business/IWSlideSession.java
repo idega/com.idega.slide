@@ -1,8 +1,8 @@
 /*
- * $Id: IWSlideSession.java,v 1.11 2004/12/31 03:33:07 gimmi Exp $
- * Created on 28.12.2004
+ * $Id: IWSlideSession.java,v 1.12 2005/01/07 19:16:06 gummi Exp $
+ * Created on 1.1.2005
  *
- * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
+ * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
  *
  * This software is the proprietary information of Idega hf.
  * Use is subject to license terms.
@@ -14,18 +14,18 @@ import java.rmi.RemoteException;
 import javax.servlet.http.HttpSessionBindingEvent;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.slide.common.SlideToken;
 import com.idega.business.IBOSession;
+import com.idega.slide.util.AccessControlList;
 import com.idega.slide.util.WebdavExtendedResource;
 import com.idega.slide.util.WebdavRootResource;
 
 
 /**
  * 
- *  Last modified: $Date: 2004/12/31 03:33:07 $ by $Author: gimmi $
+ *  Last modified: $Date: 2005/01/07 19:16:06 $ by $Author: gummi $
  * 
- * @author <a href="mailto:gimmi@idega.com">gimmi</a>
- * @version $Revision: 1.11 $
+ * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
+ * @version $Revision: 1.12 $
  */
 public interface IWSlideSession extends IBOSession {
 
@@ -90,14 +90,19 @@ public interface IWSlideSession extends IBOSession {
 	public void close() throws java.rmi.RemoteException;
 
 	/**
-	 * @see com.idega.slide.business.IWSlideSessionBean#getSlideToken
+	 * @see com.idega.slide.business.IWSlideSessionBean#getAccessControlList
 	 */
-	public SlideToken getSlideToken() throws java.rmi.RemoteException;
+	public AccessControlList getAccessControlList(String path) throws HttpException, IOException,
+			java.rmi.RemoteException;
 
 	/**
-	 * @see com.idega.slide.business.IWSlideSessionBean#setSlideToken
+	 * @see com.idega.slide.business.IWSlideSessionBean#storeAccessControlList
 	 */
-	public void setSlideToken(SlideToken slideToken) throws java.rmi.RemoteException;
-	public String getUserHomeFolder();
+	public boolean storeAccessControlList(AccessControlList acl) throws HttpException, IOException,
+			java.rmi.RemoteException;
 
+	/**
+	 * @see com.idega.slide.business.IWSlideSessionBean#getUserHomeFolder
+	 */
+	public String getUserHomeFolder() throws java.rmi.RemoteException;
 }

@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.15 2004/12/31 03:33:07 gimmi Exp $
+ * $Id: IWSlideSessionBean.java,v 1.16 2005/01/07 19:16:06 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -15,13 +15,15 @@ import javax.servlet.http.HttpSessionBindingEvent;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.slide.common.SlideToken;
+import org.apache.webdav.lib.Ace;
 import org.apache.webdav.lib.WebdavResource;
+import org.apache.webdav.lib.properties.AclProperty;
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBOSessionBean;
 import com.idega.core.accesscontrol.business.LoggedOnInfo;
 import com.idega.core.accesscontrol.business.LoginBusinessBean;
 import com.idega.core.accesscontrol.business.NotLoggedOnException;
+import com.idega.slide.util.AccessControlList;
 import com.idega.slide.util.WebdavExtendedResource;
 import com.idega.slide.util.WebdavRootResource;
 import com.idega.util.StringHandler;
@@ -29,10 +31,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/31 03:33:07 $ by $Author: gimmi $
+ *  Last modified: $Date: 2005/01/07 19:16:06 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.16 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -53,7 +55,7 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	
 	private static final String SLIDE_PASSWORD_ATTRIBUTE_NAME = "iw_slide_password";
 	
-	private SlideToken _slideToken = null;
+//	private SlideToken _slideToken = null;
 	
 //    /** The WebDAV resource. */
 //    private WebdavResource webdavResource = null;
@@ -97,17 +99,23 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		return service;
 	}
 	
+	/**
+	 * @return returns full name of the current user.  Returns <code>null</code> if user is not logged on.
+	 */
 	public String getUserFullName() {
 		try {
 			if (getCurrentUser() != null) {
 				return getCurrentUser().getName();
 			}
 		} catch (NotLoggedOnException e) {
-			return "not logged on (TMP, iwslideSessionBean";
+			return null;
 		}
 		return null;
 	}
 	
+	/**
+	 * @return returns the name of the current user home folder.  Returns <code>null</code> if user is not logged on.
+	 */
 	public String getUserFolderName() {
 		if (getUserCredentials() != null) {
 			return getUserCredentials().getUserName();
@@ -156,8 +164,9 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		
 		if(webdavRootResource == null){
 			if(usersCredentials == null){
-				if(isLoggedOn){
+				if(tmpIsLoggedOn){
 					usersCredentials = getUserCredentials();
+					isLoggedOn=true;
 				}
 			}
 			WebdavResource resource;
@@ -177,11 +186,11 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 
 	public WebdavExtendedResource getWebdavResource(String path) throws HttpException, IOException, RemoteException {
 		WebdavExtendedResource resource;
-		if(usersCredentials!=null){
+//		if(getUserContext().isLoggedOn()){
 			resource = new WebdavExtendedResource(getIWSlideService().getWebdavServerURL(getUserCredentials(),path));
-		} else {
-			resource = new WebdavExtendedResource(getIWSlideService().getWebdavServerURL(path));
-		}
+//		} else {
+//			resource = new WebdavExtendedResource(getIWSlideService().getWebdavServerURL(path));
+//		}
 		
 		return resource;
 	}
@@ -210,67 +219,88 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		}	
 	}
 	
+	
+	public AccessControlList getAccessControlList(String path) throws HttpException, IOException{
+		WebdavRootResource rResource = getWebdavRootResource();
+		AccessControlList acl = new AccessControlList(getWebdavServerURI(),path);
+		
+		AclProperty aclProperty = null;
+		if(path!=null){ // && !"/".equals(path) && !"".equals(path)){
+			aclProperty = rResource.aclfindMethod(rResource.getPath()+path);
+		} else {
+			aclProperty = rResource.aclfindMethod();
+		}
+		if(aclProperty!=null){
+			Ace[] aclProperties = aclProperty.getAces();
+			if(aclProperties != null){
+				acl.setAces(aclProperties);
+			}
+		}
+		return acl;
+	}
+	
+	public boolean storeAccessControlList(AccessControlList acl) throws HttpException, IOException{
+		WebdavRootResource rResource = getWebdavRootResource();
+		String resourceURI = getApplicationServerRelativePath(acl.getResourcePath());
+		boolean value = rResource.aclMethod(resourceURI,acl.getAces());
+		
+		return value;
+	}
+	
 	public String getUserHomeFolder() {
 		if (getUserFolderName() != null) {
 			return getIWSlideService().getUserHomeFolderPath(getUserFolderName());
 		}
 		return null;
 	}
-    /**
-     * Returns a SlideToken using the authentication information of the IW login system
-     *
-     * @return a new SlideToken instance
-     **/
-    public SlideToken getSlideToken() {
-    		if(_slideToken == null){
-    			throw new RuntimeException("["+this.getClass().getName()+"]: Requesting SlideToken but token has not been set.  Check if IWSlideAuthenticator filter is mapped right (/*) in web.xml");
-//    			// This code is borrowed from org.apache.slide.webdav.util.WebdavUtils#getSlideToken(HttpServletRequest)
-//    			// and altered since we just have session and not requst object.
-//    			
-//            CredentialsToken credentialsToken;
-//            Principal principal = getUserContext().getUserPrincipal();
-//            
-//            // store the current principal in the session, to get around a bug in
-//            // IE 5 where the authentication info is not submitted by IE when
-//            // doing a HEAD request.
-//            if (principal == null) {
-//                credentialsToken = new CredentialsToken("");
-//            } else {
-//                // because the principal is not guaranteed to be serializable
-//                // and could thus create problems in a distributed deployment
-//                // we store the principal name instead of the principal itself
-////                session.setAttribute(CREDENTIALS_ATTRIBUTE, principal.getName());
-//                credentialsToken = new CredentialsToken(principal);
-//            }
-//            
-//            SlideToken token = new SlideTokenImpl(credentialsToken);
-//            token.setEnforceLockTokens(true);
-//
-//            // store session attributes in token parameters to pass them through
-//            // to the stores
-//            for(Enumeration e = getUserContext().getSeAttributeNames(); e.hasMoreElements();) {
-//                String name = (String)e.nextElement();
-//                token.addParameter(name, getUserContext().getSessionAttribute(name));
-//            }
-//            return _slideToken;
-    		}
-    		return _slideToken;
-
-    }
-
-	/* (non-Javadoc)
-	 * @see com.idega.slide.business.IWSlideSession#setSlideToken(org.apache.slide.common.SlideToken)
-	 */
-	public void setSlideToken(SlideToken slideToken) {
-		_slideToken = slideToken;
-	}
 	
-//	public HistoryPathHandler getHistoryPathHandler(){
-//		return HistoryPathHandler.getHistoryPathHandler();
-//	}
-//	
-//	public WorkspacePathHandler getWorkspacePathHandler(){
-//		return WorkspacePathHandler.getWorkspacePathHandler();
+//    /**
+//     * Returns a SlideToken using the authentication information of the IW login system
+//     *
+//     * @return a new SlideToken instance
+//     **/
+//    public SlideToken getSlideToken() {
+//    		if(_slideToken == null){
+//    			throw new RuntimeException("["+this.getClass().getName()+"]: Requesting SlideToken but token has not been set.  Check if IWSlideAuthenticator filter is mapped right (/*) in web.xml");
+////    			// This code is borrowed from org.apache.slide.webdav.util.WebdavUtils#getSlideToken(HttpServletRequest)
+////    			// and altered since we just have session and not requst object.
+////    			
+////            CredentialsToken credentialsToken;
+////            Principal principal = getUserContext().getUserPrincipal();
+////            
+////            // store the current principal in the session, to get around a bug in
+////            // IE 5 where the authentication info is not submitted by IE when
+////            // doing a HEAD request.
+////            if (principal == null) {
+////                credentialsToken = new CredentialsToken("");
+////            } else {
+////                // because the principal is not guaranteed to be serializable
+////                // and could thus create problems in a distributed deployment
+////                // we store the principal name instead of the principal itself
+//////                session.setAttribute(CREDENTIALS_ATTRIBUTE, principal.getName());
+////                credentialsToken = new CredentialsToken(principal);
+////            }
+////            
+////            SlideToken token = new SlideTokenImpl(credentialsToken);
+////            token.setEnforceLockTokens(true);
+////
+////            // store session attributes in token parameters to pass them through
+////            // to the stores
+////            for(Enumeration e = getUserContext().getSeAttributeNames(); e.hasMoreElements();) {
+////                String name = (String)e.nextElement();
+////                token.addParameter(name, getUserContext().getSessionAttribute(name));
+////            }
+////            return _slideToken;
+//    		}
+//    		return _slideToken;
+//
+//    }
+//
+//	/* (non-Javadoc)
+//	 * @see com.idega.slide.business.IWSlideSession#setSlideToken(org.apache.slide.common.SlideToken)
+//	 */
+//	public void setSlideToken(SlideToken slideToken) {
+//		_slideToken = slideToken;
 //	}
 	
 }
