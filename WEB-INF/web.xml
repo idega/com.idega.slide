@@ -10,7 +10,7 @@
 
     <filter-mapping>
         <filter-name>IWSlideAuthenticator</filter-name>
-        <url-pattern>/servlet/webdav/*</url-pattern>
+        <url-pattern>/*</url-pattern>
     </filter-mapping>
 
 </web-app>
