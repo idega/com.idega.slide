@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticator.java,v 1.7 2005/01/07 19:01:29 gummi Exp $
+ * $Id: IWSlideAuthenticator.java,v 1.8 2005/02/23 15:49:51 gummi Exp $
  * Created on 8.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -21,20 +21,22 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.httpclient.HttpException;
+import org.apache.slide.webdav.util.WebdavUtils;
 import com.idega.business.IBOLookup;
 import com.idega.business.IBOLookupException;
 import com.idega.core.accesscontrol.business.LoggedOnInfo;
 import com.idega.core.accesscontrol.business.LoginBusinessBean;
 import com.idega.presentation.IWContext;
 import com.idega.slide.business.IWSlideService;
+import com.idega.slide.business.IWSlideSession;
 
 
 /**
  * 
- *  Last modified: $Date: 2005/01/07 19:01:29 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/02/23 15:49:51 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public class IWSlideAuthenticator implements Filter {
 
@@ -98,9 +100,10 @@ public class IWSlideAuthenticator implements Filter {
 		}
 		
 		// the slide token is set so that business methods can get it from IWSlideSession.   
-		// The WebdavUtils#getSlideToken(request) can be expensive since it copies all attributes from session to the token.
-//		IWSlideSession slideSession = (IWSlideSession)IBOLookup.getSessionInstance(iwc,IWSlideSession.class);
-//		slideSession.setSlideToken(WebdavUtils.getSlideToken(iwc.getRequest()));
+		// The WebdavUtils#getSlideToken(request) can be expensive since it copies pointers to all attributes from session to the token.
+		// This is used e.g. to check for permissions(i.e. to calculate permissions using the ACLSecurityImpl) 
+		IWSlideSession slideSession = (IWSlideSession)IBOLookup.getSessionInstance(iwc,IWSlideSession.class);
+		slideSession.setSlideToken(WebdavUtils.getSlideToken(iwc.getRequest()));
 		
 		arg2.doFilter(iwc.getRequest(), iwc.getResponse());
 	}
@@ -119,8 +122,6 @@ public class IWSlideAuthenticator implements Filter {
 	 */
 	private void setAsUnauthenticatedInSlide(IWContext iwc) throws IBOLookupException {
 		iwc.removeSessionAttribute(SLIDE_USER_PRINCIPAL_ATTRIBUTE_NAME);
-//		IWSlideSession slideSession = (IWSlideSession)IBOLookup.getSessionInstance(iwc,IWSlideSession.class);
-//		slideSession.setSlideToken(WebdavUtils.getSlideToken(iwc.getRequest()));
 	}
 	
 	private void setAsAuthenticatedInSlide(IWContext iwc,String loginName, LoggedOnInfo lInfo) throws HttpException, RemoteException, IOException{
@@ -130,7 +131,7 @@ public class IWSlideAuthenticator implements Filter {
 			}
 			updateRolesForUser(iwc, lInfo);
 		} else {
-			if(loginName.equals("root")){
+			if(getAuthenticationBusiness(iwc).isRootUser(iwc)){
 				iwc.setRequest(new IWSlideAuthenticatedRequest(iwc.getRequest(),loginName,Collections.singleton("root")));
 			} else {
 				iwc.setRequest(new IWSlideAuthenticatedRequest(iwc.getRequest(),loginName,lInfo.getUserRoles()));
@@ -138,8 +139,6 @@ public class IWSlideAuthenticator implements Filter {
 			}
 		}
 		iwc.setSessionAttribute(SLIDE_USER_PRINCIPAL_ATTRIBUTE_NAME,loginName);
-//		IWSlideSession slideSession = (IWSlideSession)IBOLookup.getSessionInstance(iwc,IWSlideSession.class);
-//		slideSession.setSlideToken(WebdavUtils.getSlideToken(iwc.getRequest()));
 	}
 
 	/**
@@ -164,13 +163,11 @@ public class IWSlideAuthenticator implements Filter {
 		slideService.generateUserFolders(iwc.getRemoteUser());
 	}
 
-	private boolean isAuthenticated(IWContext iwc, LoggedOnInfo info, String login, String password){
+	private boolean isAuthenticated(IWContext iwc, LoggedOnInfo info, String login, String password) throws IBOLookupException, RemoteException{
 		if(iwc.isLoggedOn()){
 			return true;
 		} else {
-			//TMP root authentication
-			//TODO: authenticate root user
-			if("root".equals(login)&&"root".equals(password)){
+			if(getAuthenticationBusiness(iwc).isRootUser(iwc)){
 				return true;
 			}
 			if(info != null){
@@ -185,6 +182,10 @@ public class IWSlideAuthenticator implements Filter {
 
 	protected LoginBusinessBean getLoginBusiness(IWContext iwc){
 		return loginBusiness;
+	}
+	
+	protected AuthenticationBusiness getAuthenticationBusiness(IWContext iwc) throws IBOLookupException {
+		return (AuthenticationBusiness) IBOLookup.getServiceInstance(iwc,AuthenticationBusiness.class);
 	}
 	
 	/* (non-Javadoc)

@@ -1,5 +1,5 @@
 /*
- * $Id: AuthenticationBusiness.java,v 1.1 2004/12/13 13:12:32 gummi Exp $
+ * $Id: AuthenticationBusiness.java,v 1.2 2005/02/23 15:49:51 gummi Exp $
  * Created on 13.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -16,14 +16,15 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.webdav.lib.WebdavResources;
 import com.idega.business.IBOService;
+import com.idega.presentation.IWContext;
 
 
 /**
  * 
- *  Last modified: $Date: 2004/12/13 13:12:32 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/02/23 15:49:51 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public interface AuthenticationBusiness extends IBOService {
 
@@ -73,4 +74,8 @@ public interface AuthenticationBusiness extends IBOService {
 	 */
 	public void updateRoleMembershipForUser(String userLoginName, Set roleNamesForUser, Set loginNamesOfAllLoggedOnUsers)
 			throws HttpException, RemoteException, IOException;
+	
+	public UsernamePasswordCredentials getRootUserCredentials() throws RemoteException;
+	
+	public boolean isRootUser(IWContext iwc) throws RemoteException;
 }

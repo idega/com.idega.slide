@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideService.java,v 1.15 2005/02/14 14:55:14 gummi Exp $
+ * $Id: IWSlideService.java,v 1.16 2005/02/23 15:49:51 gummi Exp $
  * Created on 21.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -14,6 +14,7 @@ import java.rmi.RemoteException;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.slide.security.Security;
 import org.apache.webdav.lib.WebdavFile;
 import org.apache.webdav.lib.WebdavResource;
 import com.idega.business.IBOService;
@@ -21,10 +22,10 @@ import com.idega.business.IBOService;
 
 /**
  * 
- *  Last modified: $Date: 2005/02/14 14:55:14 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/02/23 15:49:51 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.16 $
  */
 public interface IWSlideService extends IBOService {
 
@@ -117,4 +118,6 @@ public interface IWSlideService extends IBOService {
 	public void createAllFoldersInPath(String path) throws HttpException, RemoteException, IOException;
 	
 	public String createUniqueFileName(String scope);
+	
+	public Security getSecurity();
 }

@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.19 2005/02/15 13:40:00 gummi Exp $
+ * $Id: IWSlideServiceBean.java,v 1.20 2005/02/23 15:49:51 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -19,6 +19,8 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.slide.security.ACLSecurityImpl;
+import org.apache.slide.security.Security;
 import org.apache.webdav.lib.Ace;
 import org.apache.webdav.lib.Privilege;
 import org.apache.webdav.lib.WebdavFile;
@@ -39,10 +41,10 @@ import com.idega.util.IWTimestamp;
 
 /**
  * 
- *  Last modified: $Date: 2005/02/15 13:40:00 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/02/23 15:49:51 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.19 $
+ * @version $Revision: 1.20 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -64,8 +66,8 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 	protected Map lastUniqueFileNameScopeMap = new HashMap();
 	protected String lastGlobalUniqueFileName = null;
 	
-//	private static Credentials guestCredentials = new UsernamePasswordCredentials("guest","guest");
-	
+	private ACLSecurityImpl security = null;
+		
 	public IWSlideServiceBean() {
 		super();
 	}
@@ -174,18 +176,11 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 	/**
 	 * 
 	 * @return
+	 * @throws RemoteException
+	 * @throws IBOLookupException
 	 */
-	public UsernamePasswordCredentials getRootUserCredentials(){
-//		if(lInfo!=null){
-//			String password = (String)lInfo.getAttribute(SLIDE_PASSWORD_ATTRIBUTE_NAME);
-//			if(password == null){
-//				password = StringHandler.getRandomString(10);
-//				lInfo.setAttribute(SLIDE_PASSWORD_ATTRIBUTE_NAME,password);
-//			}
-			return new UsernamePasswordCredentials("root","root");
-//		}
-		
-//		return null;
+	public UsernamePasswordCredentials getRootUserCredentials() throws IBOLookupException, RemoteException{
+		return getAuthenticationBusiness().getRootUserCredentials();
 	}
 	
 	
@@ -465,6 +460,14 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 		}
 		lastGlobalUniqueFileName = name;
 		return name;
+	}
+	
+	
+	public Security getSecurity(){
+		if(security == null){
+			//initialize it
+		}
+		return security;
 	}
 	
 }
