@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+<web-app>
+
+    <!-- The IWSlideAuthenticator Filter -->
+    <filter>
+        <filter-name>IWSlideAuthenticator</filter-name>
+        <filter-class>com.idega.slide.authentication.IWSlideAuthenticator</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>IWSlideAuthenticator</filter-name>
+        <url-pattern>/servlet/webdav/*</url-pattern>
+    </filter-mapping>
+
+</web-app>

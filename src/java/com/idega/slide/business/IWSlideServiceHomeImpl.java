@@ -1,6 +1,6 @@
 /*
- * $Id: IWSlideServiceHomeImpl.java,v 1.5 2004/11/17 08:49:00 aron Exp $
- * Created on 17.11.2004
+ * $Id: IWSlideServiceHomeImpl.java,v 1.6 2004/12/13 13:12:32 gummi Exp $
+ * Created on 12.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
  *
@@ -9,25 +9,23 @@
  */
 package com.idega.slide.business;
 
-
-
 import com.idega.business.IBOHomeImpl;
+
 
 /**
  * 
- *  Last modified: $Date: 2004/11/17 08:49:00 $ by $Author: aron $
+ *  Last modified: $Date: 2004/12/13 13:12:32 $ by $Author: gummi $
  * 
- * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.5 $
+ * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
+ * @version $Revision: 1.6 $
  */
-public class IWSlideServiceHomeImpl extends IBOHomeImpl implements
-        IWSlideServiceHome {
-    protected Class getBeanInterfaceClass() {
-        return IWSlideService.class;
-    }
+public class IWSlideServiceHomeImpl extends IBOHomeImpl implements IWSlideServiceHome {
 
-    public IWSlideService create() throws javax.ejb.CreateException {
-        return (IWSlideService) super.createIBO();
-    }
+	protected Class getBeanInterfaceClass() {
+		return IWSlideService.class;
+	}
 
+	public IWSlideService create() throws javax.ejb.CreateException {
+		return (IWSlideService) super.createIBO();
+	}
 }

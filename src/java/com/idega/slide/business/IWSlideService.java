@@ -1,6 +1,6 @@
 /*
- * $Id: IWSlideService.java,v 1.7 2004/11/18 10:36:39 tryggvil Exp $
- * Created on 18.11.2004
+ * $Id: IWSlideService.java,v 1.8 2004/12/13 13:12:32 gummi Exp $
+ * Created on 12.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
  *
@@ -10,17 +10,17 @@
 package com.idega.slide.business;
 
 import org.apache.commons.httpclient.HttpURL;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.webdav.lib.WebdavFile;
 import com.idega.business.IBOService;
-import com.idega.user.data.User;
 
 
 /**
  * 
- *  Last modified: $Date: 2004/11/18 10:36:39 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2004/12/13 13:12:32 $ by $Author: gummi $
  * 
- * @author <a href="mailto:tryggvil@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.7 $
+ * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
+ * @version $Revision: 1.8 $
  */
 public interface IWSlideService extends IBOService {
 
@@ -42,22 +42,34 @@ public interface IWSlideService extends IBOService {
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavServerURL
 	 */
-	public HttpURL getWebdavServerURL(User user) throws java.rmi.RemoteException;
+	public HttpURL getWebdavServerURL(UsernamePasswordCredentials credential) throws java.rmi.RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavServerURL
 	 */
-	public HttpURL getWebdavServerURL(User user, String path) throws java.rmi.RemoteException;
+	public HttpURL getWebdavServerURL(UsernamePasswordCredentials credential, String path)
+			throws java.rmi.RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavFile
 	 */
-	public WebdavFile getWebdavFile(User user) throws java.rmi.RemoteException;
+	public WebdavFile getWebdavFile(UsernamePasswordCredentials credentials, String path)
+			throws java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavFile
+	 */
+	public WebdavFile getWebdavFile(UsernamePasswordCredentials credentials) throws java.rmi.RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavFile
 	 */
 	public WebdavFile getWebdavFile() throws java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#getRootUserCredentials
+	 */
+	public UsernamePasswordCredentials getRootUserCredentials() throws java.rmi.RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#createSlideSchemas

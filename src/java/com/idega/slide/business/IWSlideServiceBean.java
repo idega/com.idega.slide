@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.8 2004/11/18 10:36:39 tryggvil Exp $
+ * $Id: IWSlideServiceBean.java,v 1.9 2004/12/13 13:12:32 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -10,24 +10,22 @@
 package com.idega.slide.business;
 
 import java.io.IOException;
-
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.URIException;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.webdav.lib.WebdavFile;
-
 import com.idega.business.IBORuntimeException;
 import com.idega.business.IBOServiceBean;
 import com.idega.slide.schema.SlideSchemaCreator;
-import com.idega.user.data.User;
 
 
 /**
  * 
- *  Last modified: $Date: 2004/11/18 10:36:39 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2004/12/13 13:12:32 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -62,15 +60,15 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 		return getWebdavServerURL(null,null);
 	}
 	
-	public HttpURL getWebdavServerURL(User user){
-		return getWebdavServerURL(user,null);
+	public HttpURL getWebdavServerURL(UsernamePasswordCredentials credential){
+		return getWebdavServerURL(credential,null);
 	}
 	
 	/**
 	 * Gets the root url for the webdav server with authentication
 	 * @return
 	 */
-	public HttpURL getWebdavServerURL(User user,String path){
+	public HttpURL getWebdavServerURL(UsernamePasswordCredentials credential,String path){
 	    
 	    try {
 	       String server = getIWApplicationContext().getDomain().getServerName();
@@ -96,10 +94,8 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 		       HttpURL hrl = new HttpURL(server,port,realPath);
 		       
 		       
-			   if(user!=null){
-			       //TODO: Implement real user authorization, now hardcoded as root
-			       hrl.setUserinfo("root","root");
-			       //hrl.setUserInfo("user","pass");
+			   if(credential!=null){
+			       hrl.setUserinfo(credential.getUserName(),credential.getPassword());
 			    }
 	            return hrl;
 	       }
@@ -108,14 +104,15 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
            throw new IBORuntimeException(e);
         }
 	}
-
+	
+	
 	/**
-	 * Gets the root resource for the webdav server with authentication
+	 * Gets resource for the webdav server with authentication
 	 * @return
 	 */
-	public WebdavFile getWebdavFile(User user){
+	public WebdavFile getWebdavFile(UsernamePasswordCredentials credentials, String path){
 	    try {
-            return new WebdavFile(getWebdavServerURL(user));
+            return new WebdavFile(getWebdavServerURL(credentials,path));
         } catch (HttpException e) {
             throw new IBORuntimeException(e);
         } catch (IOException e) {
@@ -123,13 +120,37 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
         }
 	}
 	
+	/**
+	 * Gets the root resource for the webdav server with authentication
+	 * @return
+	 */
+	public WebdavFile getWebdavFile(UsernamePasswordCredentials credentials){
+	   return getWebdavFile(credentials,null);
+	}
 	
 	/**
 	 * Gets the root resource for the webdav server without any authentication
 	 * @return
 	 */
 	public WebdavFile getWebdavFile(){
-	    return getWebdavFile(null);
+	    return getWebdavFile(null,null);
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public UsernamePasswordCredentials getRootUserCredentials(){
+//		if(lInfo!=null){
+//			String password = (String)lInfo.getAttribute(SLIDE_PASSWORD_ATTRIBUTE_NAME);
+//			if(password == null){
+//				password = StringHandler.getRandomString(10);
+//				lInfo.setAttribute(SLIDE_PASSWORD_ATTRIBUTE_NAME,password);
+//			}
+			return new UsernamePasswordCredentials("root","root");
+//		}
+		
+//		return null;
 	}
 	
 	

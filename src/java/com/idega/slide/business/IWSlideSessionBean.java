@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.4 2004/11/12 16:44:46 aron Exp $
+ * $Id: IWSlideSessionBean.java,v 1.5 2004/12/13 13:12:32 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -12,9 +12,7 @@ package com.idega.slide.business;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.StringTokenizer;
-
 import javax.servlet.http.HttpSessionBindingEvent;
-
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
@@ -23,19 +21,21 @@ import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.webdav.lib.WebdavFile;
 import org.apache.webdav.lib.WebdavResource;
 import org.apache.webdav.lib.WebdavResources;
-
 import com.idega.business.IBOLookup;
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBORuntimeException;
 import com.idega.business.IBOSessionBean;
+import com.idega.core.accesscontrol.business.LoggedOnInfo;
+import com.idega.core.accesscontrol.business.LoginBusinessBean;
+import com.idega.util.StringHandler;
 
 
 /**
  * 
- *  Last modified: $Date: 2004/11/12 16:44:46 $ by $Author: aron $
+ *  Last modified: $Date: 2004/12/13 13:12:32 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -53,6 +53,8 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	private IWSlideService service = null;
 	
 	private String servletPath = null;
+	
+	private static final String SLIDE_PASSWORD_ATTRIBUTE_NAME = "iw_slide_password";
 	
 	
 //    /** The WebDAV resource. */
@@ -109,6 +111,19 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		return servletPath;
 	}
 	
+	public UsernamePasswordCredentials getUserCredentials(){
+		LoggedOnInfo lInfo = LoginBusinessBean.getLoggedOnInfo(getUserContext());
+		if(lInfo!=null){
+			String password = (String)lInfo.getAttribute(SLIDE_PASSWORD_ATTRIBUTE_NAME);
+			if(password == null){
+				password = StringHandler.getRandomString(10);
+				lInfo.setAttribute(SLIDE_PASSWORD_ATTRIBUTE_NAME,password);
+			}
+			return new UsernamePasswordCredentials(lInfo.getLogin(),password);
+		}
+		return null;
+	}
+	
 	public WebdavResource getWebdavResource() throws HttpException, IOException{
 		boolean tmpIsLoggedOn = getUserContext().isLoggedOn();
 		if(webdavResource != null && isLoggedOn != tmpIsLoggedOn ){ //TMP || (tmpIsLoggedOn && usersCredentials != null && !((UsernamePasswordCredentials)usersCredentials).getUserName().equals(getUserContext().getCurrentUser().getUniqueId()))){
@@ -123,17 +138,10 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 				if(isLoggedOn){
 					//TMP User usr = getUserContext().getCurrentUser();
 					//TMP usersCredentials = new UsernamePasswordCredentials(usr.getUniqueId(),StringHandler.getRandomString(10));
-					usersCredentials = new UsernamePasswordCredentials("root","root");
-				} else {
-//					try {
-						usersCredentials = null;//getIWSlideService().getGuestCredentials();
-//					}
-//					catch (RemoteException e) {
-//						e.printStackTrace();
-//					}
+					usersCredentials = getUserCredentials();
 				}
 			}
-			webdavResource = new WebdavResource(getWebdavServletURL());//,usersCredentials);
+			webdavResource = new WebdavResource(getWebdavServletURL(),usersCredentials);
 		}
 		
 		return webdavResource;
