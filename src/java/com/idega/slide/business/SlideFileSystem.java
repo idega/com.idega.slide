@@ -1,6 +1,6 @@
 /*
- * $Id: SlideFileSystem.java,v 1.1 2004/11/29 16:16:45 aron Exp $
- * Created on 22.11.2004
+ * $Id: SlideFileSystem.java,v 1.2 2004/12/15 16:02:36 palli Exp $
+ * Created on Dec 15, 2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
  *
@@ -10,34 +10,42 @@
 package com.idega.slide.business;
 
 import java.rmi.RemoteException;
-
-
 import com.idega.business.IBOService;
 import com.idega.core.file.business.ICFileSystem;
 import com.idega.core.file.data.ICFile;
 
+
 /**
  * 
- *  Last modified: $Date: 2004/11/29 16:16:45 $ by $Author: aron $
+ *  Last modified: $Date: 2004/12/15 16:02:36 $ by $Author: palli $
  * 
- * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.1 $
+ * @author <a href="mailto:palli@idega.com">palli</a>
+ * @version $Revision: 1.2 $
  */
 public interface SlideFileSystem extends IBOService, ICFileSystem {
-    /**
-     * @see com.idega.slide.business.SlideFileSystemBean#initialize
-     */
-    public void initialize() throws RemoteException;
 
-    /**
-     * @see com.idega.slide.business.SlideFileSystemBean#getFileURI
-     */
-    public String getFileURI(ICFile file) throws RemoteException;
+	/**
+	 * @see com.idega.slide.business.SlideFileSystemBean#getFileIconURI
+	 */
+	public String getFileIconURI(ICFile file) throws RemoteException;
 
-    /**
-     * @see com.idega.slide.business.SlideFileSystemBean#getFileURI
-     */
-    public String getFileURI(int fileId) throws RemoteException;
-    
+	/**
+	 * @see com.idega.slide.business.SlideFileSystemBean#getIconURIByMimeType
+	 */
+	public String getIconURIByMimeType(String mimeType) throws RemoteException;
 
+	/**
+	 * @see com.idega.slide.business.SlideFileSystemBean#initialize
+	 */
+	public void initialize() throws RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.SlideFileSystemBean#getFileURI
+	 */
+	public String getFileURI(ICFile file) throws RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.SlideFileSystemBean#getFileURI
+	 */
+	public String getFileURI(int fileId) throws RemoteException;
 }

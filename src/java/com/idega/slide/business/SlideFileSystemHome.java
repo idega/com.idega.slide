@@ -1,6 +1,6 @@
 /*
- * $Id: SlideFileSystemHome.java,v 1.1 2004/11/29 16:16:45 aron Exp $
- * Created on 22.11.2004
+ * $Id: SlideFileSystemHome.java,v 1.2 2004/12/15 16:02:36 palli Exp $
+ * Created on Dec 15, 2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
  *
@@ -9,19 +9,17 @@
  */
 package com.idega.slide.business;
 
-
-
 import com.idega.business.IBOHome;
+
 
 /**
  * 
- *  Last modified: $Date: 2004/11/29 16:16:45 $ by $Author: aron $
+ *  Last modified: $Date: 2004/12/15 16:02:36 $ by $Author: palli $
  * 
- * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.1 $
+ * @author <a href="mailto:palli@idega.com">palli</a>
+ * @version $Revision: 1.2 $
  */
 public interface SlideFileSystemHome extends IBOHome {
-    public SlideFileSystem create() throws javax.ejb.CreateException,
-            java.rmi.RemoteException;
 
+	public SlideFileSystem create() throws javax.ejb.CreateException, java.rmi.RemoteException;
 }
