@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticator.java,v 1.2 2004/12/13 16:56:43 joakim Exp $
+ * $Id: IWSlideAuthenticator.java,v 1.3 2004/12/15 17:52:46 gummi Exp $
  * Created on 8.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -29,10 +29,10 @@ import com.idega.presentation.IWContext;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/13 16:56:43 $ by $Author: joakim $
+ *  Last modified: $Date: 2004/12/15 17:52:46 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class IWSlideAuthenticator implements Filter {
 
@@ -85,7 +85,7 @@ public class IWSlideAuthenticator implements Filter {
 				updateRolesForUser(iwc, lInfo);
 			} else {
 				String[] loginAndPassword = getLoginBusiness(iwc).getLoginNameAndPasswordFromBasicAuthenticationRequest(iwc);
-				String loggedInUser = (String)iwc.getSessionAttribute(SLIDE_USER_PRINCIPAL_ATTRIBUTE_NAME);
+				String loggedInUser = getUserAuthenticatedBySlide(iwc);
 				if(loginAndPassword != null){
 					String username = loginAndPassword[0];
 					String password = loginAndPassword[1];
@@ -99,6 +99,7 @@ public class IWSlideAuthenticator implements Filter {
 								request = new IWSlideAuthenticatedRequest(request,username,lInfo.getUserRoles());
 								updateRolesForUser(iwc,lInfo);
 							}
+							setAsAuthenticatiedInSlide(iwc,username);
 						} else {
 							setAsUnauthenticatedInSlide(iwc);
 						}
@@ -111,6 +112,7 @@ public class IWSlideAuthenticator implements Filter {
 								request = new IWSlideAuthenticatedRequest(request,username,lInfo.getUserRoles());
 								updateRolesForUser(iwc,lInfo);
 							}
+							setAsAuthenticatiedInSlide(iwc,username);
 						} else {
 							setAsUnauthenticatedInSlide(iwc);
 						}
@@ -140,9 +142,21 @@ public class IWSlideAuthenticator implements Filter {
 	
 	/**
 	 * @param iwc
+	 * @return
+	 */
+	private String getUserAuthenticatedBySlide(IWContext iwc) {
+		return (String)iwc.getSessionAttribute(SLIDE_USER_PRINCIPAL_ATTRIBUTE_NAME);
+	}
+
+	/**
+	 * @param iwc
 	 */
 	private void setAsUnauthenticatedInSlide(IWContext iwc) {
 		iwc.removeSessionAttribute(SLIDE_USER_PRINCIPAL_ATTRIBUTE_NAME);
+	}
+	
+	private void setAsAuthenticatiedInSlide(IWContext iwc,String loginName){
+		iwc.setSessionAttribute(SLIDE_USER_PRINCIPAL_ATTRIBUTE_NAME,loginName);
 	}
 
 	/**
