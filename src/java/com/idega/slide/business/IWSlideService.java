@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideService.java,v 1.16 2005/02/23 15:49:51 gummi Exp $
+ * $Id: IWSlideService.java,v 1.17 2005/03/10 14:25:17 gummi Exp $
  * Created on 21.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -22,10 +22,10 @@ import com.idega.business.IBOService;
 
 /**
  * 
- *  Last modified: $Date: 2005/02/23 15:49:51 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/03/10 14:25:17 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.16 $
+ * @version $Revision: 1.17 $
  */
 public interface IWSlideService extends IBOService {
 
@@ -119,5 +119,5 @@ public interface IWSlideService extends IBOService {
 	
 	public String createUniqueFileName(String scope);
 	
-	public Security getSecurity();
+	public Security getSecurityHelper();
 }

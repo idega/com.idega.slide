@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.23 2005/03/07 15:37:31 joakim Exp $
+ * $Id: IWSlideServiceBean.java,v 1.24 2005/03/10 14:25:17 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -19,8 +19,9 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.slide.security.ACLSecurityImpl;
+import org.apache.slide.common.NamespaceAccessToken;
 import org.apache.slide.security.Security;
+import org.apache.slide.webdav.WebdavServlet;
 import org.apache.webdav.lib.Ace;
 import org.apache.webdav.lib.Privilege;
 import org.apache.webdav.lib.WebdavFile;
@@ -42,10 +43,10 @@ import com.idega.util.IWTimestamp;
 
 /**
  * 
- *  Last modified: $Date: 2005/03/07 15:37:31 $ by $Author: joakim $
+ *  Last modified: $Date: 2005/03/10 14:25:17 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.23 $
+ * @version $Revision: 1.24 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -67,7 +68,7 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 	protected Map lastUniqueFileNameScopeMap = new HashMap();
 	protected String lastGlobalUniqueFileName = null;
 	
-	private ACLSecurityImpl security = null;
+	private Security security = null;
 		
 	public IWSlideServiceBean() {
 		super();
@@ -475,9 +476,10 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 	}
 	
 	
-	public Security getSecurity(){
+	public Security getSecurityHelper(){
 		if(security == null){
-			//initialize it
+			NamespaceAccessToken token = (NamespaceAccessToken)getIWApplicationContext().getApplicationAttribute(WebdavServlet.ATTRIBUTE_NAME);
+			security = token.getSecurityHelper();
 		}
 		return security;
 	}

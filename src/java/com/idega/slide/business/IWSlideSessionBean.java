@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.23 2005/02/25 16:39:37 gummi Exp $
+ * $Id: IWSlideSessionBean.java,v 1.24 2005/03/10 14:25:17 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -41,10 +41,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2005/02/25 16:39:37 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/03/10 14:25:17 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.23 $
+ * @version $Revision: 1.24 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -329,20 +329,30 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	
 	
 	private Security getSecurity(){
-		return getIWSlideService().getSecurity();
+		return getIWSlideService().getSecurityHelper();
 	}
 	
 	
-	public boolean hasPermission(String resourcePath, Privilege privilege) throws ObjectNotFoundException, ServiceAccessException{
-		return getSecurity().hasPermission(getSlideToken(),getObjectNode(resourcePath),getActionNode(privilege));
+	public boolean hasPermission(String resourcePath, Privilege privilege) throws RemoteException {
+		try {
+			boolean hasPermission = getSecurity().hasPermission(getSlideToken(),getObjectNode(resourcePath),getActionNode(privilege));
+			return hasPermission;
+		}
+		catch (ObjectNotFoundException e) {
+			e.printStackTrace();
+		}
+		catch (ServiceAccessException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	/**
 	 * @param resourcePath
 	 * @return
 	 */
-	private LinkNode getObjectNode(String resourcePath) {
-		return new LinkNode(resourcePath);
+	private LinkNode getObjectNode(String resourcePath) throws RemoteException {
+		return new LinkNode(getPath(resourcePath));
 	}
 
 	/**
@@ -351,9 +361,9 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	 */
 	private ActionNode getActionNode(Privilege privilege) {
 		
-		String path = IWSlideConstants.PATH_ACTIONS+privilege.getName();
+		String path = IWSlideConstants.PATH_ACTIONS+"/"+privilege.getName();
 		
-		return new ActionNode(path);
+		return ActionNode.getActionNode(path);
 	}
 	
 }
