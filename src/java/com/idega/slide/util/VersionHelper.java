@@ -59,20 +59,8 @@ public class VersionHelper {
 
 	public static final int DEFAULT_LOCK_TIMEOUT = 86400;
 
-	/**
-	 * An expensive method, you should rather create a WebdavExtendedResource and use its getVersionName method
-	 * @param resource
-	 * @return
-	 */
-	public static String getLatestVersion(WebdavResource resource) {
-		List list = getAllVersions(resource);
-		if (!list.isEmpty()) {
-			return list.get(0).toString();
-		}	else {
-			return null;
-		}
-	}
-
+	public static final String CHECKED_OUT_PREFIX = "Checked-out by : ";
+	
 	/**
 	 * 
 	 * @param resource
@@ -150,20 +138,34 @@ public class VersionHelper {
 		return success;
 	}
 
-	public static boolean checkOut(WebdavResource resource) {
+	public static boolean checkOut(WebdavResource resource, String performer) {
 		boolean success = false;
 		if (resource == null) {
 			return false;
 		}
 		try {
 			success = resource.checkoutMethod();
-			resource.proppatchMethod(new PropertyName("DAV:", "comment"), "Checked-out by : " + resource.getOwner(),
-					true);
+			resource.proppatchMethod(new PropertyName("DAV:", "comment"), CHECKED_OUT_PREFIX + performer,	true);
 		}
 		catch (IOException e) {
 			e.printStackTrace();
 		}
 		return success;
+	}
+	
+	public static boolean hasUserCheckedOutResource(WebdavExtendedResource resource, String userName) {
+		if (userName != null && !"".equalsIgnoreCase(userName)) {
+			return userName.equals(getCheckedOutName(resource));
+		}
+		return false;
+	}
+	
+	/**
+	 * 
+	 * @return Returns the name of the user that checked out the resource
+	 */
+	public static String getCheckedOutName(WebdavExtendedResource resource) {
+		return resource.getComment().replaceFirst(CHECKED_OUT_PREFIX, "");
 	}
 
 	public static boolean unCheckOut(WebdavResource resource) {
