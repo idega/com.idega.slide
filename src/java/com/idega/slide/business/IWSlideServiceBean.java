@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.17 2005/02/03 10:33:16 joakim Exp $
+ * $Id: IWSlideServiceBean.java,v 1.18 2005/02/14 14:55:14 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -12,6 +12,8 @@ package com.idega.slide.business;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
@@ -32,14 +34,15 @@ import com.idega.presentation.IWContext;
 import com.idega.slide.authentication.AuthenticationBusiness;
 import com.idega.slide.schema.SlideSchemaCreator;
 import com.idega.slide.util.WebdavRootResource;
+import com.idega.util.IWTimestamp;
 
 
 /**
  * 
- *  Last modified: $Date: 2005/02/03 10:33:16 $ by $Author: joakim $
+ *  Last modified: $Date: 2005/02/14 14:55:14 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.17 $
+ * @version $Revision: 1.18 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -57,6 +60,9 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 	protected static final String FOLDER_NAME_PUBLIC = "/public";
 	protected static final String FOLDER_NAME_SHARED = "/shared";
 	protected static final String FOLDER_NAME_DROPBOX = "/dropbox";
+	
+	protected Map lastUniqueFileNameScopeMap = new HashMap();
+	protected String lastGlobalUniqueFileName = null;
 	
 //	private static Credentials guestCredentials = new UsernamePasswordCredentials("guest","guest");
 	
@@ -211,6 +217,11 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 	
 	public String getURI(String path) throws RemoteException{
 		return getWebdavServerURI()+((path.startsWith(SLASH))?"":SLASH)+path;
+	}
+	
+	public String getPath(String uri) throws RemoteException{
+		String uriPrefix = getWebdavServerURI();
+		return ((uri.startsWith(uriPrefix))?uri.substring(uriPrefix.length()):uri);
 	}
 	
 	public boolean getExistence(String path) throws HttpException, IOException{
@@ -424,6 +435,36 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 	 */
 	public String getUserHomeFolderPath(String loginName) {
 		return PATH_USERS_HOME_FOLDERS+SLASH+loginName;
+	}
+	
+	/**
+	* @param scope This parameter can be null and then the file name will be unique over the whole web.  If one needs unique name within a module or a folder one can set some (unique) string as a scope parameter
+	**/
+	public synchronized String createUniqueFileName(String scope){
+		IWTimestamp timestamp = new IWTimestamp();
+		String minuteString = "yyyyMMdd-HHmm";
+		String name = timestamp.getDateString(minuteString);
+		String lastName = null;
+		if(scope != null && !"".equals(scope)){
+			lastName = (String)lastUniqueFileNameScopeMap.get(scope);
+		} else {
+			lastName = lastGlobalUniqueFileName;
+		}
+		
+		if(!(lastName==null || !lastName.startsWith(name))){
+			if(lastName.length()==minuteString.length()){
+				name += "-0";
+			} else {
+				String counter = lastName.substring(minuteString.length());
+				name += "-"+(Integer.parseInt(counter)+1);
+			}
+		}
+		
+		if(scope!=null){
+			lastUniqueFileNameScopeMap.put(scope,name);
+		}
+		lastGlobalUniqueFileName = name;
+		return name;
 	}
 	
 }
