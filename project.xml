@@ -4,6 +4,7 @@
   <artifactId>com.idega.slide</artifactId>
   <name>com.idega.slide</name>
   <groupId>com.idega.slide</groupId>
+  <currentVersion>0.1-SNAPSHOT</currentVersion>  
   <organization>
     <name>Idega Software</name>
     <url>www.idega.com</url>
