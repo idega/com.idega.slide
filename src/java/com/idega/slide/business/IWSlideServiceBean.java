@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.4 2004/11/15 14:07:06 aron Exp $
+ * $Id: IWSlideServiceBean.java,v 1.5 2004/11/16 00:08:29 tryggvil Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -11,24 +11,23 @@ package com.idega.slide.business;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
-
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.URIException;
 import org.apache.webdav.lib.WebdavFile;
-
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBORuntimeException;
 import com.idega.business.IBOServiceBean;
 import com.idega.slide.schema.SlideSchemaCreator;
+import com.idega.user.data.User;
 
 
 /**
  * 
- *  Last modified: $Date: 2004/11/15 14:07:06 $ by $Author: aron $
+ *  Last modified: $Date: 2004/11/16 00:08:29 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -47,11 +46,15 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 	}
 	
 	
+	public HttpURL getWebdavServerURL(){
+		return getWebdavServerURL(null);
+	}
+	
 	/**
-	 * Gets the root url for the webdav server without any authentication
+	 * Gets the root url for the webdav server with authentication
 	 * @return
 	 */
-	public HttpURL getWebdavServerURL(){
+	public HttpURL getWebdavServerURL(User user){
 	    
 	    try {
 	       String server = getIWApplicationContext().getDomain().getServerName();
@@ -60,29 +63,40 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 		           server = server.substring(0,server.lastIndexOf("/"));
 		       server += getWebdavServletURL();
 		       HttpURL hrl = new HttpURL(server);
-	            //hrl.setUserinfo("root","root");
-	            //hrl.setUserInfo("user","pass");
+			   if(user!=null){
+			   		//TODO: Implement real user authorization, now hardcoded as root
+			       	hrl.setUserinfo("root","root");
+			       	//hrl.setUserInfo("user","pass");
+			       }
 	            return hrl;
 	       }
 	       return null;
-           
         } catch (URIException e) {
            throw new IBORuntimeException(e);
         }
 	}
+
+	/**
+	 * Gets the root resource for the webdav server with authentication
+	 * @return
+	 */
+	public WebdavFile getWebdavFile(User user){
+	    try {
+            return new WebdavFile(getWebdavServerURL(user));
+        } catch (HttpException e) {
+            throw new IBORuntimeException(e);
+        } catch (IOException e) {
+            throw new IBORuntimeException(e);
+        }
+	}
+	
 	
 	/**
 	 * Gets the root resource for the webdav server without any authentication
 	 * @return
 	 */
 	public WebdavFile getWebdavFile(){
-	    try {
-            return new WebdavFile(getWebdavServerURL());
-        } catch (HttpException e) {
-            throw new IBORuntimeException(e);
-        } catch (IOException e) {
-            throw new IBORuntimeException(e);
-        }
+	    return getWebdavFile(null);
 	}
 	
 	
