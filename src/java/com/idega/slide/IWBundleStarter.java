@@ -1,5 +1,5 @@
 /*
- * $Id: IWBundleStarter.java,v 1.4 2004/12/13 11:59:24 gummi Exp $
+ * $Id: IWBundleStarter.java,v 1.5 2004/12/22 16:51:45 eiki Exp $
  * Created on 15.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -19,10 +19,10 @@ import com.idega.slide.business.IWSlideService;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/13 11:59:24 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/22 16:51:45 $ by $Author: eiki $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class IWBundleStarter implements IWBundleStartable {
 
@@ -33,7 +33,7 @@ public class IWBundleStarter implements IWBundleStartable {
     	
 //    		System.out.println("[System.property]:java.security.auth.login.config="+starterBundle.getPropertiesRealPath()+ FileUtil.getFileSeparator()+"jaas.config");
 //		System.setProperty("java.security.auth.login.config",starterBundle.getPropertiesRealPath()+ FileUtil.getFileSeparator()+"jaas.config");
-		System.setProperty("file.encoding","UTF-8");
+	//	System.setProperty("file.encoding","UTF-8");
         
         IWApplicationContext iwac = starterBundle.getApplication().getIWApplicationContext();
         try {
