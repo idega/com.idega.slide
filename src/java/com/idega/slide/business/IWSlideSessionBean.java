@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.9 2004/12/14 15:19:54 gummi Exp $
+ * $Id: IWSlideSessionBean.java,v 1.10 2004/12/14 17:24:10 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -27,10 +27,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/14 15:19:54 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/14 17:24:10 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -94,10 +94,10 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		return service;
 	}
 	
-	public String getWebdavServletURL(){
+	public String getWebdavServerURI(){
 		if(servletPath == null){
 			try {
-				servletPath = getIWSlideService().getWebdavServletURL();
+				servletPath = getIWSlideService().getWebdavServerURI();
 			}
 			catch (RemoteException e) {
 				e.printStackTrace();
@@ -163,6 +163,17 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		}
 		
 		return resource;
+	}
+	
+	public String getApplicationServerRelativePath(String path) throws RemoteException{
+		return getWebdavServerURI()+((path.startsWith("/"))?"":"/")+path;
+	}
+	
+	public boolean getExistence(String path) throws HttpException, IOException{
+		if(path==null){
+			return false;
+		}
+		return getWebdavRootResource().headMethod(((path.startsWith(getWebdavServerURI()))?path:getApplicationServerRelativePath(path)));
 	}
 
 	

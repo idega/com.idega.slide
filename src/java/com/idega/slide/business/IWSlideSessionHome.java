@@ -1,6 +1,6 @@
 /*
- * $Id: IWSlideSessionHome.java,v 1.2 2004/11/12 16:44:46 aron Exp $
- * Created on 12.11.2004
+ * $Id: IWSlideSessionHome.java,v 1.3 2004/12/14 17:24:10 gummi Exp $
+ * Created on 14.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
  *
@@ -9,20 +9,17 @@
  */
 package com.idega.slide.business;
 
-
-
-
 import com.idega.business.IBOHome;
+
 
 /**
  * 
- *  Last modified: $Date: 2004/11/12 16:44:46 $ by $Author: aron $
+ *  Last modified: $Date: 2004/12/14 17:24:10 $ by $Author: gummi $
  * 
- * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.2 $
+ * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
+ * @version $Revision: 1.3 $
  */
 public interface IWSlideSessionHome extends IBOHome {
-    public IWSlideSession create() throws javax.ejb.CreateException,
-            java.rmi.RemoteException;
 
+	public IWSlideSession create() throws javax.ejb.CreateException, java.rmi.RemoteException;
 }

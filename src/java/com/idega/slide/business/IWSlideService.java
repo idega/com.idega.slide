@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideService.java,v 1.9 2004/12/14 13:55:22 gummi Exp $
+ * $Id: IWSlideService.java,v 1.10 2004/12/14 17:24:10 gummi Exp $
  * Created on 14.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -10,6 +10,7 @@
 package com.idega.slide.business;
 
 import java.io.IOException;
+import java.rmi.RemoteException;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
@@ -20,17 +21,17 @@ import com.idega.business.IBOService;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/14 13:55:22 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/14 17:24:10 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  */
 public interface IWSlideService extends IBOService {
 
 	/**
-	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavServletURL
+	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavServerURI
 	 */
-	public String getWebdavServletURL() throws java.rmi.RemoteException;
+	public String getWebdavServerURI() throws java.rmi.RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavServerURL
@@ -90,4 +91,14 @@ public interface IWSlideService extends IBOService {
 	 */
 	public WebdavResource getWebdavResourceAuthenticatedAsRoot() throws HttpException, IOException,
 			java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#getApplicationServerRelativePath
+	 */
+	public String getApplicationServerRelativePath(String path) throws RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#getExistence
+	 */
+	public boolean getExistence(String path) throws HttpException, IOException, java.rmi.RemoteException;
 }

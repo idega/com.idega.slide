@@ -1,5 +1,5 @@
 /*
- * $Id: SlideFileSystemBean.java,v 1.1 2004/11/29 16:16:45 aron Exp $
+ * $Id: SlideFileSystemBean.java,v 1.2 2004/12/14 17:24:10 gummi Exp $
  * Created on 22.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -27,10 +27,10 @@ import com.idega.slide.data.SlideFileHome;
  *  Abstracts users from using the Slide API making it easier to change
  *  repository implementation. 
  * 
- *  Last modified: $Date: 2004/11/29 16:16:45 $ by $Author: aron $
+ *  Last modified: $Date: 2004/12/14 17:24:10 $ by $Author: gummi $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class SlideFileSystemBean extends IBOServiceBean implements ICFileSystem , SlideFileSystem{
 
@@ -46,7 +46,7 @@ public class SlideFileSystemBean extends IBOServiceBean implements ICFileSystem 
      */
     public String getFileURI(ICFile file) throws RemoteException {
         if(file instanceof SlideFile) {
-            return getSlideService().getWebdavServletURL()+((SlideFile)file).getExternalURL();
+            return getSlideService().getWebdavServerURI()+((SlideFile)file).getExternalURL();
         }
         return null;
     }

@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.10 2004/12/14 13:55:22 gummi Exp $
+ * $Id: IWSlideServiceBean.java,v 1.11 2004/12/14 17:24:10 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -10,6 +10,7 @@
 package com.idega.slide.business;
 
 import java.io.IOException;
+import java.rmi.RemoteException;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.URIException;
@@ -23,10 +24,10 @@ import com.idega.slide.schema.SlideSchemaCreator;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/14 13:55:22 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/14 17:24:10 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -40,7 +41,7 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 		super();
 	}
 	
-	public String getWebdavServletURL(){
+	public String getWebdavServerURI(){
 		String appContext = getIWMainApplication().getApplicationContextURI();
 		if (appContext.endsWith("/")){
 			appContext = appContext.substring(0, appContext.lastIndexOf("/"));			
@@ -85,7 +86,7 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 		       		server = server.substring(0,server.indexOf(":"));
 		       }
 
-		       String rootPath = getWebdavServletURL();
+		       String rootPath = getWebdavServerURI();
 		       String realPath = rootPath;
 		       if(path!=null){
 		       		realPath = rootPath+path;
@@ -179,6 +180,17 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 	 */
 	public WebdavResource getWebdavResourceAuthenticatedAsRoot() throws HttpException, IOException{
 		return getWebdavResourceAuthenticatedAsRoot(null);
+	}
+	
+	public String getApplicationServerRelativePath(String path) throws RemoteException{
+		return getWebdavServerURI()+((path.startsWith("/"))?"":"/")+path;
+	}
+	
+	public boolean getExistence(String path) throws HttpException, IOException{
+		if(path==null){
+			return false;
+		}
+		return getWebdavResourceAuthenticatedAsRoot().headMethod(((path.startsWith(getWebdavServerURI()))?path:getApplicationServerRelativePath(path)));
 	}
 
 }

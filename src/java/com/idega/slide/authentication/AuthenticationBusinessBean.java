@@ -1,5 +1,5 @@
 /*
- * $Id: AuthenticationBusinessBean.java,v 1.1 2004/12/13 13:12:32 gummi Exp $
+ * $Id: AuthenticationBusinessBean.java,v 1.2 2004/12/14 17:24:11 gummi Exp $
  * Created on 9.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -29,10 +29,10 @@ import com.idega.slide.business.IWSlideService;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/13 13:12:32 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/14 17:24:11 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class AuthenticationBusinessBean extends IBOServiceBean  implements AuthenticationBusiness{
 	
@@ -56,7 +56,7 @@ public class AuthenticationBusinessBean extends IBOServiceBean  implements Authe
 	
 	public String getUserURI(String userName) throws RemoteException{
 		IWSlideService service = getSlideServiceInstance();
-		return service.getWebdavServletURL()+getUserPath(userName);
+		return service.getWebdavServerURI()+getUserPath(userName);
 	}
 	
 	public String getUserPath(String userName) throws RemoteException{
@@ -65,7 +65,7 @@ public class AuthenticationBusinessBean extends IBOServiceBean  implements Authe
 	
 	public String getGroupURI(String groupName) throws RemoteException{
 		IWSlideService service = getSlideServiceInstance();
-		return service.getWebdavServletURL()+getGroupPath(groupName);
+		return service.getWebdavServerURI()+getGroupPath(groupName);
 	}
 	
 	public String getGroupPath(String groupName) throws RemoteException{
@@ -74,7 +74,7 @@ public class AuthenticationBusinessBean extends IBOServiceBean  implements Authe
 	
 	public String getRoleURI(String roleName) throws RemoteException{
 		IWSlideService service = getSlideServiceInstance();
-		return service.getWebdavServletURL()+getRolePath(roleName);
+		return service.getWebdavServerURI()+getRolePath(roleName);
 	}
 	
 	public String getRolePath(String roleName) throws RemoteException{

@@ -1,6 +1,6 @@
 /*
- * $Id: IWSlideSession.java,v 1.6 2004/12/14 11:58:52 gummi Exp $
- * Created on 12.11.2004
+ * $Id: IWSlideSession.java,v 1.7 2004/12/14 17:24:10 gummi Exp $
+ * Created on 14.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
  *
@@ -13,55 +13,68 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import javax.servlet.http.HttpSessionBindingEvent;
 import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.webdav.lib.WebdavResource;
 import com.idega.business.IBOSession;
 import com.idega.slide.util.WebdavRootResource;
 
+
 /**
  * 
- *  Last modified: $Date: 2004/12/14 11:58:52 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/14 17:24:10 $ by $Author: gummi $
  * 
- * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.6 $
+ * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
+ * @version $Revision: 1.7 $
  */
 public interface IWSlideSession extends IBOSession {
-    /**
-     * @see com.idega.slide.business.IWSlideSessionBean#valueBound
-     */
-    public void valueBound(HttpSessionBindingEvent arg0)
-            throws java.rmi.RemoteException;
 
-    /**
-     * @see com.idega.slide.business.IWSlideSessionBean#valueUnbound
-     */
-    public void valueUnbound(HttpSessionBindingEvent arg0)
-            throws java.rmi.RemoteException;
+	/**
+	 * @see com.idega.slide.business.IWSlideSessionBean#valueBound
+	 */
+	public void valueBound(HttpSessionBindingEvent arg0) throws java.rmi.RemoteException;
 
-    /**
-     * @see com.idega.slide.business.IWSlideSessionBean#getIWSlideService
-     */
-    public IWSlideService getIWSlideService() throws java.rmi.RemoteException;
+	/**
+	 * @see com.idega.slide.business.IWSlideSessionBean#valueUnbound
+	 */
+	public void valueUnbound(HttpSessionBindingEvent arg0) throws java.rmi.RemoteException;
 
-    /**
-     * @see com.idega.slide.business.IWSlideSessionBean#getWebdavServletURL
-     */
-    public String getWebdavServletURL() throws java.rmi.RemoteException;
+	/**
+	 * @see com.idega.slide.business.IWSlideSessionBean#getIWSlideService
+	 */
+	public IWSlideService getIWSlideService() throws java.rmi.RemoteException;
 
-    /**
-     * @see com.idega.slide.business.IWSlideSessionBean#getWebdavResource
-     */
-    public WebdavRootResource getWebdavRootResource() throws HttpException,
-            IOException, java.rmi.RemoteException;
+	/**
+	 * @see com.idega.slide.business.IWSlideSessionBean#getWebdavServerURI
+	 */
+	public String getWebdavServerURI() throws java.rmi.RemoteException;
 
-    /**
-     * @see com.idega.slide.business.IWSlideSessionBean#getWebdavResource
-     */
-    public WebdavResource getWebdavResource(String path) throws HttpException,
-            IOException, RemoteException;
+	/**
+	 * @see com.idega.slide.business.IWSlideSessionBean#getUserCredentials
+	 */
+	public UsernamePasswordCredentials getUserCredentials() throws java.rmi.RemoteException;
 
-    /**
-     * @see com.idega.slide.business.IWSlideSessionBean#close
-     */
-    public void close() throws java.rmi.RemoteException;
+	/**
+	 * @see com.idega.slide.business.IWSlideSessionBean#getWebdavRootResource
+	 */
+	public WebdavRootResource getWebdavRootResource() throws HttpException, IOException, java.rmi.RemoteException;
 
+	/**
+	 * @see com.idega.slide.business.IWSlideSessionBean#getWebdavResource
+	 */
+	public WebdavResource getWebdavResource(String path) throws HttpException, IOException, RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideSessionBean#getApplicationServerRelativePath
+	 */
+	public String getApplicationServerRelativePath(String path) throws RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideSessionBean#getExistence
+	 */
+	public boolean getExistence(String path) throws HttpException, IOException, java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideSessionBean#close
+	 */
+	public void close() throws java.rmi.RemoteException;
 }
