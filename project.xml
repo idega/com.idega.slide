@@ -5,7 +5,7 @@
   <artifactId>com.idega.slide</artifactId>
   <name>idegaWeb Slide</name>
   <groupId>bundles</groupId>
-  <currentVersion>0.2-SNAPSHOT</currentVersion>
+  <currentVersion>0.2.0</currentVersion>
   <organization>
     <name>Idega Software</name>
     <url>www.idega.com</url>
@@ -13,6 +13,14 @@
   <inceptionYear>2004</inceptionYear>
   <package>com.idega.slide</package>
   <shortDescription>Idega bridge for the org.apache.slide project</shortDescription>
+  <issueTrackingUrl>http://issues.idega.is</issueTrackingUrl>
+  <versions>
+      <version>
+      <id>0.2.0</id>
+      <name>0.2.0</name>
+      <tag>SLIDE_0_2_0</tag>
+    </version>
+  </versions>
     <developers>
         <developer>
             <id>tryggvil</id>
@@ -37,6 +45,39 @@
         </developer>
   </developers>
   <dependencies>
+   <dependency>
+      <groupId>bundles</groupId>
+      <artifactId>com.idega.core</artifactId>
+      <version>3.0.0</version>
+      <!-- <version>SNAPSHOT</version> -->
+      <type>jar</type>
+      <url>http://www.idega.com/</url>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>bundles</groupId>
+      <artifactId>com.idega.block.login</artifactId>
+      <version>1.1.0</version>
+      <!--<version>SNAPSHOT</version>-->
+      <type>jar</type>
+      <url>http://www.idega.com/</url>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>bundles</groupId>
+      <artifactId>org.apache.slide</artifactId>
+      <version>2.2pre1.iwbuild3</version>
+      <type>jar</type>
+      <url>http://www.idega.com/</url>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
+    </dependency>
+    
     <dependency>
       <groupId>commons-transaction</groupId>
       <artifactId>commons-transaction</artifactId>
@@ -59,26 +100,7 @@
       <type>jar</type>
       <url>http://jakarta.apache.org/commons/httpclient/</url>
     </dependency>
-    <dependency>
-      <groupId>bundles</groupId>
-      <artifactId>com.idega.core</artifactId>
-      <version>SNAPSHOT</version>
-      <type>jar</type>
-      <url>http://www.idega.com/</url>
-      <properties>
-        <eclipse.dependency>true</eclipse.dependency>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>bundles</groupId>
-      <artifactId>org.apache.slide</artifactId>
-      <version>SNAPSHOT</version>
-      <type>jar</type>
-      <url>http://www.idega.com/</url>
-      <properties>
-        <eclipse.dependency>true</eclipse.dependency>
-      </properties>
-    </dependency>
+ 
     <dependency>
       <groupId>slide</groupId>
       <artifactId>jakarta-slide-webdavlib</artifactId>
@@ -141,16 +163,6 @@
       <version>1.0-M1</version>
       <type>jar</type>
       <url>http://geronimo.apache.org/</url>
-    </dependency>
-    <dependency>
-      <groupId>bundles</groupId>
-      <artifactId>com.idega.block.login</artifactId>
-      <version>SNAPSHOT</version>
-      <type>jar</type>
-      <url>http://www.idega.com/</url>
-      <properties>
-        <eclipse.dependency>true</eclipse.dependency>
-      </properties>
     </dependency>
   </dependencies>
 </project>
