@@ -1,5 +1,5 @@
 /*
- * $Id: IWBundleStarter.java,v 1.5 2004/12/22 16:51:45 eiki Exp $
+ * $Id: IWBundleStarter.java,v 1.6 2005/01/28 11:11:56 thomas Exp $
  * Created on 15.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -16,13 +16,14 @@ import com.idega.idegaweb.IWApplicationContext;
 import com.idega.idegaweb.IWBundle;
 import com.idega.idegaweb.IWBundleStartable;
 import com.idega.slide.business.IWSlideService;
+import com.idega.slide.util.DirtyUnloader;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/22 16:51:45 $ by $Author: eiki $
+ *  Last modified: $Date: 2005/01/28 11:11:56 $ by $Author: thomas $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public class IWBundleStarter implements IWBundleStartable {
 
@@ -52,7 +53,7 @@ public class IWBundleStarter implements IWBundleStartable {
      * @see com.idega.idegaweb.IWBundleStartable#stop(com.idega.idegaweb.IWBundle)
      */
     public void stop(IWBundle starterBundle) {
-        
-
+    	DirtyUnloader unloader = new DirtyUnloader();
+    	unloader.unload();
     }
 }
