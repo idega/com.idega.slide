@@ -35,6 +35,7 @@ public class WebdavExtendedResource extends WebdavResource {
 	private String checkedOut;
 	private String versionName;
 	private String comment;
+	private String parentPath;
 	
 	public WebdavExtendedResource(String urlStr, Credentials cred, boolean followRedirects) throws IOException {
 		super(urlStr, cred, followRedirects);
@@ -49,6 +50,22 @@ public class WebdavExtendedResource extends WebdavResource {
 		super(url);
 	}
 
+	public String getParentPath() {
+		if (parentPath == null) {
+			if (path != null) {
+				int index = path.lastIndexOf("/");
+				if (index == 0) {
+					parentPath = "";
+				} else {
+					parentPath = path.substring(0, index);
+				}
+			} else {
+				return null;
+			}
+		}
+		return parentPath;
+	}
+	
 	/**
 	 * 
 	 * Create a new WebdavResource object (as a seperate method so that it can
