@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideConstants.java,v 1.4 2005/03/06 17:47:38 gummi Exp $
+ * $Id: IWSlideConstants.java,v 1.5 2005/03/09 14:39:43 eiki Exp $
  * Created on 27.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -21,10 +21,10 @@ import org.apache.webdav.lib.properties.CheckedoutProperty;
 
 /**
  * 
- *  Last modified: $Date: 2005/03/06 17:47:38 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/03/09 14:39:43 $ by $Author: eiki $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class IWSlideConstants {
 	
@@ -87,7 +87,7 @@ public class IWSlideConstants {
 	public static final PropertyName PROPERTY_VERSION_NAME = new PropertyName("DAV:", PROPERTYNAME_VERSION_NAME);
 	public static final PropertyName PROPERTY_VERSION_TREE = new PropertyName("DAV:", PROPERTYNAME_VERSION_NAME);
 	public static final PropertyName PROPERTY_LATEST_ACTIVITY_VERSION = new PropertyName("DAV:", PROPERTYNAME_LATEST_ACTIVITY_VERSION);
-	public static final PropertyName PROPERTY_CREATOR_DISPLAY_NAME = new PropertyName("DAV:", PROPERTYNAME_LATEST_ACTIVITY_VERSION);
+	public static final PropertyName PROPERTY_CREATOR_DISPLAY_NAME = new PropertyName("DAV:", PROPERTYNAME_CREATOR_DISPLAY_NAME);
 	public static final PropertyName PROPERTY_CHECKED_OUT_SET = new PropertyName("DAV:", PROPERTYNAME_CHECKED_OUT_SET);
 	public static final PropertyName PROPERTY_CHECKED_OUT = new PropertyName("DAV:", PROPERTYNAME_CHECKED_OUT);
 	public static final PropertyName PROPERTY_CHECKED_IN = new PropertyName("DAV:", PROPERTYNAME_CHECKED_IN);
