@@ -1,6 +1,6 @@
 /*
- * $Id: IWSlideService.java,v 1.1 2004/11/01 10:42:18 gummi Exp $
- * Created on 23.10.2004
+ * $Id: IWSlideService.java,v 1.2 2004/11/12 16:30:36 aron Exp $
+ * Created on 5.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
  *
@@ -9,25 +9,43 @@
  */
 package com.idega.slide.business;
 
-import com.idega.business.IBOService;
 
+import org.apache.commons.httpclient.HttpURL;
+import org.apache.webdav.lib.WebdavFile;
+import org.apache.webdav.lib.WebdavResource;
+
+import com.idega.business.IBOService;
+import com.idega.idegaweb.IWUserContext;
 
 /**
  * 
- *  Last modified: $Date: 2004/11/01 10:42:18 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/11/12 16:30:36 $ by $Author: aron $
  * 
- * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.1 $
+ * @author <a href="mailto:aron@idega.com">aron</a>
+ * @version $Revision: 1.2 $
  */
 public interface IWSlideService extends IBOService {
+    /**
+     * @see com.idega.slide.business.IWSlideServiceBean#getWebdavServletURL
+     */
+    public String getWebdavServletURL() throws java.rmi.RemoteException;
 
-	/**
-	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavServletURL
-	 */
-	public String getWebdavServletURL() throws java.rmi.RemoteException;
+    /**
+     * @see com.idega.slide.business.IWSlideServiceBean#getWebdavServerURL
+     */
+    public HttpURL getWebdavServerURL(IWUserContext iwuc)
+            throws java.rmi.RemoteException;
 
-//	/**
-//	 * @see com.idega.slide.business.IWSlideServiceBean#getGuestCredentials
-//	 */
-//	public Credentials getGuestCredentials() throws java.rmi.RemoteException;
+    /**
+     * @see com.idega.slide.business.IWSlideServiceBean#getWebdavResource
+     */
+    public WebdavResource getWebdavResource(IWUserContext iwuc)
+            throws java.rmi.RemoteException;
+
+    /**
+     * @see com.idega.slide.business.IWSlideServiceBean#getWebdavFile
+     */
+    public WebdavFile getWebdavFile(IWUserContext iwuc)
+            throws java.rmi.RemoteException;
+
 }
