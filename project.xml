@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <pomVersion>1</pomVersion>
+  <artifactId>com.idega.slide</artifactId>
   <name>com.idega.slide</name>
+  <groupId>com.idega.slide</groupId>
   <organization>
     <name>Idega Software</name>
     <url>www.idega.com</url>
@@ -12,10 +14,83 @@
   <dependencies>
     <dependency>
       <groupId>bundles</groupId>
-      <artifactId>org.apache.slide</artifactId>
+      <artifactId>com.idega.core</artifactId>
       <version>SNAPSHOT</version>
-      <type>iwbar</type>
-      <url>http://www.idega.com</url>
+      <type>jar</type>
+      <url>http://www.idega.com/</url>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>slide</groupId>
+      <artifactId>jakarta-slide-webdavlib</artifactId>
+      <version>2.1b2</version>
+      <type>jar</type>
+      <url>http://jakarta.apache.org/slide/</url>
+    </dependency>
+    <dependency>
+      <groupId>slide</groupId>
+      <artifactId>slide-jaas</artifactId>
+      <version>2.1b2</version>
+      <type>jar</type>
+      <url>http://jakarta.apache.org/slide/</url>
+    </dependency>
+    <dependency>
+      <groupId>slide</groupId>
+      <artifactId>slide-jdk14logger</artifactId>
+      <version>2.1b2</version>
+      <type>jar</type>
+      <url>http://jakarta.apache.org/slide/</url>
+    </dependency>
+    <dependency>
+      <groupId>slide</groupId>
+      <artifactId>slide-kernel</artifactId>
+      <version>2.1b2</version>
+      <type>jar</type>
+      <url>http://jakarta.apache.org/slide/</url>
+    </dependency>
+    <dependency>
+      <groupId>slide</groupId>
+      <artifactId>slide-log4jlogger</artifactId>
+      <version>2.1b2</version>
+      <type>jar</type>
+      <url>http://jakarta.apache.org/slide/</url>
+    </dependency>
+    <dependency>
+      <groupId>slide</groupId>
+      <artifactId>slide-roles</artifactId>
+      <version>2.1b2</version>
+      <type>jar</type>
+      <url>http://jakarta.apache.org/slide/</url>
+    </dependency>
+    <dependency>
+      <groupId>slide</groupId>
+      <artifactId>slide-stores</artifactId>
+      <version>2.1b2</version>
+      <type>jar</type>
+      <url>http://jakarta.apache.org/slide/</url>
+    </dependency>
+    <dependency>
+      <groupId>slide</groupId>
+      <artifactId>slide-webdavservlet</artifactId>
+      <version>2.1b2</version>
+      <type>jar</type>
+      <url>http://jakarta.apache.org/slide/</url>
+    </dependency>
+    <dependency>
+      <groupId>commons-transaction</groupId>
+      <artifactId>commons-transaction</artifactId>
+      <version>20040805</version>
+      <type>jar</type>
+      <url>http://jakarta.apache.org/commons/sandbox/transaction/</url>
+    </dependency>
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-jta</artifactId>
+      <version>1.0-M1</version>
+      <type>jar</type>
+      <url>http://geronimo.apache.org/</url>
     </dependency>
   </dependencies>
   <build>
