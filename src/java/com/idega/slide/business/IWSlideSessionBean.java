@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.14 2004/12/29 11:32:16 gimmi Exp $
+ * $Id: IWSlideSessionBean.java,v 1.15 2004/12/31 03:33:07 gimmi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -29,10 +29,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/29 11:32:16 $ by $Author: gimmi $
+ *  Last modified: $Date: 2004/12/31 03:33:07 $ by $Author: gimmi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.14 $
+ * @version $Revision: 1.15 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -109,7 +109,10 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	}
 	
 	public String getUserFolderName() {
-		return getUserCredentials().getUserName();
+		if (getUserCredentials() != null) {
+			return getUserCredentials().getUserName();
+		}
+		return null;
 	}
 	
 	public String getWebdavServerURI(){
@@ -207,6 +210,12 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		}	
 	}
 	
+	public String getUserHomeFolder() {
+		if (getUserFolderName() != null) {
+			return getIWSlideService().getUserHomeFolderPath(getUserFolderName());
+		}
+		return null;
+	}
     /**
      * Returns a SlideToken using the authentication information of the IW login system
      *

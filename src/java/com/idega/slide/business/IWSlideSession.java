@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSession.java,v 1.10 2004/12/29 11:32:16 gimmi Exp $
+ * $Id: IWSlideSession.java,v 1.11 2004/12/31 03:33:07 gimmi Exp $
  * Created on 28.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -22,10 +22,10 @@ import com.idega.slide.util.WebdavRootResource;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/29 11:32:16 $ by $Author: gimmi $
+ *  Last modified: $Date: 2004/12/31 03:33:07 $ by $Author: gimmi $
  * 
  * @author <a href="mailto:gimmi@idega.com">gimmi</a>
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  */
 public interface IWSlideSession extends IBOSession {
 
@@ -98,4 +98,6 @@ public interface IWSlideSession extends IBOSession {
 	 * @see com.idega.slide.business.IWSlideSessionBean#setSlideToken
 	 */
 	public void setSlideToken(SlideToken slideToken) throws java.rmi.RemoteException;
+	public String getUserHomeFolder();
+
 }
