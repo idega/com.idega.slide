@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticator.java,v 1.6 2005/01/07 18:57:28 gummi Exp $
+ * $Id: IWSlideAuthenticator.java,v 1.7 2005/01/07 19:01:29 gummi Exp $
  * Created on 8.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -12,7 +12,6 @@ package com.idega.slide.authentication;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Collections;
-import java.util.Enumeration;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -22,22 +21,20 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.slide.webdav.util.WebdavUtils;
 import com.idega.business.IBOLookup;
 import com.idega.business.IBOLookupException;
 import com.idega.core.accesscontrol.business.LoggedOnInfo;
 import com.idega.core.accesscontrol.business.LoginBusinessBean;
 import com.idega.presentation.IWContext;
 import com.idega.slide.business.IWSlideService;
-import com.idega.slide.business.IWSlideSession;
 
 
 /**
  * 
- *  Last modified: $Date: 2005/01/07 18:57:28 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/01/07 19:01:29 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 public class IWSlideAuthenticator implements Filter {
 
