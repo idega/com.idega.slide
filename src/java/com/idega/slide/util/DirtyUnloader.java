@@ -6,9 +6,11 @@
  */
 package com.idega.slide.util;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.Timer;
 import org.apache.slide.common.Domain;
+import org.apache.slide.util.logger.Logger;
 import org.apache.slide.webdav.event.NotificationTrigger;
 
 
@@ -25,8 +27,16 @@ import org.apache.slide.webdav.event.NotificationTrigger;
  */
 public class DirtyUnloader {
 	
+	public void reset()	{
+		System.out.println("["+DirtyUnloader.class.getName()+"] Reset NotificationTrigger");
+		// is this class already loaded?
+		resetNotificationTrigger();
+	}
+		
 	public void unload()	{
+		System.out.println("["+DirtyUnloader.class.getName()+"] Unload NotificationTrigger");
 		unloadNotificationTrigger();
+		System.out.println("["+ DirtyUnloader.class.getName()+"] Unload Domain");
 		unloadDomain();
 	}
 	
@@ -39,6 +49,13 @@ public class DirtyUnloader {
 		cancelAndUnloadTimerOfNotificationTrigger();
 		// destroy static instance
 		unloadInstanceOfNotificationTrigger();
+	}
+	
+	private void resetNotificationTrigger() {
+		// first cancel Timer
+		resetInstanceOfNotificationTrigger();
+		// destroy static instance
+		resetTimerOfNotificationTrigger();
 	}
 	
 	/** The Domain, once initialized, can never initialized again. 
@@ -77,7 +94,19 @@ public class DirtyUnloader {
 			timerField.set(null, null);
 		}
 		catch (Exception ex) {
-			System.err.println("[DirtyUnloader] Could not unload timer of NotificationTrigger");
+			System.out.println("[DirtyUnloader] Could not unload timer of NotificationTrigger");
+		}
+	}
+
+	private void resetTimerOfNotificationTrigger() {
+		try {
+			Field timerField = NotificationTrigger.class.getDeclaredField("timer");
+			timerField.setAccessible(true);
+			Timer timer = new Timer();
+			timerField.set(null, timer);
+		}
+		catch (Exception ex) {
+			System.out.println("[DirtyUnloader] Could not reset timer of NotificationTrigger");
 		}
 	}
 
@@ -89,7 +118,30 @@ public class DirtyUnloader {
 			instanceField.set(null, null);
 		}
 		catch (Exception ex) {
-			System.err.println("[DirtyUnloader] Could not unload instance of NotificationTrigger");
+			System.out.println("[DirtyUnloader] Could not unload instance of NotificationTrigger");
+		}
+	}
+	
+	private void resetInstanceOfNotificationTrigger()	{
+		try {
+			// before invoking set Logger of the Domain class (the logger is used by NotificationTrigger)
+            Logger logger = new org.apache.slide.util.logger.SimpleLogger();
+            logger.setLoggerLevel(Logger.INFO);
+			Field embeddedDomainField = Domain.class.getDeclaredField("logger");
+			embeddedDomainField.setAccessible(true);
+			embeddedDomainField.set(null, logger);
+			// invoke the default (private) constructor
+			Class clazz = NotificationTrigger.class;
+			Constructor[] constructors = clazz.getDeclaredConstructors();
+			Constructor constructor = constructors[0];
+			constructor.setAccessible(true);
+			NotificationTrigger trigger = (NotificationTrigger) constructor.newInstance(null);
+			Field instanceField = NotificationTrigger.class.getDeclaredField("notificationTrigger");
+			instanceField.setAccessible(true);
+			instanceField.set(null, trigger);
+		}
+		catch (Exception ex) {
+			System.out.println("[DirtyUnloader] Could not reload NotificationTrigger");
 		}
 	}
 
