@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.7 2004/11/17 11:44:42 roar Exp $
+ * $Id: IWSlideServiceBean.java,v 1.8 2004/11/18 10:36:39 tryggvil Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -24,10 +24,10 @@ import com.idega.user.data.User;
 
 /**
  * 
- *  Last modified: $Date: 2004/11/17 11:44:42 $ by $Author: roar $
+ *  Last modified: $Date: 2004/11/18 10:36:39 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -49,24 +49,53 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 		return appContext+WEBDAV_SERVLET_URI;
 	}
 	
+	/**
+	 * Gets the URL from with a path in the filesystem (e.g.) /files/content
+	 * @param path
+	 * @return
+	 */
+	public HttpURL getWebdavServerURL(String path){
+		return getWebdavServerURL(null,path);
+	}
 	
 	public HttpURL getWebdavServerURL(){
-		return getWebdavServerURL(null);
+		return getWebdavServerURL(null,null);
+	}
+	
+	public HttpURL getWebdavServerURL(User user){
+		return getWebdavServerURL(user,null);
 	}
 	
 	/**
 	 * Gets the root url for the webdav server with authentication
 	 * @return
 	 */
-	public HttpURL getWebdavServerURL(User user){
+	public HttpURL getWebdavServerURL(User user,String path){
 	    
 	    try {
 	       String server = getIWApplicationContext().getDomain().getServerName();
 	       if(server!=null){
+	       		int port = 80;
 		       if(server.endsWith("/"))
 		           server = server.substring(0,server.lastIndexOf("/"));
-		       server += getWebdavServletURL();
-		       HttpURL hrl = new HttpURL(server);
+		       if(server.startsWith("http://"))
+		       		server = server.substring(7,server.length());
+		       if(server.indexOf(":")!=-1){
+		       		String sPort = server.substring(server.indexOf(":")+1,server.length());
+		       		port = Integer.parseInt(sPort);
+		       		server = server.substring(0,server.indexOf(":"));
+		       }
+
+		       String rootPath = getWebdavServletURL();
+		       String realPath = rootPath;
+		       if(path!=null){
+		       		realPath = rootPath+path;
+		       }
+		       
+		       //server += getWebdavServletURL();
+		       HttpURL hrl = new HttpURL(server,port,realPath);
+		       
+		       
 			   if(user!=null){
 			       //TODO: Implement real user authorization, now hardcoded as root
 			       hrl.setUserinfo("root","root");
