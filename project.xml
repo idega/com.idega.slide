@@ -13,6 +13,29 @@
   <inceptionYear>2004</inceptionYear>
   <package>com.idega.slide</package>
   <shortDescription>Idega bridge for the org.apache.slide project</shortDescription>
+    <developers>
+        <developer>
+            <id>tryggvil</id>
+            <name>Tryggvi Larusson</name>
+            <email>tryggvi@idega.is</email>
+            <organization>idega software</organization>
+            <roles/>
+        </developer>
+        <developer>
+            <id>gummi</id>
+            <name>Gudmundur Saemundsson</name>
+            <email>gummi@idega.is</email>
+            <organization>idega software</organization>
+            <roles/>
+        </developer>
+        <developer>
+            <id>eiki</id>
+            <name>Eirikur Hrafnsson</name>
+            <email>eiki@idega.is</email>
+            <organization>idega software</organization>
+            <roles/>
+        </developer>
+  </developers>
   <dependencies>
     <dependency>
       <groupId>commons-transaction</groupId>
