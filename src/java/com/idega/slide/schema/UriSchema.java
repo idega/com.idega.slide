@@ -4,7 +4,7 @@
  * TODO To change the template for this generated file go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-package com.idega.slide.entity;
+package com.idega.slide.schema;
 
 
 /**
@@ -13,7 +13,7 @@ package com.idega.slide.entity;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class UriEntity extends SlideSchema {
+public class UriSchema extends SlideSchema {
 	/*
 	 
 	 CREATE TABLE "URI" (
@@ -25,7 +25,7 @@ public class UriEntity extends SlideSchema {
 	 
 	 */
 
-	public UriEntity(){
+	public UriSchema(){
 		super();
 		SlideSchemaColumn uriID = new SlideSchemaColumn(this);
 		uriID.setDataTypeClass(Integer.class);

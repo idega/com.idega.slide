@@ -1,4 +1,4 @@
-package com.idega.slide.entity;
+package com.idega.slide.schema;
 
 import com.idega.util.dbschema.SQLSchemaAdapter;
 import com.idega.util.dbschema.SQLSchemaCreator;
@@ -6,7 +6,7 @@ import com.idega.util.dbschema.SQLSchemaCreator;
 /**
  * 
  * 
- *  Last modified: $Date: 2004/11/01 10:06:46 $ by $Author: aron $
+ *  Last modified: $Date: 2004/11/05 08:44:59 $ by $Author: aron $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
  * @version $Revision: 1.1 $
@@ -18,7 +18,7 @@ public class SlideSchemaCreator {
 		SQLSchemaAdapter dsi = SQLSchemaAdapter.getInstance(dataStoreType);
 		SQLSchemaCreator tableCreator = dsi.getTableCreator();
 		
-		tableCreator.generateSchema(new UriEntity());
+		tableCreator.generateSchema(new UriSchema());
 		tableCreator.generateSchema(new ObjectSchema());
 		tableCreator.generateSchema(new BindingSchema());
 		tableCreator.generateSchema(new ParentBindingSchema());

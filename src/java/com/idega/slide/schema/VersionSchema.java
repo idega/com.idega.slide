@@ -1,9 +1,9 @@
-package com.idega.slide.entity;
+package com.idega.slide.schema;
 
 /**
  * 
  * 
- *  Last modified: $Date: 2004/11/01 10:06:46 $ by $Author: aron $
+ *  Last modified: $Date: 2004/11/05 08:44:59 $ by $Author: aron $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
  * @version $Revision: 1.1 $
@@ -27,7 +27,7 @@ public class VersionSchema extends SlideSchema {
 		uriID.setSQLFieldName("URI_ID");
 		uriID.setNullAllowed(false);
 		uriID.setPartOfPrimaryKey(true);
-		uriID.setOneToManyEntity(new UriEntity());
+		uriID.setOneToManyEntity(new UriSchema());
 		
 		SlideSchemaColumn isVersioned = new SlideSchemaColumn(this);
 		isVersioned.setDataTypeClass(Integer.class);

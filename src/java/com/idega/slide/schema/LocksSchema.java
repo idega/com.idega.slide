@@ -1,9 +1,9 @@
-package com.idega.slide.entity;
+package com.idega.slide.schema;
 
 /**
  * 
  * 
- *  Last modified: $Date: 2004/11/01 10:06:46 $ by $Author: aron $
+ *  Last modified: $Date: 2004/11/05 08:44:59 $ by $Author: aron $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
  * @version $Revision: 1.1 $
@@ -32,7 +32,7 @@ public class LocksSchema extends SlideSchema {
 	public LocksSchema(){
 		super();
 		
-		UriEntity uriEntity = new UriEntity();
+		UriSchema uriEntity = new UriSchema();
 		
 		SlideSchemaColumn lockID = new SlideSchemaColumn(this);
 		lockID.setDataTypeClass(Integer.class);
