@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticator.java,v 1.8 2005/02/23 15:49:51 gummi Exp $
+ * $Id: IWSlideAuthenticator.java,v 1.9 2005/03/06 17:46:21 gummi Exp $
  * Created on 8.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -33,10 +33,10 @@ import com.idega.slide.business.IWSlideSession;
 
 /**
  * 
- *  Last modified: $Date: 2005/02/23 15:49:51 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/03/06 17:46:21 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public class IWSlideAuthenticator implements Filter {
 
@@ -131,8 +131,9 @@ public class IWSlideAuthenticator implements Filter {
 			}
 			updateRolesForUser(iwc, lInfo);
 		} else {
-			if(getAuthenticationBusiness(iwc).isRootUser(iwc)){
-				iwc.setRequest(new IWSlideAuthenticatedRequest(iwc.getRequest(),loginName,Collections.singleton("root")));
+			String rootUserName = getAuthenticationBusiness(iwc).getRootUserCredentials().getUserName();
+			if(loginName.equals(rootUserName)){
+				iwc.setRequest(new IWSlideAuthenticatedRequest(iwc.getRequest(),loginName,Collections.singleton(rootUserName)));
 			} else {
 				iwc.setRequest(new IWSlideAuthenticatedRequest(iwc.getRequest(),loginName,lInfo.getUserRoles()));
 				updateRolesForUser(iwc,lInfo);

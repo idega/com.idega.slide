@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideConstants.java,v 1.3 2005/02/23 15:47:22 gummi Exp $
+ * $Id: IWSlideConstants.java,v 1.4 2005/03/06 17:47:38 gummi Exp $
  * Created on 27.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -21,10 +21,10 @@ import org.apache.webdav.lib.properties.CheckedoutProperty;
 
 /**
  * 
- *  Last modified: $Date: 2005/02/23 15:47:22 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/03/06 17:47:38 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class IWSlideConstants {
 	
@@ -79,7 +79,7 @@ public class IWSlideConstants {
 	public static final String PROPERTYNAME_CREATION_DATE = WebdavResource.CREATIONDATE;
 	public static final String PROPERTYNAME_COMMENT = "comment";
 	//NON-STANDARD
-	public static final String PROPERTYNAME_CATEGORY = "category";
+	public static final String PROPERTYNAME_CATEGORY = "categories";
 	
 	public static final PropertyName PROPERTY_DISPLAY_NAME = new PropertyName("DAV:", PROPERTYNAME_DISPLAY_NAME);
 	public static final PropertyName PROPERTY_PREDECESSOR_SET = new PropertyName("DAV:", PROPERTYNAME_PREDECESSOR_SET);
