@@ -3,7 +3,7 @@
   <pomVersion>1</pomVersion>
   <extend>${base.project.dir}/block-dependencies.xml</extend>
   <artifactId>com.idega.slide</artifactId>
-  <name>com.idega.slide</name>
+  <name>idegaWeb Slide</name>
   <groupId>bundles</groupId>
   <currentVersion>0.1-SNAPSHOT</currentVersion>  
   <organization>
