@@ -19,10 +19,10 @@ import org.apache.slide.util.logger.Logger;
 
 /**
  * 
- * Last modified: $Date: 2004/11/01 10:07:53 $ by $Author: aron $
+ * Last modified: $Date: 2004/12/28 03:08:46 $ by $Author: eiki $
  * 
  * @author <a href="mailto:aron@idega.com">aron </a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class HsqlRDBMSAdapter extends StandardRDBMSAdapter {
 
@@ -68,7 +68,7 @@ public class HsqlRDBMSAdapter extends StandardRDBMSAdapter {
             // the object is removed???
             try {
                 statement = connection
-                        .prepareStatement("delete from VERSION_HISTORY  where URI_ID in (select URI_ID from URI where URI_STRING = ?");
+                        .prepareStatement("delete from VERSION_HISTORY  where URI_ID in (select URI_ID from URI where URI_STRING = ? )");
                 statement.setString(1, uri.toString());
                 statement.executeUpdate();
             } finally {
@@ -77,7 +77,7 @@ public class HsqlRDBMSAdapter extends StandardRDBMSAdapter {
             // delete version
             try {
                 statement = connection
-                        .prepareStatement("delete from VERSION where URI_ID in (select URI_ID from URI where URI_STRING = ?");
+                        .prepareStatement("delete from VERSION where URI_ID in (select URI_ID from URI where URI_STRING = ? )");
                 statement.setString(1, uri.toString());
                 statement.executeUpdate();
             } finally {
@@ -86,7 +86,7 @@ public class HsqlRDBMSAdapter extends StandardRDBMSAdapter {
             // delete the object itself
             try {
                 statement = connection
-                        .prepareStatement("delete from OBJECT where URI_ID in (select URI_ID from URI where URI_STRING = ?");
+                        .prepareStatement("delete from OBJECT where URI_ID in (select URI_ID from URI where URI_STRING = ?)");
                 statement.setString(1, uri.toString());
                 statement.executeUpdate();
             } finally {
