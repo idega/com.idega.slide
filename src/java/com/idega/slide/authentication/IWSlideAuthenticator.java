@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticator.java,v 1.9 2005/03/06 17:46:21 gummi Exp $
+ * $Id: IWSlideAuthenticator.java,v 1.10 2005/03/10 14:17:05 gummi Exp $
  * Created on 8.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -33,10 +33,10 @@ import com.idega.slide.business.IWSlideSession;
 
 /**
  * 
- *  Last modified: $Date: 2005/03/06 17:46:21 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/03/10 14:17:05 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  */
 public class IWSlideAuthenticator implements Filter {
 
@@ -125,11 +125,18 @@ public class IWSlideAuthenticator implements Filter {
 	}
 	
 	private void setAsAuthenticatedInSlide(IWContext iwc,String loginName, LoggedOnInfo lInfo) throws HttpException, RemoteException, IOException{
-		if(iwc.isLoggedOn()){
-			if(iwc.getUserPrincipal()==null && lInfo != null){
-				iwc.setRequest(new IWSlideAuthenticatedRequest(iwc.getRequest(),loginName,lInfo.getUserRoles()));
+		String slidePrincipal = loginName;
+		if(iwc.isLoggedOn()){	
+			if(iwc.isSuperAdmin()){
+				String rootUserName = getAuthenticationBusiness(iwc).getRootUserCredentials().getUserName();
+				iwc.setRequest(new IWSlideAuthenticatedRequest(iwc.getRequest(),rootUserName,Collections.singleton(rootUserName)));
+				slidePrincipal=rootUserName;
+			} else {
+				if(iwc.getUserPrincipal()==null && lInfo != null){
+					iwc.setRequest(new IWSlideAuthenticatedRequest(iwc.getRequest(),loginName,lInfo.getUserRoles()));
+				}
+				updateRolesForUser(iwc, lInfo);
 			}
-			updateRolesForUser(iwc, lInfo);
 		} else {
 			String rootUserName = getAuthenticationBusiness(iwc).getRootUserCredentials().getUserName();
 			if(loginName.equals(rootUserName)){
@@ -139,7 +146,7 @@ public class IWSlideAuthenticator implements Filter {
 				updateRolesForUser(iwc,lInfo);
 			}
 		}
-		iwc.setSessionAttribute(SLIDE_USER_PRINCIPAL_ATTRIBUTE_NAME,loginName);
+		iwc.setSessionAttribute(SLIDE_USER_PRINCIPAL_ATTRIBUTE_NAME,slidePrincipal);
 	}
 
 	/**
