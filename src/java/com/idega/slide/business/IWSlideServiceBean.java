@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.18 2005/02/14 14:55:14 gummi Exp $
+ * $Id: IWSlideServiceBean.java,v 1.19 2005/02/15 13:40:00 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -39,10 +39,10 @@ import com.idega.util.IWTimestamp;
 
 /**
  * 
- *  Last modified: $Date: 2005/02/14 14:55:14 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/02/15 13:40:00 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.18 $
+ * @version $Revision: 1.19 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -453,9 +453,9 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 		
 		if(!(lastName==null || !lastName.startsWith(name))){
 			if(lastName.length()==minuteString.length()){
-				name += "-0";
+				name += "-1";
 			} else {
-				String counter = lastName.substring(minuteString.length());
+				String counter = lastName.substring(minuteString.length()+1);
 				name += "-"+(Integer.parseInt(counter)+1);
 			}
 		}
