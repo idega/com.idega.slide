@@ -1,5 +1,5 @@
 /*
- * $Id: AuthenticationBusinessBean.java,v 1.2 2004/12/14 17:24:11 gummi Exp $
+ * $Id: AuthenticationBusinessBean.java,v 1.3 2004/12/14 21:11:50 gummi Exp $
  * Created on 9.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -29,10 +29,10 @@ import com.idega.slide.business.IWSlideService;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/14 17:24:11 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/14 21:11:50 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class AuthenticationBusinessBean extends IBOServiceBean  implements AuthenticationBusiness{
 	
@@ -95,25 +95,12 @@ public class AuthenticationBusinessBean extends IBOServiceBean  implements Authe
 			IWSlideService service = getSlideServiceInstance();
 			UsernamePasswordCredentials rCredentials = service.getRootUserCredentials();
 			
-			WebdavResource user;
-//			try {
-				//'WebdavResource.NOACTION, 0' is a fix to get around http 404 exception, caused by propfind method execution, if resource does not extist.
-				user = new WebdavResource(service.getWebdavServerURL(rCredentials,getUserPath(userLoginName)), WebdavResource.NOACTION, 0);
-				if(!user.exists()){
-					user.mkcolMethod();
-					user.close();
-				}
-//			}
-//			catch (HttpException e1) {
-//				if(e1.getReasonCode() == 404){
-//					user = new WebdavResource(service.getWebdavServerURL(rCredentials,getUserPath("")));
-//					user.putMethod(getUserPath(userLoginName),"");
-//					user.mkcolMethod(userLoginName);
-//					user.close();
-//				} else {
-//					throw e1;
-//				}
-//			}
+
+			if(!service.getExistence(getUserPath(userLoginName))){
+				WebdavResource user = new WebdavResource(service.getWebdavServerURL(rCredentials,getUserPath(userLoginName)), WebdavResource.NOACTION, 0);
+				user.mkcolMethod();
+				user.close();
+			}
 			
 			Set newRoles = new HashSet(roleNamesForUser);
 			Enumeration e = getAllRoles(rCredentials).getResources();
@@ -127,14 +114,13 @@ public class AuthenticationBusinessBean extends IBOServiceBean  implements Authe
 			//Add Roles that don't exist
 			for (Iterator iter = newRoles.iterator(); iter.hasNext();) {
 				String sRole = (String) iter.next();
-				//'WebdavResource.NOACTION, 0' is a fix to get around http 404 exception, caused by propfind method execution, if resource does not extist.				
-				WebdavResource newRole = new WebdavResource(service.getWebdavServerURL(rCredentials,getRolePath(sRole)), WebdavResource.NOACTION, 0);
-				if(!newRole.exists()){
+
+				if(!service.getExistence(getRolePath(sRole))){
+					WebdavResource newRole = new WebdavResource(service.getWebdavServerURL(rCredentials,getRolePath(sRole)), WebdavResource.NOACTION, 0);
 					newRole.mkcolMethod();
+					updateRoleMembershipForUser(newRole,userURI,roleNamesForUser, loginNamesOfAllLoggedOnUsers);
 					newRole.close();
 				}
-//				newRole.proppatchMethod(GROUP_MEMBER_SET_PROPERTY_NAME,newGroupMemberSet,true);
-				updateRoleMembershipForUser(newRole,userURI,roleNamesForUser, loginNamesOfAllLoggedOnUsers);
 			}			
 		}
 	}
