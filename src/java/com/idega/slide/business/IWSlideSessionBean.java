@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.7 2004/12/14 11:58:52 gummi Exp $
+ * $Id: IWSlideSessionBean.java,v 1.8 2004/12/14 13:55:22 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -27,10 +27,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/14 11:58:52 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/14 13:55:22 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -125,7 +125,8 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	 */
 	public WebdavRootResource getWebdavRootResource() throws HttpException, IOException{
 		boolean tmpIsLoggedOn = getUserContext().isLoggedOn();
-		if(webdavRootResource != null && isLoggedOn != tmpIsLoggedOn || (tmpIsLoggedOn && usersCredentials != null && !(usersCredentials).getUserName().equals(LoginBusinessBean.getLoggedOnInfo(getUserContext()).getLogin()))){
+		//if("resource is null" && ("has logged on/off" || ("is logged on" && "has some usersCredentials" && "the credential does not match his current login, that is he has logged in as some other user")))
+		if(webdavRootResource != null && (isLoggedOn != tmpIsLoggedOn || (tmpIsLoggedOn && usersCredentials != null && !(usersCredentials).getUserName().equals(getUserContext().getRemoteUser())))){
 			webdavRootResource.close();
 			webdavRootResource = null;
 			usersCredentials = null;

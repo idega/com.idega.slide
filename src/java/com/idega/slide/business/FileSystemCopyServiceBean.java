@@ -1,5 +1,5 @@
 /*
- * $Id: FileSystemCopyServiceBean.java,v 1.4 2004/11/30 15:35:50 aron Exp $
+ * $Id: FileSystemCopyServiceBean.java,v 1.5 2004/12/14 13:55:22 gummi Exp $
  * Created on 2.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -42,10 +42,10 @@ import com.idega.util.database.ConnectionBroker;
 
 /**
  * 
- *  Last modified: $Date: 2004/11/30 15:35:50 $ by $Author: aron $
+ *  Last modified: $Date: 2004/12/14 13:55:22 $ by $Author: gummi $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSystemCopyService{
     
@@ -296,9 +296,9 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
         //System.out.println("connect " + uri);
         try {
           //httpURL = uriToHttpURL(uri);
-          httpURL.setUserinfo("root","root");
+//          httpURL.setUserinfo("root","root");
         if (webdavResource == null) {
-            webdavResource = new WebdavResource(httpURL);
+            webdavResource = getService().getWebdavResourceAuthenticatedAsRoot();
             //webdavResource.setDebug(Integer.MAX_VALUE);
             
             // is not a collection?
@@ -310,7 +310,8 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
             
         } else {
             webdavResource.close();
-            webdavResource.setHttpURL(httpURL);
+//            webdavResource.setHttpURL(httpURL);
+            webdavResource = getService().getWebdavResourceAuthenticatedAsRoot();
         }
         setPath(webdavResource.getPath()+"/files");
         }
@@ -579,8 +580,9 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
     }
     
     
-    public WebdavResource getResource(String path)throws Exception{
-        return new WebdavResource(path);
+    protected WebdavResource getResource(String path)throws Exception{
+    		IWSlideService service = getService();
+        return service.getWebdavResourceAuthenticatedAsRoot(path);
     }
     
     public IWSlideService getService(){

@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.9 2004/12/13 13:12:32 gummi Exp $
+ * $Id: IWSlideServiceBean.java,v 1.10 2004/12/14 13:55:22 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -15,6 +15,7 @@ import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.webdav.lib.WebdavFile;
+import org.apache.webdav.lib.WebdavResource;
 import com.idega.business.IBORuntimeException;
 import com.idega.business.IBOServiceBean;
 import com.idega.slide.schema.SlideSchemaCreator;
@@ -22,10 +23,10 @@ import com.idega.slide.schema.SlideSchemaCreator;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/13 13:12:32 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/14 13:55:22 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -163,6 +164,21 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	
+	/**
+	 * Returns the WebdavResource at path "/" and authenticated as root
+	 */
+	public WebdavResource getWebdavResourceAuthenticatedAsRoot(String path) throws HttpException, IOException{
+		return new WebdavResource(getWebdavServerURL(getRootUserCredentials(),path));
+	}
+	
+	/**
+	 * Returns the WebdavResource at the given path and authenticated as root
+	 */
+	public WebdavResource getWebdavResourceAuthenticatedAsRoot() throws HttpException, IOException{
+		return getWebdavResourceAuthenticatedAsRoot(null);
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * $Id: FileSystemCopyService.java,v 1.2 2004/11/30 15:35:50 aron Exp $
+ * $Id: FileSystemCopyService.java,v 1.3 2004/12/14 13:55:22 gummi Exp $
  * Created on 30.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -18,10 +18,10 @@ import com.idega.business.IBOService;
 
 /**
  * 
- *  Last modified: $Date: 2004/11/30 15:35:50 $ by $Author: aron $
+ *  Last modified: $Date: 2004/12/14 13:55:22 $ by $Author: gummi $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public interface FileSystemCopyService extends IBOService {
     /**
@@ -53,11 +53,6 @@ public interface FileSystemCopyService extends IBOService {
     public void createFolderIfNotExists(String folderPath)
             throws java.rmi.RemoteException;
 
-    /**
-     * @see com.idega.slide.business.FileSystemCopyServiceBean#getResource
-     */
-    public WebdavResource getResource(String path) throws Exception,
-            java.rmi.RemoteException;
 
     /**
      * @see com.idega.slide.business.FileSystemCopyServiceBean#getService

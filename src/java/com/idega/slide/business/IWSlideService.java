@@ -1,6 +1,6 @@
 /*
- * $Id: IWSlideService.java,v 1.8 2004/12/13 13:12:32 gummi Exp $
- * Created on 12.12.2004
+ * $Id: IWSlideService.java,v 1.9 2004/12/14 13:55:22 gummi Exp $
+ * Created on 14.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
  *
@@ -9,18 +9,21 @@
  */
 package com.idega.slide.business;
 
+import java.io.IOException;
+import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.webdav.lib.WebdavFile;
+import org.apache.webdav.lib.WebdavResource;
 import com.idega.business.IBOService;
 
 
 /**
  * 
- *  Last modified: $Date: 2004/12/13 13:12:32 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/14 13:55:22 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public interface IWSlideService extends IBOService {
 
@@ -75,4 +78,16 @@ public interface IWSlideService extends IBOService {
 	 * @see com.idega.slide.business.IWSlideServiceBean#createSlideSchemas
 	 */
 	public void createSlideSchemas() throws java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavResourceAuthenticatedAsRoot
+	 */
+	public WebdavResource getWebdavResourceAuthenticatedAsRoot(String path) throws HttpException, IOException,
+			java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavResourceAuthenticatedAsRoot
+	 */
+	public WebdavResource getWebdavResourceAuthenticatedAsRoot() throws HttpException, IOException,
+			java.rmi.RemoteException;
 }
