@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.20 2005/02/23 15:49:51 gummi Exp $
+ * $Id: IWSlideServiceBean.java,v 1.21 2005/02/24 14:12:52 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -41,10 +41,10 @@ import com.idega.util.IWTimestamp;
 
 /**
  * 
- *  Last modified: $Date: 2005/02/23 15:49:51 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/02/24 14:12:52 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.20 $
+ * @version $Revision: 1.21 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -225,7 +225,11 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 		}
 		String pathToCheck = ((path.startsWith(getWebdavServerURI()))?path:getURI(path));
 //		System.out.println("[IWSlideServiceBean]: getExistence("+path+")->headerMethod("+ pathToCheck+")");
-		return getWebdavResourceAuthenticatedAsRoot().headMethod(pathToCheck);
+		
+		Enumeration prop = getWebdavResourceAuthenticatedAsRoot().propfindMethod(pathToCheck, WebdavResource.DISPLAYNAME);
+		return !(prop == null || !prop.hasMoreElements());
+		
+//		return getWebdavResourceAuthenticatedAsRoot().headMethod(pathToCheck);
 	}
 
 	

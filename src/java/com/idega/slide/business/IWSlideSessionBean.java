@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.21 2005/02/23 15:49:51 gummi Exp $
+ * $Id: IWSlideSessionBean.java,v 1.22 2005/02/24 14:12:53 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -11,6 +11,7 @@ package com.idega.slide.business;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.util.Enumeration;
 import javax.servlet.http.HttpSessionBindingEvent;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
@@ -39,10 +40,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2005/02/23 15:49:51 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/02/24 14:12:53 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.21 $
+ * @version $Revision: 1.22 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -211,7 +212,10 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		if(path==null){
 			return false;
 		}
-		return getWebdavRootResource().headMethod(((path.startsWith(getWebdavServerURI()))?path:getURI(path)));
+		String pathToCheck = ((path.startsWith(getWebdavServerURI()))?path:getURI(path));
+		Enumeration prop = getWebdavRootResource().propfindMethod(pathToCheck, WebdavResource.DISPLAYNAME);
+		return !(prop == null || !prop.hasMoreElements());
+//		return getWebdavRootResource().headMethod(((path.startsWith(getWebdavServerURI()))?path:getURI(path)));
 	}
 
 	
