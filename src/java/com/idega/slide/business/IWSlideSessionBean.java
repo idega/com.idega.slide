@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.24 2005/03/10 14:25:17 gummi Exp $
+ * $Id: IWSlideSessionBean.java,v 1.25 2005/03/10 18:29:59 eiki Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -12,6 +12,7 @@ package com.idega.slide.business;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Enumeration;
+import java.util.StringTokenizer;
 import javax.servlet.http.HttpSessionBindingEvent;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
@@ -41,10 +42,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2005/03/10 14:25:17 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/03/10 18:29:59 $ by $Author: eiki $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.24 $
+ * @version $Revision: 1.25 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -366,4 +367,29 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		return ActionNode.getActionNode(path);
 	}
 	
+	/**
+	 * Creates all the folders in path 
+	 * @param path Path with all the folders to create. 
+	 * Should hold all the folders after Server URI (Typically /cms/content/)
+	 * @throws HttpException
+	 * @throws RemoteException
+	 * @throws IOException
+	 * @return true if it needed to create the folders
+	 */
+	public boolean createAllFoldersInPath(String path) throws HttpException, RemoteException, IOException {
+		boolean hadToCreate = false;
+		WebdavRootResource rootResource = getWebdavRootResource();
+		
+		hadToCreate = !getExistence(path);
+		if(hadToCreate){
+			StringBuffer createPath = new StringBuffer(getWebdavServerURI());
+			StringTokenizer st = new StringTokenizer(path,"/");
+			while(st.hasMoreTokens()) {
+				createPath.append("/").append(st.nextToken());
+				rootResource.mkcolMethod(createPath.toString());
+			}
+		}
+		return hadToCreate;
+		
+	}
 }
