@@ -1,5 +1,5 @@
 /*
- * $Id: SlideFileBMPBean.java,v 1.1 2004/11/29 16:13:51 aron Exp $
+ * $Id: SlideFileBMPBean.java,v 1.2 2005/03/08 14:46:52 laddi Exp $
  * Created on 29.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -9,17 +9,15 @@
  */
 package com.idega.slide.data;
 
-import java.io.InputStream;
-
 import com.idega.core.file.data.ICFile;
 import com.idega.core.file.data.ICFileBMPBean;
 
 /**
  * 
- *  Last modified: $Date: 2004/11/29 16:13:51 $ by $Author: aron $
+ *  Last modified: $Date: 2005/03/08 14:46:52 $ by $Author: laddi $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class SlideFileBMPBean extends ICFileBMPBean implements ICFile , SlideFile{
     

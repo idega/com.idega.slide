@@ -1,5 +1,5 @@
 /*
- * $Id: FileSystemCopyService.java,v 1.3 2004/12/14 13:55:22 gummi Exp $
+ * $Id: FileSystemCopyService.java,v 1.4 2005/03/08 14:47:19 laddi Exp $
  * Created on 30.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -10,18 +10,14 @@
 package com.idega.slide.business;
 
 import java.util.Collection;
-
-
-import org.apache.webdav.lib.WebdavResource;
-
 import com.idega.business.IBOService;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/14 13:55:22 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/03/08 14:47:19 $ by $Author: laddi $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public interface FileSystemCopyService extends IBOService {
     /**
