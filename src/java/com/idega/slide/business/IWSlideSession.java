@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSession.java,v 1.5 2004/12/14 11:44:58 gummi Exp $
+ * $Id: IWSlideSession.java,v 1.6 2004/12/14 11:58:52 gummi Exp $
  * Created on 12.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -15,14 +15,14 @@ import javax.servlet.http.HttpSessionBindingEvent;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.webdav.lib.WebdavResource;
 import com.idega.business.IBOSession;
-import com.idega.slide.utils.WebdavRootResource;
+import com.idega.slide.util.WebdavRootResource;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/14 11:44:58 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/14 11:58:52 $ by $Author: gummi $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public interface IWSlideSession extends IBOSession {
     /**
