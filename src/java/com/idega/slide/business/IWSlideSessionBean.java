@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.8 2004/12/14 13:55:22 gummi Exp $
+ * $Id: IWSlideSessionBean.java,v 1.9 2004/12/14 15:19:54 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -27,10 +27,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/14 13:55:22 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/14 15:19:54 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -157,7 +157,7 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	public WebdavResource getWebdavResource(String path) throws HttpException, IOException, RemoteException {
 		WebdavResource resource;
 		if(usersCredentials!=null){
-			resource = new WebdavResource(getIWSlideService().getWebdavServerURL(usersCredentials,path));
+			resource = new WebdavResource(getIWSlideService().getWebdavServerURL(getUserCredentials(),path));
 		} else {
 			resource = new WebdavResource(getIWSlideService().getWebdavServerURL(path));
 		}
