@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideConstants.java,v 1.1 2005/01/07 18:47:43 gummi Exp $
+ * $Id: IWSlideConstants.java,v 1.2 2005/02/14 14:49:32 gummi Exp $
  * Created on 27.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -13,14 +13,18 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.slide.structure.SubjectNode;
 import org.apache.webdav.lib.Privilege;
+import org.apache.webdav.lib.PropertyName;
+import org.apache.webdav.lib.WebdavResource;
+import org.apache.webdav.lib.properties.CheckedinProperty;
+import org.apache.webdav.lib.properties.CheckedoutProperty;
 
 
 /**
  * 
- *  Last modified: $Date: 2005/01/07 18:47:43 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/02/14 14:49:32 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class IWSlideConstants {
 	
@@ -53,5 +57,45 @@ public class IWSlideConstants {
 	public static final Privilege PRIVILEGE_READ_ACL = Privilege.READ_ACL;
 	public static final Privilege PRIVILEGE_WRITE = Privilege.WRITE;
 	public static final Privilege PRIVILEGE_WRITE_ACL = Privilege.WRITE_ACL;
+	
+	
+	
+	public static final String PROPERTYNAME_DISPLAY_NAME = "displayname";
+	public static final String PROPERTYNAME_PREDECESSOR_SET = "predecessor-set";
+	public static final String PROPERTYNAME_SUCCESSOR_SET = "successor-set";
+	public static final String PROPERTYNAME_VERSION_NAME = "version-name";
+	public static final String PROPERTYNAME_VERSION_TREE = "version-tree";
+	public static final String PROPERTYNAME_LATEST_ACTIVITY_VERSION = "latest-activity-version";
+	public static final String PROPERTYNAME_CREATOR_DISPLAY_NAME = "creator-displayname";
+	public static final String PROPERTYNAME_CHECKED_OUT_SET = "checkedout-set";
+	public static final String PROPERTYNAME_CHECKED_OUT = CheckedoutProperty.TAG_NAME;
+	public static final String PROPERTYNAME_CHECKED_IN = CheckedinProperty.TAG_NAME;
+	public static final String PROPERTYNAME_LOCK_DISCOVERY = "lockdiscovery";
+	public static final String PROPERTYNAME_RESOURCE_TYPE = "resourcetype";
+	public static final String PROPERTYNAME_CONTENT_TYPE = WebdavResource.GETCONTENTTYPE;
+	public static final String PROPERTYNAME_CONTENT_LENGTH = WebdavResource.GETCONTENTLENGTH;
+	public static final String PROPERTYNAME_LAST_MODIFIED = WebdavResource.GETLASTMODIFIED;
+	public static final String PROPERTYNAME_CREATION_DATE = WebdavResource.CREATIONDATE;
+	public static final String PROPERTYNAME_COMMENT = "comment";
+	
+	public static final PropertyName PROPERTY_DISPLAY_NAME = new PropertyName("DAV:", PROPERTYNAME_DISPLAY_NAME);
+	public static final PropertyName PROPERTY_PREDECESSOR_SET = new PropertyName("DAV:", PROPERTYNAME_PREDECESSOR_SET);
+	public static final PropertyName PROPERTY_SUCCESSOR_SET = new PropertyName("DAV:", PROPERTYNAME_SUCCESSOR_SET);
+	public static final PropertyName PROPERTY_VERSION_NAME = new PropertyName("DAV:", PROPERTYNAME_VERSION_NAME);
+	public static final PropertyName PROPERTY_VERSION_TREE = new PropertyName("DAV:", PROPERTYNAME_VERSION_NAME);
+	public static final PropertyName PROPERTY_LATEST_ACTIVITY_VERSION = new PropertyName("DAV:", PROPERTYNAME_LATEST_ACTIVITY_VERSION);
+	public static final PropertyName PROPERTY_CREATOR_DISPLAY_NAME = new PropertyName("DAV:", PROPERTYNAME_LATEST_ACTIVITY_VERSION);
+	public static final PropertyName PROPERTY_CHECKED_OUT_SET = new PropertyName("DAV:", PROPERTYNAME_CHECKED_OUT_SET);
+	public static final PropertyName PROPERTY_CHECKED_OUT = new PropertyName("DAV:", PROPERTYNAME_CHECKED_OUT);
+	public static final PropertyName PROPERTY_CHECKED_IN = new PropertyName("DAV:", PROPERTYNAME_CHECKED_IN);
+	public static final PropertyName PROPERTY_LOCK_DISCOVERY = new PropertyName("DAV:", PROPERTYNAME_LOCK_DISCOVERY);
+	public static final PropertyName PROPERTY_RESOURCE_TYPE = new PropertyName("DAV:", PROPERTYNAME_RESOURCE_TYPE);
+	public static final PropertyName PROPERTY_CONTENT_TYPE = new PropertyName("DAV:", PROPERTYNAME_CONTENT_TYPE);
+	public static final PropertyName PROPERTY_CONTENT_LENGTH = new PropertyName("DAV:", PROPERTYNAME_CONTENT_LENGTH);
+	public static final PropertyName PROPERTY_LAST_MODIFIED = new PropertyName("DAV:", PROPERTYNAME_LAST_MODIFIED);
+	public static final PropertyName PROPERTY_CREATION_DATE = new PropertyName("DAV:", PROPERTYNAME_CREATION_DATE);
+	public static final PropertyName PROPERTY_COMMENT = new PropertyName("DAV:", PROPERTYNAME_COMMENT);
+	
+	
 	
 }
