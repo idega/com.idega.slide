@@ -67,7 +67,7 @@ public class VersionHelper {
 	public static String getLatestVersion(WebdavResource resource) {
 		List list = getAllVersions(resource);
 		if (!list.isEmpty()) {
-			return getAllVersions(resource).get(0).toString();
+			return list.get(0).toString();
 		}	else {
 			return null;
 		}
