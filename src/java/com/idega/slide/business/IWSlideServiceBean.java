@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.12 2004/12/22 20:13:18 gummi Exp $
+ * $Id: IWSlideServiceBean.java,v 1.13 2004/12/30 19:00:49 gimmi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -30,10 +30,10 @@ import com.idega.slide.schema.SlideSchemaCreator;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/22 20:13:18 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/30 19:00:49 $ by $Author: gimmi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.13 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -54,9 +54,6 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 	
 //	private static Credentials guestCredentials = new UsernamePasswordCredentials("guest","guest");
 	
-	/**
-	 * 
-	 */
 	public IWSlideServiceBean() {
 		super();
 	}
@@ -268,11 +265,12 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 	public boolean generateUserFolders(String loginName) throws HttpException, IOException{
 		boolean returner = false;
 		if(loginName != null && !getExistence(getUserHomeFolderPath(loginName))){
-			WebdavResource user = new WebdavResource(getWebdavServerURL(getRootUserCredentials(),getUserHomeFolderPath(loginName)), WebdavResource.NOACTION, 0);
+			WebdavResource user = getWebdavResourceAuthenticatedAsRoot();
 			boolean transactionStarted = user.startTransaction(loginName,9000); //90sek
-			user.mkcolMethod();
-			user.mkcolMethod(user.getPath()+FOLDER_NAME_DROPBOX);
-			user.mkcolMethod(user.getPath()+FOLDER_NAME_PUBLIC);
+			String userFolderPath = getUserHomeFolderPath(loginName);
+			user.mkcolMethod(userFolderPath);
+			user.mkcolMethod(userFolderPath+FOLDER_NAME_DROPBOX);
+			user.mkcolMethod(userFolderPath+FOLDER_NAME_PUBLIC);
 			
 //			logOutAcesForUserFolders(loginName);
 //			
