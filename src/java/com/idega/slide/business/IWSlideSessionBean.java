@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.1 2004/11/01 10:42:18 gummi Exp $
+ * $Id: IWSlideSessionBean.java,v 1.2 2004/11/05 17:30:36 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -11,14 +11,15 @@ package com.idega.slide.business;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
-import java.util.StringTokenizer;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import javax.servlet.http.HttpSessionBindingEvent;
+import javax.servlet.http.HttpSessionBindingListener;
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.webdav.lib.WebdavResource;
-import org.apache.webdav.lib.WebdavResources;
 import com.idega.business.IBOLookup;
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBOSessionBean;
@@ -26,12 +27,12 @@ import com.idega.business.IBOSessionBean;
 
 /**
  * 
- *  Last modified: $Date: 2004/11/01 10:42:18 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/11/05 17:30:36 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
-public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
+public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession, HttpSessionBindingListener {
 
 	
 //	public static final String PATH_DEFAULT_SCOPE_ROOT = "/files";
@@ -39,7 +40,6 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 //	public static final String PATH_CURRENT = null;
 	
 	
-	private WebdavResource webdavResource = null;
 	private boolean isLoggedOn = false;
 	private Credentials usersCredentials = null;
 	private HttpURL rootURL = null;
@@ -47,6 +47,8 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	private IWSlideService service = null;
 	
 	private String servletPath = null;
+	
+	private List resourcePool = null;
 	
 	
 //    /** The WebDAV resource. */
@@ -103,69 +105,84 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		return servletPath;
 	}
 	
-	public WebdavResource getWebdavResource() throws HttpException, IOException{
+	public WebdavResourceSession getWebdavResource() throws HttpException, IOException{
 		boolean tmpIsLoggedOn = getUserContext().isLoggedOn();
-		if(webdavResource != null && isLoggedOn != tmpIsLoggedOn ){ //TMP || (tmpIsLoggedOn && usersCredentials != null && !((UsernamePasswordCredentials)usersCredentials).getUserName().equals(getUserContext().getCurrentUser().getUniqueId()))){
-			webdavResource.close();
-			webdavResource = null;
+		
+		if(!getWebdavResourcePool().isEmpty() && isLoggedOn != tmpIsLoggedOn ){ //TMP || (tmpIsLoggedOn && usersCredentials != null && !((UsernamePasswordCredentials)usersCredentials).getUserName().equals(getUserContext().getCurrentUser().getUniqueId()))){
+			close();
 			usersCredentials = null;
 			isLoggedOn = !isLoggedOn;
 		}
 		
-		if(webdavResource == null){
-			if(usersCredentials == null){
-				if(isLoggedOn){
-					//TMP User usr = getUserContext().getCurrentUser();
-					//TMP usersCredentials = new UsernamePasswordCredentials(usr.getUniqueId(),StringHandler.getRandomString(10));
-					usersCredentials = new UsernamePasswordCredentials("root","root");
-				} else {
-//					try {
-						usersCredentials = null;//getIWSlideService().getGuestCredentials();
-//					}
-//					catch (RemoteException e) {
-//						e.printStackTrace();
-//					}
-				}
+		WebdavResourceSession session = null;
+		List pool = getWebdavResourcePool();
+		for (Iterator iter = pool.iterator(); iter.hasNext();) {
+			WebdavResourceSession s = (WebdavResourceSession) iter.next();
+			if(!s.isInUse()){
+//				session=s;
+//				continue;
+				return s;
 			}
-			webdavResource = new WebdavResource(getWebdavServletURL());//,usersCredentials);
 		}
 		
-		return webdavResource;
+		if(session == null){
+			session = new WebdavResourceSession(getNewConnection());
+			addToPool(session);
+		}
+		
+		return session;
+	}
+	
+	private void addToPool(WebdavResourceSession session){
+		getWebdavResourcePool().add(session);
+	}
+	
+	private List getWebdavResourcePool(){
+		if(resourcePool == null){
+			resourcePool = new ArrayList(5);
+		}
+		return resourcePool;
+	}
+	
+	private WebdavResource getNewConnection() throws HttpException, IOException{
+		return new WebdavResource(getWebdavServletURL());//,usersCredentials);
 	}
 
-	/* (non-Javadoc)
-	 * @see com.idega.slide.business.IWSlideSession#getWebdavResource(java.lang.String)
-	 */
-	//TEST
-	public WebdavResource getWebdavResource(String path) throws HttpException, IOException, RemoteException {
-		StringTokenizer tokens = new StringTokenizer(path,"/");
-		WebdavResource currentResource = getWebdavResource();
-		while ( tokens.hasMoreTokens()) {
-			String element = tokens.nextToken();
-			if(element == null || "".equals(element)){
-				continue;
-			}
-			WebdavResources childResources = currentResource.getChildResources();
-			currentResource = childResources.getResource(element);
-			if(currentResource == null){
-				throw new IOException("For path '"+path+"', '"+element+"' was not found");
-			}
-		}
-		
-		return currentResource;
-	}
+//	/* (non-Javadoc)
+//	 * @see com.idega.slide.business.IWSlideSession#getWebdavResource(java.lang.String)
+//	 */
+//	//TEST
+//	public WebdavResource getWebdavResource(String path) throws HttpException, IOException, RemoteException {
+//		StringTokenizer tokens = new StringTokenizer(path,"/");
+//		WebdavResource currentResource = getWebdavResource();
+//		while ( tokens.hasMoreTokens()) {
+//			String element = tokens.nextToken();
+//			if(element == null || "".equals(element)){
+//				continue;
+//			}
+//			WebdavResources childResources = currentResource.getChildResources();
+//			currentResource = childResources.getResource(element);
+//			if(currentResource == null){
+//				throw new IOException("For path '"+path+"', '"+element+"' was not found");
+//			}
+//		}
+//		
+//		return currentResource;
+//	}
 
 	
 	public void close(){
-		if(webdavResource != null){
+		List pool = getWebdavResourcePool();
+		for (Iterator iter = pool.iterator(); iter.hasNext();) {
 			try {
-				webdavResource.close();
-				webdavResource = null;
+				WebdavResourceSession session = (WebdavResourceSession) iter.next();
+				session.getWebdavResource().close();
 			}
 			catch (IOException e) {
 				e.printStackTrace();
 			}
-		}	
+		}
+		resourcePool = new ArrayList(5);
 	}
 	
 }
