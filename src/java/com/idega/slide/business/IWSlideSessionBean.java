@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.17 2005/01/07 20:20:33 gummi Exp $
+ * $Id: IWSlideSessionBean.java,v 1.18 2005/01/13 16:25:19 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -31,10 +31,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2005/01/07 20:20:33 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/01/13 16:25:19 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.17 $
+ * @version $Revision: 1.18 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -115,8 +115,9 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	
 	/**
 	 * @return returns the name of the current user home folder.  Returns <code>null</code> if user is not logged on.
+	 * @throws RemoteException
 	 */
-	public String getUserFolderName() {
+	public String getUserFolderName() throws RemoteException {
 		if (getUserCredentials() != null) {
 			return getUserCredentials().getUserName();
 		}
@@ -135,7 +136,7 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		return servletPath;
 	}
 	
-	public UsernamePasswordCredentials getUserCredentials(){
+	public UsernamePasswordCredentials getUserCredentials() throws RemoteException{
 		LoggedOnInfo lInfo = LoginBusinessBean.getLoggedOnInfo(getUserContext());
 		if(lInfo!=null){
 			String password = (String)lInfo.getAttribute(SLIDE_PASSWORD_ATTRIBUTE_NAME);
@@ -143,7 +144,12 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 				password = StringHandler.getRandomString(10);
 				lInfo.setAttribute(SLIDE_PASSWORD_ATTRIBUTE_NAME,password);
 			}
-			return new UsernamePasswordCredentials(lInfo.getLogin(),password);
+			if(getUserContext().isSuperAdmin()){
+				return getIWSlideService().getRootUserCredentials();
+			} else {
+				return new UsernamePasswordCredentials(lInfo.getLogin(),password);
+			}
+			
 		}
 		return null;
 	}
@@ -247,7 +253,7 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		return value;
 	}
 	
-	public String getUserHomeFolder() {
+	public String getUserHomeFolder() throws RemoteException {
 		if (getUserFolderName() != null) {
 			return getIWSlideService().getUserHomeFolderPath(getUserFolderName());
 		}
