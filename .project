@@ -5,6 +5,9 @@
   <comment>
   </comment>
   <projects>
+    <project>com.idega.core</project>
+    <project>org.apache.slide</project>
+    <project>com.idega.block.login</project>
   </projects>
   <buildSpec>
     <buildCommand>
