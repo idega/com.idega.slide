@@ -1,5 +1,5 @@
 /*
- * $Id: FileSystemCopyServiceBean.java,v 1.2 2004/11/29 16:09:51 aron Exp $
+ * $Id: FileSystemCopyServiceBean.java,v 1.3 2004/11/29 16:18:04 aron Exp $
  * Created on 2.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -35,13 +35,14 @@ import com.idega.core.file.data.ICFile;
 import com.idega.core.file.data.ICFileHome;
 import com.idega.data.IDOLookup;
 import com.idega.data.IDOLookupException;
+import com.idega.slide.data.SlideFile;
 
 /**
  * 
- *  Last modified: $Date: 2004/11/29 16:09:51 $ by $Author: aron $
+ *  Last modified: $Date: 2004/11/29 16:18:04 $ by $Author: aron $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSystemCopyService{
     
@@ -360,8 +361,10 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
     }
     
     private void updateFile(ICFile file, String path){
-        file.setExternalURL(path);
-        file.store();    
+        
+	    ((SlideFile)file).setExternalURL(path);
+	    file.store();    
+        
     }
     
     void mkcol(String path)
