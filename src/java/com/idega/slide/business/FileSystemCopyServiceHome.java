@@ -1,6 +1,6 @@
 /*
- * $Id: FileSystemCopyServiceHome.java,v 1.1 2004/11/15 19:03:22 aron Exp $
- * Created on 15.11.2004
+ * $Id: FileSystemCopyServiceHome.java,v 1.2 2004/11/30 15:35:50 aron Exp $
+ * Created on 30.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
  *
@@ -16,10 +16,10 @@ import com.idega.business.IBOHome;
 
 /**
  * 
- *  Last modified: $Date: 2004/11/15 19:03:22 $ by $Author: aron $
+ *  Last modified: $Date: 2004/11/30 15:35:50 $ by $Author: aron $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public interface FileSystemCopyServiceHome extends IBOHome {
     public FileSystemCopyService create() throws javax.ejb.CreateException,

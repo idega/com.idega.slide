@@ -1,6 +1,6 @@
 /*
- * $Id: FileSystemCopyService.java,v 1.1 2004/11/15 19:03:22 aron Exp $
- * Created on 15.11.2004
+ * $Id: FileSystemCopyService.java,v 1.2 2004/11/30 15:35:50 aron Exp $
+ * Created on 30.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
  *
@@ -15,14 +15,13 @@ import java.util.Collection;
 import org.apache.webdav.lib.WebdavResource;
 
 import com.idega.business.IBOService;
-import com.idega.core.file.data.ICFile;
 
 /**
  * 
- *  Last modified: $Date: 2004/11/15 19:03:22 $ by $Author: aron $
+ *  Last modified: $Date: 2004/11/30 15:35:50 $ by $Author: aron $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public interface FileSystemCopyService extends IBOService {
     /**
@@ -49,16 +48,10 @@ public interface FileSystemCopyService extends IBOService {
             throws java.rmi.RemoteException;
 
     /**
-     * @see com.idega.slide.business.FileSystemCopyServiceBean#copy2
+     * @see com.idega.slide.business.FileSystemCopyServiceBean#createFolderIfNotExists
      */
-    public void copy2(String folder, ICFile file, String extension)
-            throws Exception, java.rmi.RemoteException;
-
-    /**
-     * @see com.idega.slide.business.FileSystemCopyServiceBean#copy
-     */
-    public void copy(String folder, ICFile file) throws Exception,
-            java.rmi.RemoteException;
+    public void createFolderIfNotExists(String folderPath)
+            throws java.rmi.RemoteException;
 
     /**
      * @see com.idega.slide.business.FileSystemCopyServiceBean#getResource

@@ -1,5 +1,5 @@
 /*
- * $Id: FileSystemCopyServiceBean.java,v 1.3 2004/11/29 16:18:04 aron Exp $
+ * $Id: FileSystemCopyServiceBean.java,v 1.4 2004/11/30 15:35:50 aron Exp $
  * Created on 2.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -9,12 +9,13 @@
  */
 package com.idega.slide.business;
 
-import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
+import javax.ejb.EJBException;
 import javax.ejb.FinderException;
 
 import org.apache.commons.httpclient.HttpException;
@@ -22,7 +23,6 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.HttpsURL;
 import org.apache.commons.httpclient.URIException;
-import org.apache.webdav.lib.WebdavFile;
 import org.apache.webdav.lib.WebdavResource;
 import org.apache.webdav.lib.properties.ResourceTypeProperty;
 
@@ -35,18 +35,22 @@ import com.idega.core.file.data.ICFile;
 import com.idega.core.file.data.ICFileHome;
 import com.idega.data.IDOLookup;
 import com.idega.data.IDOLookupException;
+import com.idega.data.IDOStoreException;
 import com.idega.slide.data.SlideFile;
+import com.idega.slide.data.SlideFileHome;
+import com.idega.util.database.ConnectionBroker;
 
 /**
  * 
- *  Last modified: $Date: 2004/11/29 16:18:04 $ by $Author: aron $
+ *  Last modified: $Date: 2004/11/30 15:35:50 $ by $Author: aron $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSystemCopyService{
     
-    private ICFileHome fileHome = null;
+    private SlideFileHome fileHome = null;
+    private ICFileHome icFileHome = null;
     private ICPageHome pageHome = null;
    
     private WebdavResource webdavResource = null;
@@ -55,12 +59,27 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
     private boolean overwrite = true;
     private String rootURL = "";
     
+    private String pageFolderName = "Pages";
+    private String templateFolderName = "Templates";
+    private String publicFolderName = "Public";
+    private String userFolderName = "Users";
     
-    private ICFileHome getFileHome(){
+    
+    private SlideFileHome getFileHome(){
         try {
             if(fileHome==null)
-                fileHome = (ICFileHome)IDOLookup.getHome(ICFile.class);
+                fileHome = (SlideFileHome)IDOLookup.getHome(SlideFile.class);
             return fileHome;
+        } catch (IDOLookupException e) {
+            throw new IBORuntimeException(e);
+        }
+    }
+    
+    private ICFileHome getICFileHome(){
+        try {
+            if(icFileHome==null)
+                icFileHome = (ICFileHome)IDOLookup.getHome(ICFile.class);
+            return icFileHome;
         } catch (IDOLookupException e) {
             throw new IBORuntimeException(e);
         }
@@ -88,7 +107,7 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
         try {
             pageHome = (ICPageHome) IDOLookup.getHome(ICPage.class);
             ICPage startPage = getIWApplicationContext().getDomain().getStartPage();
-            String folder = "Pages";
+            String folder = pageFolderName;
             checkAndCreateFolder(folder);
             copy2(folder,startPage.getFile(),"ibxml");
             Collection childs = startPage.getChildren();
@@ -98,7 +117,7 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
                 copyPages(subFolder,childs);
             
             ICPage templatePage = getIWApplicationContext().getDomain().getStartTemplate();
-            folder = "Templates";
+            folder = templateFolderName;
             checkAndCreateFolder(folder);
             copy2(folder,templatePage.getFile(),"ibxml");
             childs = templatePage.getChildren();
@@ -133,15 +152,73 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
     
     
     private void copyGroupFiles(){
+        String sql = "select user_login,ic_group_id,home_folder_id"
+            +" from ic_login l, ic_group g "
+            +" where l.ic_user_id = g.ic_group_id "
+            +"and g.home_folder_id is not null";
+        java.sql.Connection conn = null;
+        java.sql.Statement stmt = null;
+        java.sql.ResultSet rs = null;
+        
+        try {
+            
+            conn = ConnectionBroker.getConnection();
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(sql);
+            while(rs.next()){
+                String username = rs.getString(1);
+                Integer userID = new Integer(rs.getInt(2));
+                Integer fileID = new Integer(rs.getInt(3));
+                ICFile root = getICFileHome().findByPrimaryKey(fileID);
+                if(root.isFolder()){
+                    Collection children = getICFileHome().findChildren(root,null,null,null);
+                    copy(userFolderName+"/"+username,children);
+                }
+                else{
+                    copy(userFolderName+"/"+username,root);
+                }
+            }
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (FinderException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        finally{
+            if(rs!=null){
+                try {
+                    rs.close();
+                } catch (SQLException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+            }
+            if(stmt !=null){
+                try {
+                    stmt.close();
+                } catch (SQLException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+            }
+            if(conn!=null){
+                ConnectionBroker.freeConnection(conn);
+            }
+        }
         
         
     }
     
     private void copyMediaSystem(){
         try {
-            ICFile root = getFileHome().findRootFolder();
-            Collection children = fileHome.findChildren(root,null,null,null);
-            copy("public",children);
+            ICFile root = getICFileHome().findRootFolder();
+            Collection children = getICFileHome().findChildren(root,null,null,null);
+            copy(publicFolderName,children);
+            
         } catch (IDOLookupException e) {
             throw new IBORuntimeException(e);
         } catch (FinderException e) {
@@ -152,7 +229,60 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
     }
     
     private void copyLeftovers(){
-        
+        // lets copy everything still not copied, and not folders
+        String sql = "select ic_file_id from ic_file where ext_url is null and mime_type != 'application/vnd.iw-folder'";
+        java.sql.Connection conn = null;
+        java.sql.Statement stmt = null;
+        java.sql.ResultSet rs = null;
+        try {
+           
+            conn = ConnectionBroker.getConnection();
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(sql);
+            while(rs.next()){
+               
+                Integer fileID = new Integer(rs.getInt(1));
+                ICFile root = getFileHome().findByPrimaryKey(fileID);
+                /* skip the folders
+                if(root.isFolder()){
+                    Collection children = getICFileHome().findChildren(root,null,null,null);
+                    copy(publicFolderName+"/attic",children);
+                }
+                else*/{
+                    copy(userFolderName+"/attic",root);
+                }
+            }
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (FinderException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        finally{
+            if(rs!=null){
+                try {
+                    rs.close();
+                } catch (SQLException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+            }
+            if(stmt !=null){
+                try {
+                    stmt.close();
+                } catch (SQLException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+            }
+            if(conn!=null){
+                ConnectionBroker.freeConnection(conn);
+            }
+        }
     }
     
     private void connect(){
@@ -286,7 +416,7 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
         for (Iterator iter = files.iterator(); iter.hasNext();) {
             ICFile element = (ICFile) iter.next();
             if(element.isFolder()){
-                Collection childs = fileHome.findChildren(element,null,null,null);
+                Collection childs = getICFileHome().findChildren(element,null,null,null);
                 checkAndCreateFolder(folder);
                 copy(folder+"/"+element.getName(),childs);
             }
@@ -361,9 +491,20 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
     }
     
     private void updateFile(ICFile file, String path){
-        
-	    ((SlideFile)file).setExternalURL(path);
-	    file.store();    
+        try {
+            SlideFile slideFile = getFileHome().findByPrimaryKey(file.getPrimaryKey());
+            slideFile.setExternalURL(path);
+            slideFile.store();
+        } catch (IDOStoreException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (EJBException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (FinderException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }    
         
     }
     
@@ -401,7 +542,7 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
         }
     }
     
-    public void copy2(String folder,ICFile file,String extension)throws Exception{
+    private void copy2(String folder,ICFile file,String extension)throws Exception{
         //delete(folder);
         //mkcol(folder);
         String fileName = file.getName();
@@ -411,7 +552,8 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
         put(file,folder+"/"+fileName);
     }
     
-    public void copy(String folder, ICFile file)throws Exception{
+    private void copy(String folder, ICFile file)throws Exception{
+        /*
         System.out.println("Moving "+file.getName()+" in folder "+folder);
         
         WebdavFile rootFile = getService().getWebdavFile();
@@ -430,6 +572,8 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
         for (int i = 0; i < files.length; i++) {
             System.out.println(files[i]);
         }
+        */
+        copy2(folder, file, null);
         
         
     }
