@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticator.java,v 1.3 2004/12/15 17:52:46 gummi Exp $
+ * $Id: IWSlideAuthenticator.java,v 1.4 2004/12/17 18:04:54 gummi Exp $
  * Created on 8.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -12,6 +12,7 @@ package com.idega.slide.authentication;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Collections;
+import java.util.Enumeration;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -21,23 +22,27 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.httpclient.HttpException;
+import org.apache.slide.webdav.util.WebdavUtils;
 import com.idega.business.IBOLookup;
+import com.idega.business.IBOLookupException;
 import com.idega.core.accesscontrol.business.LoggedOnInfo;
 import com.idega.core.accesscontrol.business.LoginBusinessBean;
 import com.idega.presentation.IWContext;
+import com.idega.slide.business.IWSlideSession;
 
 
 /**
  * 
- *  Last modified: $Date: 2004/12/15 17:52:46 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/17 18:04:54 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class IWSlideAuthenticator implements Filter {
 
-	private static int tmpCounter = 0;
+//	private static int tmpCounter = 0;
 	private static int tmpHeaderCount = 0;
+	
 	private static final String SLIDE_USER_PRINCIPAL_ATTRIBUTE_NAME = "org.apache.slide.webdav.method.principal";
 	
 	private LoginBusinessBean loginBusiness = new LoginBusinessBean();
@@ -53,36 +58,14 @@ public class IWSlideAuthenticator implements Filter {
 	 * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse, javax.servlet.FilterChain)
 	 */
 	public void doFilter(ServletRequest arg0, ServletResponse arg1, FilterChain arg2) throws IOException,
-			ServletException {
-		HttpServletRequest request = (HttpServletRequest)arg0;
-		HttpServletResponse response = (HttpServletResponse)arg1;
+			ServletException {	
 		
-//		Enumeration headerNames = request.getHeaderNames();
-//		System.out.println("------------HEADER "+(tmpHeaderCount)+" BEGINS-------------");
-//		while (headerNames.hasMoreElements()) {
-//			String headerName = (String) headerNames.nextElement();
-//			System.out.println("\t["+headerName+"]: "+request.getHeader(headerName));
-//		}
-//		System.out.println("------------HEADER "+(tmpHeaderCount)+" ENDS-------------");
-		
-//		Enumeration parameterNames = request.getParameterNames();
-//		System.out.println("------------PARAMETERS "+(tmpHeaderCount)+" BEGINS-------------");
-//		while (parameterNames.hasMoreElements()) {
-//			String parameterName = (String) parameterNames.nextElement();
-//			System.out.println("\t["+parameterNames+"]: "+request.getParameter(parameterName));
-//		}
-//		System.out.println("------------PARAMETERS "+(tmpHeaderCount++)+" ENDS-------------");
-//		
-		
-		IWContext iwc = new IWContext(request,response, request.getSession().getServletContext());
+		IWContext iwc = new IWContext((HttpServletRequest)arg0, (HttpServletResponse)arg1, ((HttpServletRequest)arg0).getSession().getServletContext());
 		
 		try{
 			if(iwc.isLoggedOn()){
 				LoggedOnInfo lInfo = getLoginBusiness(iwc).getLoggedOnInfo(iwc);
-				if(request.getUserPrincipal()==null && lInfo != null){
-					request = new IWSlideAuthenticatedRequest(request,lInfo.getLogin(),lInfo.getUserRoles());
-				}
-				updateRolesForUser(iwc, lInfo);
+				setAsAuthenticatedInSlide(iwc,lInfo.getLogin(),lInfo);
 			} else {
 				String[] loginAndPassword = getLoginBusiness(iwc).getLoginNameAndPasswordFromBasicAuthenticationRequest(iwc);
 				String loggedInUser = getUserAuthenticatedBySlide(iwc);
@@ -90,29 +73,16 @@ public class IWSlideAuthenticator implements Filter {
 					String username = loginAndPassword[0];
 					String password = loginAndPassword[1];
 					LoggedOnInfo lInfo = getLoginBusiness(iwc).getLoggedOnInfo(iwc,username);
-					
 					if(loggedInUser==null){
 						if(isAuthenticated(iwc,lInfo,username,password)){
-							if(username.equals("root")){
-								request = new IWSlideAuthenticatedRequest(request,username,Collections.singleton("root"));
-							} else {
-								request = new IWSlideAuthenticatedRequest(request,username,lInfo.getUserRoles());
-								updateRolesForUser(iwc,lInfo);
-							}
-							setAsAuthenticatiedInSlide(iwc,username);
+							setAsAuthenticatedInSlide(iwc,username,lInfo);
 						} else {
 							setAsUnauthenticatedInSlide(iwc);
 						}
 					} else if(!username.equals(loggedInUser)){
 						//request.getSession().invalidate();
 						if(isAuthenticated(iwc,lInfo,username,password)){
-							if(username.equals("root")){
-								request = new IWSlideAuthenticatedRequest(request,username,Collections.singleton("root"));
-							} else {
-								request = new IWSlideAuthenticatedRequest(request,username,lInfo.getUserRoles());
-								updateRolesForUser(iwc,lInfo);
-							}
-							setAsAuthenticatiedInSlide(iwc,username);
+							setAsAuthenticatedInSlide(iwc,username,lInfo);
 						} else {
 							setAsUnauthenticatedInSlide(iwc);
 						}
@@ -128,16 +98,13 @@ public class IWSlideAuthenticator implements Filter {
 			iwc.getResponse().sendError(e.getReasonCode(),e.getReason());
 			return;
 		}
-			
-//		if(tmpCounter<0){
-//			tmpCounter++;
-//			
-//			AuthenticationBusiness business = (AuthenticationBusiness)IBOLookup.getServiceInstance(iwc,AuthenticationBusiness.class);
-//			business.tmpPrintOutGroupSetMembers(business.getAllRoles());
-//			
-//		}
 		
-		arg2.doFilter(request, response);
+		// the slide token is set so that business methods can get it from IWSlideSession.   
+		// The WebdavUtils#getSlideToken(request) can be expensive since it copies all attributes from session to the token.
+		IWSlideSession slideSession = (IWSlideSession)IBOLookup.getSessionInstance(iwc,IWSlideSession.class);
+		slideSession.setSlideToken(WebdavUtils.getSlideToken(iwc.getRequest()));
+		
+		arg2.doFilter(iwc.getRequest(), iwc.getResponse());
 	}
 	
 	/**
@@ -150,13 +117,31 @@ public class IWSlideAuthenticator implements Filter {
 
 	/**
 	 * @param iwc
+	 * @throws IBOLookupException
 	 */
-	private void setAsUnauthenticatedInSlide(IWContext iwc) {
+	private void setAsUnauthenticatedInSlide(IWContext iwc) throws IBOLookupException {
 		iwc.removeSessionAttribute(SLIDE_USER_PRINCIPAL_ATTRIBUTE_NAME);
+//		IWSlideSession slideSession = (IWSlideSession)IBOLookup.getSessionInstance(iwc,IWSlideSession.class);
+//		slideSession.setSlideToken(WebdavUtils.getSlideToken(iwc.getRequest()));
 	}
 	
-	private void setAsAuthenticatiedInSlide(IWContext iwc,String loginName){
+	private void setAsAuthenticatedInSlide(IWContext iwc,String loginName, LoggedOnInfo lInfo) throws HttpException, RemoteException, IOException{
+		if(iwc.isLoggedOn()){
+			if(iwc.getUserPrincipal()==null && lInfo != null){
+				iwc.setRequest(new IWSlideAuthenticatedRequest(iwc.getRequest(),loginName,lInfo.getUserRoles()));
+			}
+			updateRolesForUser(iwc, lInfo);
+		} else {
+			if(loginName.equals("root")){
+				iwc.setRequest(new IWSlideAuthenticatedRequest(iwc.getRequest(),loginName,Collections.singleton("root")));
+			} else {
+				iwc.setRequest(new IWSlideAuthenticatedRequest(iwc.getRequest(),loginName,lInfo.getUserRoles()));
+				updateRolesForUser(iwc,lInfo);
+			}
+		}
 		iwc.setSessionAttribute(SLIDE_USER_PRINCIPAL_ATTRIBUTE_NAME,loginName);
+//		IWSlideSession slideSession = (IWSlideSession)IBOLookup.getSessionInstance(iwc,IWSlideSession.class);
+//		slideSession.setSlideToken(WebdavUtils.getSlideToken(iwc.getRequest()));
 	}
 
 	/**

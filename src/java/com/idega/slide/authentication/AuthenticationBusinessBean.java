@@ -1,5 +1,5 @@
 /*
- * $Id: AuthenticationBusinessBean.java,v 1.5 2004/12/15 16:35:47 gummi Exp $
+ * $Id: AuthenticationBusinessBean.java,v 1.6 2004/12/17 18:04:54 gummi Exp $
  * Created on 9.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -29,10 +29,10 @@ import com.idega.slide.util.PropertyParser;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/15 16:35:47 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/17 18:04:54 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public class AuthenticationBusinessBean extends IBOServiceBean  implements AuthenticationBusiness{
 	
@@ -202,7 +202,7 @@ public class AuthenticationBusinessBean extends IBOServiceBean  implements Authe
 	 * @throws RemoteException
 	 */
 	private Set parseGroupMemberSetPropertyString(String propertyString) throws RemoteException {
-		return PropertyParser.parsePropertyString(null,propertyString,true);
+		return PropertyParser.parsePropertyString(null,propertyString);
 	}
 
 	

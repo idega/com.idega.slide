@@ -1,5 +1,5 @@
 /*
- * $Id: PropertyParser.java,v 1.1 2004/12/15 16:35:47 gummi Exp $
+ * $Id: PropertyParser.java,v 1.2 2004/12/17 18:04:55 gummi Exp $
  * Created on 15.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -18,10 +18,10 @@ import java.util.Set;
 /**
  * Class for parsing and encoding properties in slide.
  * 
- *  Last modified: $Date: 2004/12/15 16:35:47 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/17 18:04:55 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class PropertyParser {
 	/**
@@ -47,21 +47,24 @@ public class PropertyParser {
 	 * @return Set of property values, usually a path from the application server root including context.
 	 * @throws RemoteException
 	 */
-	public static Set parsePropertyString(String namespace, String propertyString, boolean propertyAlwaysIncludesSlash) {
+	public static Set parsePropertyString(String namespace, String propertyString) {
 		String pNamespace = (namespace==null)?"DAV:":namespace;
+		//Skips first token because it is what is before the first <D:href...., usually ""
+		boolean skipFirst = false;
 		String[] tokens = propertyString.split("<D:href xmlns:D=\""+pNamespace+"\">");
 		for (int i = 0; i < tokens.length; i++) {
 			int closeTagIndex = tokens[i].indexOf("</D:href>");
 			if(closeTagIndex >-1){
 				tokens[i] = tokens[i].substring(0,closeTagIndex);
-//				System.out.println("\t"+tokens[i]);
+			} else if (i==0){
+				skipFirst = true;
 			}
+				
 		}
 		Set propertySet = new LinkedHashSet();
-		for (int i = 0; i < tokens.length; i++) {
-			if(!propertyAlwaysIncludesSlash || tokens[i].indexOf("/")!=-1){
-				propertySet.add(tokens[i]);
-			}
+		//Skips first token because it is what is before the first <D:href...., usually ""
+		for (int i = ((skipFirst)?1:0); i < tokens.length; i++) {
+			propertySet.add(tokens[i]);
 		}
 		return propertySet;
 	}

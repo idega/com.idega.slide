@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSession.java,v 1.7 2004/12/14 17:24:10 gummi Exp $
+ * $Id: IWSlideSession.java,v 1.8 2004/12/17 18:04:54 gummi Exp $
  * Created on 14.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -14,6 +14,7 @@ import java.rmi.RemoteException;
 import javax.servlet.http.HttpSessionBindingEvent;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.slide.common.SlideToken;
 import org.apache.webdav.lib.WebdavResource;
 import com.idega.business.IBOSession;
 import com.idega.slide.util.WebdavRootResource;
@@ -21,10 +22,10 @@ import com.idega.slide.util.WebdavRootResource;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/14 17:24:10 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/17 18:04:54 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public interface IWSlideSession extends IBOSession {
 
@@ -77,4 +78,9 @@ public interface IWSlideSession extends IBOSession {
 	 * @see com.idega.slide.business.IWSlideSessionBean#close
 	 */
 	public void close() throws java.rmi.RemoteException;
+
+	/**
+	 * @param slideToken
+	 */
+	public void setSlideToken(SlideToken slideToken);
 }

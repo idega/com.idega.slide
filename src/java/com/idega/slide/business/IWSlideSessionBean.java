@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.11 2004/12/16 17:58:46 eiki Exp $
+ * $Id: IWSlideSessionBean.java,v 1.12 2004/12/17 18:04:54 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -15,6 +15,7 @@ import javax.servlet.http.HttpSessionBindingEvent;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.slide.common.SlideToken;
 import org.apache.webdav.lib.WebdavResource;
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBOSessionBean;
@@ -26,10 +27,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/16 17:58:46 $ by $Author: eiki $
+ *  Last modified: $Date: 2004/12/17 18:04:54 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.12 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -50,6 +51,7 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	
 	private static final String SLIDE_PASSWORD_ATTRIBUTE_NAME = "iw_slide_password";
 	
+	private SlideToken _slideToken = null;
 	
 //    /** The WebDAV resource. */
 //    private WebdavResource webdavResource = null;
@@ -188,5 +190,61 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		}	
 	}
 	
+    /**
+     * Returns a SlideToken using the authentication information of the IW login system
+     *
+     * @return a new SlideToken instance
+     **/
+    public SlideToken getSlideToken() {
+    		if(_slideToken == null){
+    			throw new RuntimeException("["+this.getClass().getName()+"]: Requesting SlideToken but token has not been set.  Check if IWSlideAuthenticator filter is mapped right (/*) in web.xml");
+//    			// This code is borrowed from org.apache.slide.webdav.util.WebdavUtils#getSlideToken(HttpServletRequest)
+//    			// and altered since we just have session and not requst object.
+//    			
+//            CredentialsToken credentialsToken;
+//            Principal principal = getUserContext().getUserPrincipal();
+//            
+//            // store the current principal in the session, to get around a bug in
+//            // IE 5 where the authentication info is not submitted by IE when
+//            // doing a HEAD request.
+//            if (principal == null) {
+//                credentialsToken = new CredentialsToken("");
+//            } else {
+//                // because the principal is not guaranteed to be serializable
+//                // and could thus create problems in a distributed deployment
+//                // we store the principal name instead of the principal itself
+////                session.setAttribute(CREDENTIALS_ATTRIBUTE, principal.getName());
+//                credentialsToken = new CredentialsToken(principal);
+//            }
+//            
+//            SlideToken token = new SlideTokenImpl(credentialsToken);
+//            token.setEnforceLockTokens(true);
+//
+//            // store session attributes in token parameters to pass them through
+//            // to the stores
+//            for(Enumeration e = getUserContext().getSeAttributeNames(); e.hasMoreElements();) {
+//                String name = (String)e.nextElement();
+//                token.addParameter(name, getUserContext().getSessionAttribute(name));
+//            }
+//            return _slideToken;
+    		}
+    		return _slideToken;
+
+    }
+
+	/* (non-Javadoc)
+	 * @see com.idega.slide.business.IWSlideSession#setSlideToken(org.apache.slide.common.SlideToken)
+	 */
+	public void setSlideToken(SlideToken slideToken) {
+		_slideToken = slideToken;
+	}
+	
+//	public HistoryPathHandler getHistoryPathHandler(){
+//		return HistoryPathHandler.getHistoryPathHandler();
+//	}
+//	
+//	public WorkspacePathHandler getWorkspacePathHandler(){
+//		return WorkspacePathHandler.getWorkspacePathHandler();
+//	}
 	
 }
