@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSession.java,v 1.13 2005/01/07 20:20:33 gummi Exp $
+ * $Id: IWSlideSession.java,v 1.14 2005/01/19 14:40:23 gimmi Exp $
  * Created on 1.1.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -22,10 +22,10 @@ import com.idega.slide.util.WebdavRootResource;
 
 /**
  * 
- *  Last modified: $Date: 2005/01/07 20:20:33 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/01/19 14:40:23 $ by $Author: gimmi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.14 $
  */
 public interface IWSlideSession extends IBOSession {
 
@@ -48,11 +48,6 @@ public interface IWSlideSession extends IBOSession {
 	 * @see com.idega.slide.business.IWSlideSessionBean#getUserFullName
 	 */
 	public String getUserFullName() throws java.rmi.RemoteException;
-
-	/**
-	 * @see com.idega.slide.business.IWSlideSessionBean#getUserFolderName
-	 */
-	public String getUserFolderName() throws java.rmi.RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideSessionBean#getWebdavServerURI

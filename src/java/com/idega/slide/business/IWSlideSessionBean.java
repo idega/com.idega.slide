@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.18 2005/01/13 16:25:19 gummi Exp $
+ * $Id: IWSlideSessionBean.java,v 1.19 2005/01/19 14:40:23 gimmi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -31,10 +31,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2005/01/13 16:25:19 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/01/19 14:40:23 $ by $Author: gimmi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.18 $
+ * @version $Revision: 1.19 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -112,18 +112,7 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		}
 		return null;
 	}
-	
-	/**
-	 * @return returns the name of the current user home folder.  Returns <code>null</code> if user is not logged on.
-	 * @throws RemoteException
-	 */
-	public String getUserFolderName() throws RemoteException {
-		if (getUserCredentials() != null) {
-			return getUserCredentials().getUserName();
-		}
-		return null;
-	}
-	
+		
 	public String getWebdavServerURI(){
 		if(servletPath == null){
 			try {
@@ -254,8 +243,9 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	}
 	
 	public String getUserHomeFolder() throws RemoteException {
-		if (getUserFolderName() != null) {
-			return getIWSlideService().getUserHomeFolderPath(getUserFolderName());
+		String loginName = getUserContext().getRemoteUser();
+		if (loginName != null) {
+			return getIWSlideService().getUserHomeFolderPath(loginName);
 		}
 		return null;
 	}
