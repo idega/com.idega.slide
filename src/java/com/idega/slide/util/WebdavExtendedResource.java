@@ -257,7 +257,49 @@ public class WebdavExtendedResource extends WebdavResource {
 		// already called a setNamedProp above.
 		return childResources;
 	}
-
+	
+	/**
+	 * 
+	 * Sets the basic properties and DeltaV properties
+	 * on a resource by indirectly issuing a PROPFIND
+	 * on the resource.<p>
+	 * Properties retrieved include:
+	 * <ul>
+	 * <li>displayname</li>
+	 * <li>getcontentlength</li>
+	 * <li>getcontenttype</li>
+	 * <li>resourcetype</li>
+	 * <li>getlastmodified</li>
+	 * <li>lockdiscovery</li>
+	 *  // DeltaV support
+	 * <li>checked-in</li>
+	 * <li>checked-out</li>
+	 * <li>version-name</li>
+	 * </ul>
+	 */
+	public void setProperties() throws IOException {
+		Vector properties = new Vector();
+		properties.addElement(DISPLAYNAME);
+		properties.addElement(GETCONTENTLENGTH);
+		properties.addElement(GETCONTENTTYPE);
+		properties.addElement(RESOURCETYPE);
+		properties.addElement(GETLASTMODIFIED);
+		properties.addElement(LOCKDISCOVERY);
+		// DeltaV support
+		properties.addElement(VersionHelper.PROPERTY_CHECKED_IN);
+		properties.addElement(VersionHelper.PROPERTY_CHECKED_OUT);
+		properties.addElement(VersionHelper.PROPERTY_VERSION_NAME);
+		properties.addElement(VersionHelper.PROPERTY_COMMENT);
+		// The following call should in turn, call
+		// Enumeration responses = super.propfindMethod(DEPTH_1, properies)
+		// super.setWebdavProperties(reponses)
+		// in turn, calls
+		// this.createWebdavResource(client); (see above)
+		// in turn, calls a series of
+		// processProperty(property)
+		setNamedProp(DepthSupport.DEPTH_0, properties);
+	}
+	
 	public String getDecodedPath() {
 		try {
 			return URIUtil.decode(getPath());
