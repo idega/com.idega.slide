@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <pomVersion>1</pomVersion>
+  <name>com.idega.slide</name>
+  <organization>
+    <name>Idega Software</name>
+    <url>www.idega.com</url>
+  </organization>
+  <inceptionYear>2004</inceptionYear>
+  <package>com.idega.slide</package>
+  <shortDescription>Idega bridge for the org.apache.slide project</shortDescription>
+  <dependencies>
+    <dependency>
+      <groupId>bundles</groupId>
+      <artifactId>org.apache.slide</artifactId>
+      <version>SNAPSHOT</version>
+      <type>iwbar</type>
+      <url>http://www.idega.com</url>
+    </dependency>
+  </dependencies>
+  <build>
+    <nagEmailAddress>tryggvi@idega.com</nagEmailAddress>
+    <sourceDirectory>src/java</sourceDirectory>
+    <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+    <unitTest>
+      <includes>
+        <include>**/*Test.java</include>
+      </includes>
+    </unitTest>
+  </build>
+</project>
+
