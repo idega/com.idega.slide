@@ -2,10 +2,10 @@ package com.idega.slide.schema;
 /**
  * 
  * 
- *  Last modified: $Date: 2004/11/05 08:44:59 $ by $Author: aron $
+ *  Last modified: $Date: 2005/01/20 14:09:44 $ by $Author: eiki $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class ParentBindingSchema extends SlideSchema {
 
@@ -44,6 +44,7 @@ public class ParentBindingSchema extends SlideSchema {
 		name.setDataTypeClass(String.class);
 		name.setNullAllowed(false);
 		name.setSQLFieldName("NAME");
+		name.setMaxLength(4000);
 		
 		addColumn(uriID,true);
 		addColumn(name,true);

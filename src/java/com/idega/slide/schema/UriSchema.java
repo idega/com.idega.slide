@@ -18,7 +18,7 @@ public class UriSchema extends SlideSchema {
 	 
 	 CREATE TABLE "URI" (
 	"URI_ID" NUMBER(10) NOT NULL,
-    	"URI_STRING" VARCHAR2(2500) NOT NULL,
+    	"URI_STRING" VARCHAR2(4000) NOT NULL,
 	PRIMARY KEY("URI_ID"),
     	UNIQUE("URI_STRING")
     	) CACHE NOLOGGING; 
@@ -39,6 +39,7 @@ public class UriSchema extends SlideSchema {
 		uriString.setDataTypeClass(String.class);
 		uriString.setNullAllowed(false);
 		uriString.setSQLFieldName("URI_STRING");
+		uriString.setMaxLength(4000);
 		
 		addColumn(uriID,true);
 		addColumn(uriString);
