@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.22 2005/02/25 16:39:37 gummi Exp $
+ * $Id: IWSlideServiceBean.java,v 1.23 2005/03/07 15:37:31 joakim Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -42,10 +42,10 @@ import com.idega.util.IWTimestamp;
 
 /**
  * 
- *  Last modified: $Date: 2005/02/25 16:39:37 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/03/07 15:37:31 $ by $Author: joakim $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.22 $
+ * @version $Revision: 1.23 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -423,7 +423,6 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 		StringTokenizer st = new StringTokenizer(path,"/");
 		while(st.hasMoreTokens()) {
 			createPath.append("/").append(st.nextToken());
-			System.out.println("Creaet path "+createPath);
 			rootResource.mkcolMethod(createPath.toString());
 		}
 		
