@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.14 2004/12/31 03:32:46 gimmi Exp $
+ * $Id: IWSlideServiceBean.java,v 1.15 2005/01/07 19:12:16 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -26,14 +26,15 @@ import com.idega.business.IBORuntimeException;
 import com.idega.business.IBOServiceBean;
 import com.idega.slide.authentication.AuthenticationBusiness;
 import com.idega.slide.schema.SlideSchemaCreator;
+import com.idega.slide.util.IWSlideConstants;
 
 
 /**
  * 
- *  Last modified: $Date: 2004/12/31 03:32:46 $ by $Author: gimmi $
+ *  Last modified: $Date: 2005/01/07 19:12:16 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.14 $
+ * @version $Revision: 1.15 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -190,14 +191,14 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 	
 	
 	/**
-	 * Returns the WebdavResource at path "/" and authenticated as root
+	 * Returns the WebdavResource at the given path and authenticated as root
 	 */
 	public WebdavResource getWebdavResourceAuthenticatedAsRoot(String path) throws HttpException, IOException{
 		return new WebdavResource(getWebdavServerURL(getRootUserCredentials(),path));
 	}
 	
 	/**
-	 * Returns the WebdavResource at the given path and authenticated as root
+	 * Returns the WebdavResource at path "/" and authenticated as root
 	 */
 	public WebdavResource getWebdavResourceAuthenticatedAsRoot() throws HttpException, IOException{
 		return getWebdavResourceAuthenticatedAsRoot(null);
@@ -218,45 +219,54 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 
 	
 	private void logOutAcesForUserFolders(String loginName) throws HttpException, IOException{
-		WebdavResource user = new WebdavResource(getWebdavServerURL(getRootUserCredentials(),getUserHomeFolderPath(loginName)));
-		
-		AclProperty userFolderProperty = user.aclfindMethod();
-		Ace[] userFolderProperties = userFolderProperty.getAces();
-		System.out.println("[IWSlideService#generateUserFolders("+user.getPath()+")]");
-		for (int i = 0; i < userFolderProperties.length; i++) {
-			Ace ace = userFolderProperties[i];
-			System.out.print("\t"+i+":"+ace);
-			Enumeration privileges = ace.enumeratePrivileges();
-			while(privileges.hasMoreElements()){
-				System.out.print("   "+((Privilege)privileges.nextElement()).getName());
+		WebdavResource user = getWebdavResourceAuthenticatedAsRoot();
+		String userPath = getUserHomeFolderPath(loginName);
+		AclProperty userFolderProperty = user.aclfindMethod(userPath);
+		System.out.println("[IWSlideService#generateUserFolders("+user.getPath()+userPath+")]");
+		if(userFolderProperty!=null){
+			Ace[] userFolderProperties = userFolderProperty.getAces();
+			
+			for (int i = 0; i < userFolderProperties.length; i++) {
+				Ace ace = userFolderProperties[i];
+				System.out.print("\t"+i+":"+ace);
+				Enumeration privileges = ace.enumeratePrivileges();
+				while(privileges.hasMoreElements()){
+					System.out.print("   "+((Privilege)privileges.nextElement()).getName());
+				}
+				System.out.println();
 			}
-			System.out.println();
 		}
 		
-		AclProperty userDropboxProperty = user.aclfindMethod(user.getPath()+FOLDER_NAME_DROPBOX);
-		Ace[] userDropboxProperties = userDropboxProperty.getAces();
-		System.out.println("[IWSlideService#generateUserFolders("+user.getPath()+FOLDER_NAME_DROPBOX+")]");
-		for (int i = 0; i < userDropboxProperties.length; i++) {
-			Ace ace = userDropboxProperties[i];
-			System.out.print("\t"+i+":"+ace);
-			Enumeration privileges = ace.enumeratePrivileges();
-			while(privileges.hasMoreElements()){
-				System.out.print("   "+((Privilege)privileges.nextElement()).getName());
+		AclProperty userDropboxProperty = user.aclfindMethod(user.getPath()+userPath+FOLDER_NAME_DROPBOX);
+		System.out.println("[IWSlideService#generateUserFolders("+user.getPath()+userPath+FOLDER_NAME_DROPBOX+")]");
+		if(userDropboxProperty!=null){
+			Ace[] userDropboxProperties = userDropboxProperty.getAces();
+			
+			for (int i = 0; i < userDropboxProperties.length; i++) {
+				Ace ace = userDropboxProperties[i];
+				System.out.print("\t"+i+":"+ace);
+				Enumeration privileges = ace.enumeratePrivileges();
+				while(privileges.hasMoreElements()){
+					System.out.print("   "+((Privilege)privileges.nextElement()).getName());
+				}
+				System.out.println();
 			}
-			System.out.println();
 		}
 		
-		AclProperty userPublicFolderProperty = user.aclfindMethod(user.getPath()+FOLDER_NAME_PUBLIC);
-		Ace[] userPublicFolderProperties = userPublicFolderProperty.getAces();
-		System.out.println("[IWSlideService#generateUserFolders("+user.getPath()+FOLDER_NAME_PUBLIC+")]");
-		for (int i = 0; i < userPublicFolderProperties.length; i++) {
-			Ace ace = userPublicFolderProperties[i];
-			System.out.print("\t"+i+":"+ace);
-			Enumeration privileges = ace.enumeratePrivileges();
-			while(privileges.hasMoreElements()){
-				System.out.print("   "+((Privilege)privileges.nextElement()).getName());
+		AclProperty userPublicFolderProperty = user.aclfindMethod(user.getPath()+userPath+FOLDER_NAME_PUBLIC);
+		System.out.println("[IWSlideService#generateUserFolders("+user.getPath()+userPath+FOLDER_NAME_PUBLIC+")]");
+		if(userPublicFolderProperty!=null){
+			Ace[] userPublicFolderProperties = userPublicFolderProperty.getAces();
+			
+			for (int i = 0; i < userPublicFolderProperties.length; i++) {
+				Ace ace = userPublicFolderProperties[i];
+				System.out.print("\t"+i+":"+ace);
+				Enumeration privileges = ace.enumeratePrivileges();
+				while(privileges.hasMoreElements()){
+					System.out.print("   "+((Privilege)privileges.nextElement()).getName());
+				}
+				System.out.println();
 			}
-			System.out.println();
 		}
 		
 		user.close();
@@ -264,58 +274,67 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 	
 	public boolean generateUserFolders(String loginName) throws HttpException, IOException{
 		boolean returner = false;
+
 		if(loginName != null && !getExistence(getUserHomeFolderPath(loginName))){
-			WebdavResource user = getWebdavResourceAuthenticatedAsRoot();
-			boolean transactionStarted = user.startTransaction(loginName,9000); //90sek
-			String userFolderPath = getUserHomeFolderPath(loginName);
-			user.mkcolMethod(userFolderPath);
-			user.mkcolMethod(userFolderPath+FOLDER_NAME_DROPBOX);
-			user.mkcolMethod(userFolderPath+FOLDER_NAME_PUBLIC);
+			WebdavResource rootFolder = getWebdavResourceAuthenticatedAsRoot();
 			
-//			logOutAcesForUserFolders(loginName);
+			String userFolderPath = getApplicationServerRelativePath(getUserHomeFolderPath(loginName));
+			rootFolder.mkcolMethod(userFolderPath);
+			rootFolder.mkcolMethod(userFolderPath+FOLDER_NAME_DROPBOX);
+			rootFolder.mkcolMethod(userFolderPath+FOLDER_NAME_PUBLIC);
+			
+//			try {
+//				logOutAcesForUserFolders(loginName);
+//			}
+//			catch (HttpException e1) {
+//				e1.printStackTrace();
+//			}
+//			catch (IOException e1) {
+//				// TODO Auto-generated catch block
+//				e1.printStackTrace();
+//			}
 //			
 //			try {
 //				AuthenticationBusiness aBusiness = getAuthenticationBusiness();
 //				
 //				
-//				AclProperty userFolderProperty = user.aclfindMethod();
-//				Ace[] userFolderProperties = userFolderProperty.getAces();
+//				AclProperty userFolderProperty = rootFolder.aclfindMethod(userFolderPath);
+//				Ace[] userFolderProperties = (userFolderProperty==null)?new Ace[0]:userFolderProperty.getAces();
 //				
 //				int homeLength = userFolderProperties.length;
 //				Ace[] homeFolderAce = new Ace[homeLength+1];
 //				System.arraycopy(userFolderProperties,0,homeFolderAce,0,homeLength);
 //				
 //				Ace userAllPrivilege =  new Ace(aBusiness.getUserURI(loginName));
-//				userAllPrivilege.setInherited(true);
 //				userAllPrivilege.addPrivilege(Privilege.ALL);
 //				homeFolderAce[homeLength] = userAllPrivilege;
-//				user.aclMethod(user.getPath(),homeFolderAce);
+//				rootFolder.aclMethod(userFolderPath,homeFolderAce);
 //				
 //				
 //				
-//				AclProperty userDropboxProperty = user.aclfindMethod(user.getPath()+FOLDER_NAME_DROPBOX);
-//				Ace[] userDropboxProperties = userDropboxProperty.getAces();
+//				AclProperty userDropboxProperty = rootFolder.aclfindMethod(userFolderPath+FOLDER_NAME_DROPBOX);
+//				Ace[] userDropboxProperties = (userDropboxProperty==null)?new Ace[0]:userDropboxProperty.getAces();
 //				
 //				int dropboxLength = userDropboxProperties.length;
 //				Ace[] dropboxAce = new Ace[dropboxLength+1];
 //				System.arraycopy(userDropboxProperties,0,dropboxAce,0,dropboxLength);
 //				
-//				dropboxAce[dropboxLength] = new Ace(aBusiness.getRoleURI("users"));
+//				dropboxAce[dropboxLength] = new Ace(aBusiness.getRoleURI(IWSlideConstants.ROLENAME_USERS));
 //				dropboxAce[dropboxLength].addPrivilege(Privilege.WRITE);
-//				user.aclMethod(user.getPath()+FOLDER_NAME_DROPBOX,dropboxAce);
+//				rootFolder.aclMethod(userFolderPath+FOLDER_NAME_DROPBOX,dropboxAce);
 //				
 //				
-//				AclProperty userPublicFolderProperty = user.aclfindMethod(user.getPath()+FOLDER_NAME_PUBLIC);
-//				Ace[] userPublicFolderProperties = userPublicFolderProperty.getAces();
+//				AclProperty userPublicFolderProperty = rootFolder.aclfindMethod(userFolderPath+FOLDER_NAME_PUBLIC);
+//				Ace[] userPublicFolderProperties = (userPublicFolderProperty==null)?new Ace[0]:userPublicFolderProperty.getAces();
 //				
 //				int publicLength = userPublicFolderProperties.length;
 //				Ace[] publicAce = new Ace[publicLength+1];
 //				System.arraycopy(userPublicFolderProperties,0,publicAce,0,publicLength);
 //				
-//				publicAce[publicLength] = new Ace("all");
+//				publicAce[publicLength] = new Ace(IWSlideConstants.SUBJECT_URI_ALL);
 //				publicAce[publicLength].addPrivilege(Privilege.READ);
 //				publicAce[publicLength].setInherited(true);
-//				user.aclMethod(user.getPath()+FOLDER_NAME_PUBLIC,publicAce);
+//				rootFolder.aclMethod(userFolderPath+FOLDER_NAME_PUBLIC,publicAce);
 //			}
 //			catch (IBOLookupException e) {
 //				// TODO Auto-generated catch block
@@ -335,15 +354,26 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 //			}
 //			
 //			
+//			try {
+//				logOutAcesForUserFolders(loginName);
+//			}
+//			catch (HttpException e1) {
+//				// TODO Auto-generated catch block
+//				e1.printStackTrace();
+//			}
+//			catch (IOException e1) {
+//				// TODO Auto-generated catch block
+//				e1.printStackTrace();
+//			}
+//			
+////			if(transactionStarted){
+////				returner = rootFolder.commitTransaction();
+////			}
+			rootFolder.close();
+		} 
+//		else {
 //			logOutAcesForUserFolders(loginName);
-			
-			if(transactionStarted){
-				returner = user.commitTransaction();
-			}
-			user.close();
-		} else {
-			logOutAcesForUserFolders(loginName);
-		}
+//		}
 		
 		return returner;
 	}
