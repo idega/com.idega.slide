@@ -1,67 +1,209 @@
 package com.idega.slide.util;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Vector;
-
 import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.webdav.lib.BaseProperty;
+import org.apache.webdav.lib.PropertyName;
 import org.apache.webdav.lib.ResponseEntity;
 import org.apache.webdav.lib.WebdavResource;
+import org.apache.webdav.lib.properties.CheckedinProperty;
+import org.apache.webdav.lib.properties.CheckedoutProperty;
 
 /**
- * @author gimmi
+ * A helper class to perform version control operations on WebdavResources
+ * 
+ * @author <a href="mailto:gimmi@idega.is>Grimur Jonsson </a>, <a
+ *         href="mailto:eiki@idega.is>Eirikur S. Hrafnsson </a>
  */
 public class VersionHelper {
-	
+
+	public static final String PROPERTY_DISPLAY_NAME = "displayname";
+
 	public static final String PROPERTY_PREDECESSOR_SET = "predecessor-set";
-	public static final String PROPERTY_SUCCESSOR_SET   = "successor-set";
-	public static final String PROPERTY_VERSION_NAME    = "version-name";
-	public static final String PROPERTY_CREATOR_DISPLAYNAME = "creator-displayname";
-	public static final String PROPERTY_VERSION_COMMENT = "comment";
-	
+
+	public static final String PROPERTY_SUCCESSOR_SET = "successor-set";
+
+	public static final String PROPERTY_VERSION_NAME = "version-name";
+
+	public static final String PROPERTY_VERSION_TREE = "version-tree";
+
+	public static final String PROPERTY_LATEST_ACTIVITY_VERSION = "latest-activity-version";
+
+	public static final String PROPERTY_CREATOR_DISPLAY_NAME = "creator-displayname";
+
+	public static final String PROPERTY_CHECKED_OUT_SET = "checkedout-set";
+
+	public static final String PROPERTY_CHECKED_OUT = CheckedoutProperty.TAG_NAME;
+
+	public static final String PROPERTY_CHECKED_IN = CheckedinProperty.TAG_NAME;
+
+	public static final String PROPERTY_LOCK_DISCOVERY = "lockdiscovery";
+
+	public static final String PROPERTY_RESOURCE_TYPE = "resourcetype";
+
+	public static final String PROPERTY_CONTENT_TYPE = WebdavResource.GETCONTENTTYPE;
+
+	public static final String PROPERTY_CONTENT_LENGTH = WebdavResource.GETCONTENTLENGTH;
+
+	public static final String PROPERTY_LAST_MODIFIED = WebdavResource.GETLASTMODIFIED;
+
+	public static final String PROPERTY_COMMENT = "comment";
+
+	public static final int DEFAULT_LOCK_TIMEOUT = 86400;
+
 	public static String getLatestVersion(WebdavResource resource) {
-		try {
-			Vector properties = new Vector();
-			properties.add(PROPERTY_VERSION_NAME);
-			
-			Enumeration rsEnum = resource.reportMethod(resource.getHttpURL(), properties);
-
-			while (rsEnum.hasMoreElements()) {
-				ResponseEntity entity = (ResponseEntity) rsEnum.nextElement();
-				Enumeration props = entity.getProperties();
-				while (props.hasMoreElements()) {
-					BaseProperty property = (BaseProperty) props.nextElement(); 
-					// First (and only) property is always version name (properties Vector) 
-					return property.getPropertyAsString();
-				}
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
+		return getAllVersions(resource).get(0).toString();
 	}
-	
+
 	/**
 	 * 
 	 * @param resource
-	 * @return An Enumeration of ResponseEntity objects...
+	 * @return A list of WebdavResourceVersion
 	 */
-	public static Enumeration getAllVersions(WebdavResource resource) {
+	public static List getAllVersions(WebdavResource resource) {
+		List versions = new ArrayList();
 		try {
 			Vector p = new Vector();
+			Map propMap = new HashMap();
 			p.add(PROPERTY_VERSION_NAME);
-			p.add(PROPERTY_CREATOR_DISPLAYNAME);
-			p.add(PROPERTY_VERSION_COMMENT);
-
-			return resource.reportMethod(resource.getHttpURL(), p);
-		} catch (HttpException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+			p.add(PROPERTY_CREATOR_DISPLAY_NAME);
+			p.add(PROPERTY_COMMENT);
+			p.add(PROPERTY_CHECKED_OUT);
+			p.add(PROPERTY_CHECKED_IN);
+			p.add(PROPERTY_LAST_MODIFIED);
+			p.add(PROPERTY_SUCCESSOR_SET);
+			Enumeration props = resource.reportMethod(resource.getHttpURL(), p);
+			while (props.hasMoreElements()) {
+				ResponseEntity responseEntity = (ResponseEntity) props.nextElement();
+				
+				for (Enumeration e = responseEntity.getProperties(); e.hasMoreElements();) {
+					BaseProperty property = (BaseProperty) e.nextElement();
+					String propertyName = property.getLocalName();
+					propMap.put(propertyName, property);
+				}
+				versions.add(new WebdavResourceVersion(propMap));
+			}
+		}
+		catch (HttpException e) {
 			e.printStackTrace();
 		}
-		return null;
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		Collections.sort(versions);
+		Collections.reverse(versions);
+		
+		return versions;
 	}
-	
+
+	public static boolean lock(WebdavResource resource) {
+		boolean success = false;
+		if (resource == null) {
+			return false;
+		}
+		try {
+			//	            String owner = lockOwner == null
+			//	                    ? DEFAULT_OWNER
+			//	                    : lockOwner;
+			//use resource.lockMethod(DEFAULT_LOCK_TIMEOUT); ?
+			success = resource.lockMethod(resource.getOwner(), DEFAULT_LOCK_TIMEOUT);
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		return success;
+	}
+
+	public static boolean unlock(WebdavResource resource) {
+		boolean success = false;
+		if (resource == null) {
+			return false;
+		}
+		try {
+			//	            String owner = lockOwner == null
+			//	                    ? DEFAULT_OWNER
+			//	                    : lockOwner;
+			success = resource.unlockMethod(resource.getPath(), resource.getOwner());
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		return success;
+	}
+
+	public static boolean checkOut(WebdavResource resource) {
+		boolean success = false;
+		if (resource == null) {
+			return false;
+		}
+		try {
+			success = resource.checkoutMethod();
+			resource.proppatchMethod(new PropertyName("DAV:", "comment"), "Checked-out by : " + resource.getOwner(),
+					true);
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		return success;
+	}
+
+	public static boolean unCheckOut(WebdavResource resource) {
+		boolean success = false;
+		if (resource == null) {
+			return false;
+		}
+		try {
+			success = resource.uncheckoutMethod();
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		return success;
+	}
+
+	public static boolean checkIn(WebdavResource resource) {
+		boolean success = false;
+		if (resource == null) {
+			return false;
+		}
+		try {
+			success = resource.checkinMethod();
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		return success;
+	}
+
+	public static boolean delete(WebdavResource resource) {
+		boolean success = false;
+		try {
+			//comment from SwingDaver:
+			// Okay, check this out. I spent like forever trying to
+			// get files such as SomJavaFile$1.class to delete, however
+			// after what seems like centuries, I finally reach the
+			// conclusion that the escaped path doesn't cut it and symbols
+			// such as $ and : need to be decoded/unescaped back to their
+			// original format before they will delete successfully.
+			String resPath = getDecodedPath(resource);
+			success = resource.deleteMethod(resPath);
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		return success;
+	}
+
+	public static String getDecodedPath(WebdavResource resource) throws IOException {
+		return URIUtil.decode(resource.getPath());
+	}
 }
