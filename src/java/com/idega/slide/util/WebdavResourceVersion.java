@@ -1,5 +1,5 @@
 /*
- * $Id: WebdavResourceVersion.java,v 1.3 2004/12/21 18:25:29 eiki Exp $ Created on Dec
+ * $Id: WebdavResourceVersion.java,v 1.4 2005/01/10 11:36:00 gimmi Exp $ Created on Dec
  * 19, 2004
  * 
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -20,12 +20,12 @@ import com.idega.user.data.User;
 
 /**
  * 
- * Last modified: $Date: 2004/12/21 18:25:29 $ by $Author: eiki $
+ * Last modified: $Date: 2005/01/10 11:36:00 $ by $Author: gimmi $
  * 
  * A little wrapper for version information
  * 
  * @author <a href="mailto:eiki@idega.com">Eirikur S. Hrafnsson </a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class WebdavResourceVersion implements Comparable{
 
@@ -45,6 +45,8 @@ public class WebdavResourceVersion implements Comparable{
 
 	private BaseProperty comment;
 	
+	private BaseProperty creationDate;
+	
 	protected WebdavResourceVersion(Map propTable) {
 		versionName = (BaseProperty) propTable.get(VersionHelper.PROPERTY_VERSION_NAME);
 		creatorDisplayName = (BaseProperty) propTable.get(VersionHelper.PROPERTY_CREATOR_DISPLAY_NAME);
@@ -54,6 +56,7 @@ public class WebdavResourceVersion implements Comparable{
 		checkedIn = (CheckedinProperty) propTable.get(VersionHelper.PROPERTY_CHECKED_IN);
 		checkedOut = (CheckedoutProperty) propTable.get(VersionHelper.PROPERTY_CHECKED_OUT);
 		comment = (BaseProperty) propTable.get(VersionHelper.PROPERTY_COMMENT);
+		creationDate = (BaseProperty) propTable.get(VersionHelper.PROPERTY_CREATION_DATE);
 	}
 
 	public String toString() {
@@ -145,6 +148,10 @@ public class WebdavResourceVersion implements Comparable{
 	 */
 	public int compareTo(Object version) {
 		return Collator.getInstance().compare(this.toString(),version.toString());
+	}
+	
+	public String getCreationDate() {
+		return creationDate.getPropertyAsString();
 	}
 	
 }

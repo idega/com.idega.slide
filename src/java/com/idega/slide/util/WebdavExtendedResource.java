@@ -36,6 +36,7 @@ public class WebdavExtendedResource extends WebdavResource {
 	private String versionName;
 	private String comment;
 	private String parentPath;
+	private String creationDate;
 	
 	public WebdavExtendedResource(String urlStr, Credentials cred, boolean followRedirects) throws IOException {
 		super(urlStr, cred, followRedirects);
@@ -181,9 +182,22 @@ public class WebdavExtendedResource extends WebdavResource {
 		else if(propName.equals(VersionHelper.PROPERTY_COMMENT)){
 			setComment(strVal);
 		}
+		else if (propName.equals(VersionHelper.PROPERTY_CREATION_DATE)) {
+			strVal = strVal.replaceFirst("T", " ");
+			strVal = strVal.replaceFirst("Z", "");
+			setCreationDateString(strVal);
+		}
 		else {
 			super.processProperty(property);
 		}
+	}
+	
+	protected void setCreationDateString(String value) {
+		creationDate = value;
+	}
+	
+	public String getCreationDateString() {
+		return creationDate;
 	}
 
 	protected void setCheckedIn(String value) {
@@ -227,6 +241,7 @@ public class WebdavExtendedResource extends WebdavResource {
 	 * <li>checked-in</li>
 	 * <li>checked-out</li>
 	 * <li>version-name</li>
+	 * <li>creationdate</li>
 	 * </ul>
 	 */
 	public WebdavResources listWithDeltaV() throws IOException {
@@ -242,6 +257,7 @@ public class WebdavExtendedResource extends WebdavResource {
 		properties.addElement(VersionHelper.PROPERTY_CHECKED_OUT);
 		properties.addElement(VersionHelper.PROPERTY_VERSION_NAME);
 		properties.addElement(VersionHelper.PROPERTY_COMMENT);
+		properties.addElement(VersionHelper.PROPERTY_CREATION_DATE);
 		// The following call should in turn, call
 		// Enumeration responses = super.propfindMethod(DEPTH_1, properies)
 		// super.setWebdavProperties(reponses)
@@ -275,6 +291,7 @@ public class WebdavExtendedResource extends WebdavResource {
 	 * <li>checked-in</li>
 	 * <li>checked-out</li>
 	 * <li>version-name</li>
+	 * <li>creationdate</li>
 	 * </ul>
 	 */
 	public void setProperties() throws IOException {
@@ -290,6 +307,7 @@ public class WebdavExtendedResource extends WebdavResource {
 		properties.addElement(VersionHelper.PROPERTY_CHECKED_OUT);
 		properties.addElement(VersionHelper.PROPERTY_VERSION_NAME);
 		properties.addElement(VersionHelper.PROPERTY_COMMENT);
+		properties.addElement(VersionHelper.PROPERTY_CREATION_DATE);
 		// The following call should in turn, call
 		// Enumeration responses = super.propfindMethod(DEPTH_1, properies)
 		// super.setWebdavProperties(reponses)

@@ -55,6 +55,8 @@ public class VersionHelper {
 
 	public static final String PROPERTY_LAST_MODIFIED = WebdavResource.GETLASTMODIFIED;
 
+	public static final String PROPERTY_CREATION_DATE = WebdavResource.CREATIONDATE;
+	
 	public static final String PROPERTY_COMMENT = "comment";
 
 	public static final int DEFAULT_LOCK_TIMEOUT = 86400;
@@ -91,6 +93,7 @@ public class VersionHelper {
 			p.add(PROPERTY_CHECKED_OUT);
 			p.add(PROPERTY_CHECKED_IN);
 			p.add(PROPERTY_LAST_MODIFIED);
+			p.add(PROPERTY_CREATION_DATE);
 			//p.add(PROPERTY_SUCCESSOR_SET);
 			Enumeration props = resource.reportMethod(resource.getHttpURL(), p);
 			while (props.hasMoreElements()) {
