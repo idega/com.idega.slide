@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.19 2005/01/19 14:40:23 gimmi Exp $
+ * $Id: IWSlideSessionBean.java,v 1.20 2005/02/14 14:58:25 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -31,10 +31,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2005/01/19 14:40:23 $ by $Author: gimmi $
+ *  Last modified: $Date: 2005/02/14 14:58:25 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.19 $
+ * @version $Revision: 1.20 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -182,7 +182,7 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	public WebdavExtendedResource getWebdavResource(String path) throws HttpException, IOException, RemoteException {
 		WebdavExtendedResource resource;
 //		if(getUserContext().isLoggedOn()){
-			resource = new WebdavExtendedResource(getIWSlideService().getWebdavServerURL(getUserCredentials(),path));
+			resource = new WebdavExtendedResource(getIWSlideService().getWebdavServerURL(getUserCredentials(),getPath(path)));
 //		} else {
 //			resource = new WebdavExtendedResource(getIWSlideService().getWebdavServerURL(path));
 //		}
@@ -192,6 +192,11 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	
 	public String getURI(String path) throws RemoteException{
 		return getWebdavServerURI()+((path.startsWith("/"))?"":"/")+path;
+	}
+	
+	public String getPath(String uri) throws RemoteException{
+		String uriPrefix = getWebdavServerURI();
+		return ((uri.startsWith(uriPrefix))?uri.substring(uriPrefix.length()):uri);
 	}
 	
 	public boolean getExistence(String path) throws HttpException, IOException{
