@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.5 2004/11/16 00:08:29 tryggvil Exp $
+ * $Id: IWSlideServiceBean.java,v 1.6 2004/11/17 08:49:00 aron Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -10,12 +10,12 @@
 package com.idega.slide.business;
 
 import java.io.IOException;
-import java.rmi.RemoteException;
+
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.URIException;
 import org.apache.webdav.lib.WebdavFile;
-import com.idega.business.IBOLookupException;
+
 import com.idega.business.IBORuntimeException;
 import com.idega.business.IBOServiceBean;
 import com.idega.slide.schema.SlideSchemaCreator;
@@ -24,10 +24,10 @@ import com.idega.user.data.User;
 
 /**
  * 
- *  Last modified: $Date: 2004/11/16 00:08:29 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2004/11/17 08:49:00 $ by $Author: aron $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -64,10 +64,10 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 		       server += getWebdavServletURL();
 		       HttpURL hrl = new HttpURL(server);
 			   if(user!=null){
-			   		//TODO: Implement real user authorization, now hardcoded as root
-			       	hrl.setUserinfo("root","root");
-			       	//hrl.setUserInfo("user","pass");
-			       }
+			       //TODO: Implement real user authorization, now hardcoded as root
+			       hrl.setUserinfo("root","root");
+			       //hrl.setUserInfo("user","pass");
+			    }
 	            return hrl;
 	       }
 	       return null;
@@ -110,19 +110,5 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 			e.printStackTrace();
 		}
 	}
-	
-	/**
-	 * Moves all files from the IC file system to Slide
-	 */
-	public void copyFileSystemToSlide(){
-	    try {
-            ((FileSystemCopyService)getServiceInstance(FileSystemCopyService.class)).run();
-        } catch (IBOLookupException e) {
-            e.printStackTrace();
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-	}
+
 }
