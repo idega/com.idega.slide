@@ -1,5 +1,5 @@
 /*
- * $Id: AuthenticationBusinessBean.java,v 1.6 2004/12/17 18:04:54 gummi Exp $
+ * $Id: AuthenticationBusinessBean.java,v 1.7 2004/12/22 20:13:18 gummi Exp $
  * Created on 9.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -23,16 +23,19 @@ import org.apache.webdav.lib.WebdavResources;
 import com.idega.business.IBOLookup;
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBOServiceBean;
+import com.idega.core.accesscontrol.business.LoginBusinessBean;
+import com.idega.presentation.IWContext;
 import com.idega.slide.business.IWSlideService;
 import com.idega.slide.util.PropertyParser;
+import com.idega.util.StringHandler;
 
 
 /**
  * 
- *  Last modified: $Date: 2004/12/17 18:04:54 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/22 20:13:18 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 public class AuthenticationBusinessBean extends IBOServiceBean  implements AuthenticationBusiness{
 	
@@ -47,6 +50,11 @@ public class AuthenticationBusinessBean extends IBOServiceBean  implements Authe
 	private IWSlideService slideService = null;
 	private static final String GROUP_MEMBER_SET = "group-member-set";
 	private static final PropertyName GROUP_MEMBER_SET_PROPERTY_NAME = new PropertyName("DAV:",GROUP_MEMBER_SET);
+	private static final String NO_PASSWORD = "no_password";
+	private static final String ROOT_USER_NAME = "root";
+	private final UsernamePasswordCredentials rootCredential = new UsernamePasswordCredentials(ROOT_USER_NAME,NO_PASSWORD);
+	private LoginBusinessBean _loginBusiness = new LoginBusinessBean();
+	
 	
 	public WebdavResources getAllRoles() throws HttpException, RemoteException, IOException{
 		return getAllRoles(null);
@@ -211,6 +219,24 @@ public class AuthenticationBusinessBean extends IBOServiceBean  implements Authe
 			slideService = (IWSlideService)IBOLookup.getServiceInstance(getIWApplicationContext(),IWSlideService.class);
 		}
 		return slideService;
+	}
+	
+	public UsernamePasswordCredentials getRootUserCredentials(){
+		if(NO_PASSWORD.equals(rootCredential.getPassword())){
+			rootCredential.setPassword(StringHandler.getRandomString(20));
+		}
+		return rootCredential;
+	}
+	
+	public boolean isRootUser(IWContext iwc){
+		LoginBusinessBean loginBusiness = getLoginBusiness(iwc);
+		String[] usernameAndPassword = loginBusiness.getLoginNameAndPasswordFromBasicAuthenticationRequest(iwc);
+		UsernamePasswordCredentials tmpCredential = getRootUserCredentials();
+		return tmpCredential.getUserName().equals(usernameAndPassword[0]) && tmpCredential.getPassword().equals(usernameAndPassword[1]);
+	}
+	
+	protected LoginBusinessBean getLoginBusiness(IWContext iwc){
+		return _loginBusiness;
 	}
 	
 	

@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticator.java,v 1.4 2004/12/17 18:04:54 gummi Exp $
+ * $Id: IWSlideAuthenticator.java,v 1.5 2004/12/22 20:13:18 gummi Exp $
  * Created on 8.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -28,15 +28,16 @@ import com.idega.business.IBOLookupException;
 import com.idega.core.accesscontrol.business.LoggedOnInfo;
 import com.idega.core.accesscontrol.business.LoginBusinessBean;
 import com.idega.presentation.IWContext;
+import com.idega.slide.business.IWSlideService;
 import com.idega.slide.business.IWSlideSession;
 
 
 /**
  * 
- *  Last modified: $Date: 2004/12/17 18:04:54 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/22 20:13:18 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class IWSlideAuthenticator implements Filter {
 
@@ -155,9 +156,15 @@ public class IWSlideAuthenticator implements Filter {
 			if(lInfo.getAttribute("iw_slide_roles_updated")==null){
 				AuthenticationBusiness business = (AuthenticationBusiness)IBOLookup.getServiceInstance(iwc,AuthenticationBusiness.class);
 				business.updateRoleMembershipForUser(lInfo.getLogin(),lInfo.getUserRoles(),null);
+				generateUserFolders(iwc);
 				lInfo.setAttribute("iw_slide_roles_updated",Boolean.TRUE);
 			}
 		}
+	}
+	
+	private void generateUserFolders(IWContext iwc) throws HttpException, RemoteException, IOException{
+		IWSlideService slideService = (IWSlideService)IBOLookup.getServiceInstance(iwc,IWSlideService.class);
+		slideService.generateUserFolders(iwc.getRemoteUser());
 	}
 
 	private boolean isAuthenticated(IWContext iwc, LoggedOnInfo info, String login, String password){

@@ -1,6 +1,6 @@
 /*
- * $Id: IWSlideServiceHome.java,v 1.8 2004/12/14 17:24:11 gummi Exp $
- * Created on 14.12.2004
+ * $Id: IWSlideServiceHome.java,v 1.9 2004/12/22 20:13:18 gummi Exp $
+ * Created on 21.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
  *
@@ -14,10 +14,10 @@ import com.idega.business.IBOHome;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/14 17:24:11 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/22 20:13:18 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public interface IWSlideServiceHome extends IBOHome {
 
