@@ -1,6 +1,6 @@
 /*
- * $Id: IWSlideServiceHome.java,v 1.3 2004/11/12 16:44:46 aron Exp $
- * Created on 12.11.2004
+ * $Id: IWSlideServiceHome.java,v 1.4 2004/11/15 14:07:06 aron Exp $
+ * Created on 15.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
  *
@@ -15,10 +15,10 @@ import com.idega.business.IBOHome;
 
 /**
  * 
- *  Last modified: $Date: 2004/11/12 16:44:46 $ by $Author: aron $
+ *  Last modified: $Date: 2004/11/15 14:07:06 $ by $Author: aron $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public interface IWSlideServiceHome extends IBOHome {
     public IWSlideService create() throws javax.ejb.CreateException,
