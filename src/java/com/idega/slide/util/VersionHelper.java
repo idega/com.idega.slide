@@ -60,7 +60,12 @@ public class VersionHelper {
 	public static final int DEFAULT_LOCK_TIMEOUT = 86400;
 
 	public static String getLatestVersion(WebdavResource resource) {
-		return getAllVersions(resource).get(0).toString();
+		List list = getAllVersions(resource);
+		if (!list.isEmpty()) {
+			return getAllVersions(resource).get(0).toString();
+		}	else {
+			return null;
+		}
 	}
 
 	/**
