@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.12 2004/12/17 18:04:54 gummi Exp $
+ * $Id: IWSlideSessionBean.java,v 1.13 2004/12/21 18:25:29 eiki Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -21,16 +21,17 @@ import com.idega.business.IBOLookupException;
 import com.idega.business.IBOSessionBean;
 import com.idega.core.accesscontrol.business.LoggedOnInfo;
 import com.idega.core.accesscontrol.business.LoginBusinessBean;
+import com.idega.slide.util.WebdavExtendedResource;
 import com.idega.slide.util.WebdavRootResource;
 import com.idega.util.StringHandler;
 
 
 /**
  * 
- *  Last modified: $Date: 2004/12/17 18:04:54 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/21 18:25:29 $ by $Author: eiki $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.13 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -155,12 +156,12 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	}
 
 
-	public WebdavResource getWebdavResource(String path) throws HttpException, IOException, RemoteException {
-		WebdavResource resource;
+	public WebdavExtendedResource getWebdavResource(String path) throws HttpException, IOException, RemoteException {
+		WebdavExtendedResource resource;
 		if(usersCredentials!=null){
-			resource = new WebdavResource(getIWSlideService().getWebdavServerURL(getUserCredentials(),path));
+			resource = new WebdavExtendedResource(getIWSlideService().getWebdavServerURL(getUserCredentials(),path));
 		} else {
-			resource = new WebdavResource(getIWSlideService().getWebdavServerURL(path));
+			resource = new WebdavExtendedResource(getIWSlideService().getWebdavServerURL(path));
 		}
 		
 		return resource;

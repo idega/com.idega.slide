@@ -1,5 +1,5 @@
 /*
- * $Id: WebdavResourceVersion.java,v 1.2 2004/12/20 03:17:55 eiki Exp $ Created on Dec
+ * $Id: WebdavResourceVersion.java,v 1.3 2004/12/21 18:25:29 eiki Exp $ Created on Dec
  * 19, 2004
  * 
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -20,12 +20,12 @@ import com.idega.user.data.User;
 
 /**
  * 
- * Last modified: $Date: 2004/12/20 03:17:55 $ by $Author: eiki $
+ * Last modified: $Date: 2004/12/21 18:25:29 $ by $Author: eiki $
  * 
  * A little wrapper for version information
  * 
  * @author <a href="mailto:eiki@idega.com">Eirikur S. Hrafnsson </a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class WebdavResourceVersion implements Comparable{
 
@@ -37,7 +37,7 @@ public class WebdavResourceVersion implements Comparable{
 
 	private BaseProperty contentLength;
 
-	private BaseProperty successorSet;
+	//private BaseProperty successorSet;
 	
 	private CheckedinProperty checkedIn;
 
@@ -50,7 +50,7 @@ public class WebdavResourceVersion implements Comparable{
 		creatorDisplayName = (BaseProperty) propTable.get(VersionHelper.PROPERTY_CREATOR_DISPLAY_NAME);
 		lastModified = (BaseProperty) propTable.get(VersionHelper.PROPERTY_LAST_MODIFIED);
 		contentLength = (BaseProperty) propTable.get(VersionHelper.PROPERTY_CONTENT_LENGTH);
-		successorSet = (BaseProperty) propTable.get(VersionHelper.PROPERTY_SUCCESSOR_SET);
+		//successorSet = (BaseProperty) propTable.get(VersionHelper.PROPERTY_SUCCESSOR_SET);
 		checkedIn = (CheckedinProperty) propTable.get(VersionHelper.PROPERTY_CHECKED_IN);
 		checkedOut = (CheckedoutProperty) propTable.get(VersionHelper.PROPERTY_CHECKED_OUT);
 		comment = (BaseProperty) propTable.get(VersionHelper.PROPERTY_COMMENT);
@@ -122,9 +122,9 @@ public class WebdavResourceVersion implements Comparable{
 	/**
 	 * @return Returns the successorSet.
 	 */
-	public BaseProperty getSuccessorSet() {
-		return successorSet;
-	}
+//	public BaseProperty getSuccessorSet() {
+//		return successorSet;
+//	}
 
 	/**
 	 * @return Returns the versionName.

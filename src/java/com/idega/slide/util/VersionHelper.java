@@ -59,6 +59,11 @@ public class VersionHelper {
 
 	public static final int DEFAULT_LOCK_TIMEOUT = 86400;
 
+	/**
+	 * An expensive method, you should rather create a WebdavExtendedResource and use its getVersionName method
+	 * @param resource
+	 * @return
+	 */
 	public static String getLatestVersion(WebdavResource resource) {
 		List list = getAllVersions(resource);
 		if (!list.isEmpty()) {
@@ -84,7 +89,7 @@ public class VersionHelper {
 			p.add(PROPERTY_CHECKED_OUT);
 			p.add(PROPERTY_CHECKED_IN);
 			p.add(PROPERTY_LAST_MODIFIED);
-			p.add(PROPERTY_SUCCESSOR_SET);
+			//p.add(PROPERTY_SUCCESSOR_SET);
 			Enumeration props = resource.reportMethod(resource.getHttpURL(), p);
 			while (props.hasMoreElements()) {
 				ResponseEntity responseEntity = (ResponseEntity) props.nextElement();

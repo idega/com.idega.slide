@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSession.java,v 1.8 2004/12/17 18:04:54 gummi Exp $
+ * $Id: IWSlideSession.java,v 1.9 2004/12/21 18:25:29 eiki Exp $
  * Created on 14.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -15,17 +15,17 @@ import javax.servlet.http.HttpSessionBindingEvent;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.slide.common.SlideToken;
-import org.apache.webdav.lib.WebdavResource;
 import com.idega.business.IBOSession;
+import com.idega.slide.util.WebdavExtendedResource;
 import com.idega.slide.util.WebdavRootResource;
 
 
 /**
  * 
- *  Last modified: $Date: 2004/12/17 18:04:54 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/21 18:25:29 $ by $Author: eiki $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public interface IWSlideSession extends IBOSession {
 
@@ -62,7 +62,7 @@ public interface IWSlideSession extends IBOSession {
 	/**
 	 * @see com.idega.slide.business.IWSlideSessionBean#getWebdavResource
 	 */
-	public WebdavResource getWebdavResource(String path) throws HttpException, IOException, RemoteException;
+	public WebdavExtendedResource getWebdavResource(String path) throws HttpException, IOException, RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideSessionBean#getApplicationServerRelativePath
