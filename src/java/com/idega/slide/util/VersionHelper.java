@@ -62,6 +62,20 @@ public class VersionHelper {
 	public static final String CHECKED_OUT_PREFIX = "Checked-out by : ";
 	
 	/**
+	 * An expensive method, you should rather create a WebdavExtendedResource and use its getVersionName method
+	 * @param resource
+	 * @return
+	 */
+	public static String getLatestVersion(WebdavResource resource) {
+		List list = getAllVersions(resource);
+		if (!list.isEmpty()) {
+			return list.get(0).toString();
+		}	else {
+			return null;
+		}
+	}
+	
+	/**
 	 * 
 	 * @param resource
 	 * @return A list of WebdavResourceVersion
