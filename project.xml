@@ -5,7 +5,7 @@
   <artifactId>com.idega.slide</artifactId>
   <name>idegaWeb Slide</name>
   <groupId>bundles</groupId>
-  <currentVersion>0.1-SNAPSHOT</currentVersion>  
+  <currentVersion>0.2-SNAPSHOT</currentVersion>
   <organization>
     <name>Idega Software</name>
     <url>www.idega.com</url>
@@ -14,6 +14,28 @@
   <package>com.idega.slide</package>
   <shortDescription>Idega bridge for the org.apache.slide project</shortDescription>
   <dependencies>
+    <dependency>
+      <groupId>commons-transaction</groupId>
+      <artifactId>commons-transaction</artifactId>
+      <version>1.0rc1</version>
+      <type>jar</type>
+      <url>http://jakarta.apache.org/commons/sandbox/transaction/</url>
+    </dependency>
+    <!-- ServletAPI -->
+    <dependency>
+      <groupId>servletapi</groupId>
+      <artifactId>servletapi</artifactId>
+      <version>2.4</version>
+      <type>jar</type>
+      <url>http://java.sun.com/products/servlet/docs.html</url>
+    </dependency>
+    <dependency>
+      <groupId>commons-httpclient</groupId>
+      <artifactId>commons-httpclient</artifactId>
+      <version>2.0</version>
+      <type>jar</type>
+      <url>http://jakarta.apache.org/commons/httpclient/</url>
+    </dependency>
     <dependency>
       <groupId>bundles</groupId>
       <artifactId>com.idega.core</artifactId>
@@ -24,7 +46,7 @@
         <eclipse.dependency>true</eclipse.dependency>
       </properties>
     </dependency>
-        <dependency>
+    <dependency>
       <groupId>bundles</groupId>
       <artifactId>org.apache.slide</artifactId>
       <version>SNAPSHOT</version>
@@ -37,65 +59,58 @@
     <dependency>
       <groupId>slide</groupId>
       <artifactId>jakarta-slide-webdavlib</artifactId>
-      <version>2.1b2</version>
+      <version>2.1rc1</version>
       <type>jar</type>
       <url>http://jakarta.apache.org/slide/</url>
     </dependency>
     <dependency>
       <groupId>slide</groupId>
       <artifactId>slide-jaas</artifactId>
-      <version>2.1b2</version>
+      <version>2.1rc1</version>
       <type>jar</type>
       <url>http://jakarta.apache.org/slide/</url>
     </dependency>
     <dependency>
       <groupId>slide</groupId>
       <artifactId>slide-jdk14logger</artifactId>
-      <version>2.1b2</version>
+      <version>2.1rc1</version>
       <type>jar</type>
       <url>http://jakarta.apache.org/slide/</url>
     </dependency>
     <dependency>
       <groupId>slide</groupId>
       <artifactId>slide-kernel</artifactId>
-      <version>2.1b2</version>
+      <version>2.1rc1</version>
       <type>jar</type>
       <url>http://jakarta.apache.org/slide/</url>
     </dependency>
     <dependency>
       <groupId>slide</groupId>
       <artifactId>slide-log4jlogger</artifactId>
-      <version>2.1b2</version>
+      <version>2.1rc1</version>
       <type>jar</type>
       <url>http://jakarta.apache.org/slide/</url>
     </dependency>
     <dependency>
       <groupId>slide</groupId>
       <artifactId>slide-roles</artifactId>
-      <version>2.1b2</version>
+      <version>2.1rc1</version>
       <type>jar</type>
       <url>http://jakarta.apache.org/slide/</url>
     </dependency>
     <dependency>
       <groupId>slide</groupId>
       <artifactId>slide-stores</artifactId>
-      <version>2.1b2</version>
+      <version>2.1rc1</version>
       <type>jar</type>
       <url>http://jakarta.apache.org/slide/</url>
     </dependency>
     <dependency>
       <groupId>slide</groupId>
       <artifactId>slide-webdavservlet</artifactId>
-      <version>2.1b2</version>
+      <version>2.1rc1</version>
       <type>jar</type>
       <url>http://jakarta.apache.org/slide/</url>
-    </dependency>
-    <dependency>
-      <groupId>commons-transaction</groupId>
-      <artifactId>commons-transaction</artifactId>
-      <version>20040805</version>
-      <type>jar</type>
-      <url>http://jakarta.apache.org/commons/sandbox/transaction/</url>
     </dependency>
     <dependency>
       <groupId>geronimo-spec</groupId>
@@ -113,21 +128,6 @@
       <properties>
         <eclipse.dependency>true</eclipse.dependency>
       </properties>
-    </dependency>
-    <!-- ServletAPI -->
-    <dependency>
-      <groupId>servletapi</groupId>
-      <artifactId>servletapi</artifactId>
-      <version>2.4</version>
-      <type>jar</type>
-      <url>http://java.sun.com/products/servlet/docs.html</url>
-    </dependency>
-    <dependency>
-      <groupId>commons-httpclient</groupId>
-      <artifactId>commons-httpclient</artifactId>
-      <version>2.0</version>
-      <type>jar</type>
-      <url>http://jakarta.apache.org/commons/httpclient/</url>
     </dependency>
   </dependencies>
   <build>
