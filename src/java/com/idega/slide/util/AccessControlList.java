@@ -1,5 +1,5 @@
 /*
- * $Id: AccessControlList.java,v 1.1 2005/01/07 18:55:05 gummi Exp $
+ * $Id: AccessControlList.java,v 1.2 2005/01/19 15:49:24 gummi Exp $
  * Created on 28.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -17,10 +17,10 @@ import org.apache.webdav.lib.Ace;
 
 /**
  * 
- *  Last modified: $Date: 2005/01/07 18:55:05 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/01/19 15:49:24 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class AccessControlList {
 	
@@ -33,6 +33,8 @@ public class AccessControlList {
 	protected List acesForUsers;
 	protected List acesForGroups;
 	protected List acesForOthers;
+	
+	protected boolean guaranteeThatRootHasAllPrivileges = true;
 	
 	public AccessControlList(String serverURI, String resourcePath){
 		this.serverURI = serverURI;
@@ -140,11 +142,27 @@ public class AccessControlList {
 
 	public Ace[] getAces(){
 		List l = new ArrayList();
+		String rootRoleSuffix = "/".concat(IWSlideConstants.ROLENAME_ROOT);
+		boolean containsPositiveRootACE = false;
 		for (Iterator iter = aceList.iterator(); iter.hasNext();) {
 			AccessControlEntry entry = (AccessControlEntry) iter.next();
 			if(entry.hasPrivileges()){
-				l.add(entry.getWrappedAce());
+				if(isGuaranteedThatRootHasAllPrivileges() && entry.getPrincipalType() == AccessControlEntry.PRINCIPAL_TYPE_ROLE && entry.getPrincipal().endsWith(rootRoleSuffix)){
+					if(!entry.isNegative()){
+						entry.setInherited(false);
+						entry.setInheritedFrom(null);
+						entry.clearPrivileges();
+						entry.addPrivilege(IWSlideConstants.PRIVILEGE_ALL);
+						containsPositiveRootACE = true;
+						l.add(0,entry.getWrappedAce());
+					}
+				} else {
+					l.add(entry.getWrappedAce());
+				}
 			}
+		}
+		if(!containsPositiveRootACE){
+			System.err.println("[Warning]["+this.getClass().getName()+"]: list does not contain positive ace for root role.");
 		}
 		return (Ace[])l.toArray(new Ace[l.size()]);
 	}
@@ -174,4 +192,20 @@ public class AccessControlList {
 	}
 	
 	
+	/** 
+	 * @return Returns the guaranteeThatRootHasAllPrivileges. Default is true.
+	 */
+	public boolean isGuaranteedThatRootHasAllPrivileges() {
+		return guaranteeThatRootHasAllPrivileges;
+	}
+	/**
+	 * 
+	 * When this is true, as default, the method #getAces() returnes array of Aces that is guaranteed not to 
+	 * denie the root role any privileges when used to store ACL.
+	 * 
+	 * @param guaranteeThatRootHasAllPrivileges The guaranteeThatRootHasAllPrivileges to set. Default is true.
+	 */
+	public void setGuaranteedThatRootHasAllPrivileges(boolean guaranteeThatRootHasAllPrivileges) {
+		this.guaranteeThatRootHasAllPrivileges = guaranteeThatRootHasAllPrivileges;
+	}
 }
