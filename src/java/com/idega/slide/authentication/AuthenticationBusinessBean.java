@@ -1,5 +1,5 @@
 /*
- * $Id: AuthenticationBusinessBean.java,v 1.4 2004/12/15 14:51:24 gummi Exp $
+ * $Id: AuthenticationBusinessBean.java,v 1.5 2004/12/15 16:35:47 gummi Exp $
  * Created on 9.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -14,7 +14,6 @@ import java.rmi.RemoteException;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.Set;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
@@ -25,21 +24,26 @@ import com.idega.business.IBOLookup;
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBOServiceBean;
 import com.idega.slide.business.IWSlideService;
+import com.idega.slide.util.PropertyParser;
 
 
 /**
  * 
- *  Last modified: $Date: 2004/12/15 14:51:24 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/15 16:35:47 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class AuthenticationBusinessBean extends IBOServiceBean  implements AuthenticationBusiness{
 	
-	private static String PATH_USERS = "/users";
-	private static String PATH_GROUPS = "/groups";
-	private static String PATH_ROLES = "/roles";
-	private static String SLASH = "/";
+	private static final String PATH_USERS = "/users";
+	private static final String PATH_GROUPS = "/groups";
+	private static final String PATH_ROLES = "/roles";
+	private static final String SLASH = "/";
+	private static final String SLIDE_ROLE_NAME_ROOT = "root";
+	private static final String SLIDE_DEFAULT_ROOT_USER = "root";
+	private static final String SLIDE_ROLE_NAME_USER = "user";
+	private static final String SLIDE_ROLE_NAME_GUEST = "guset";
 	private IWSlideService slideService = null;
 	private static final String GROUP_MEMBER_SET = "group-member-set";
 	private static final PropertyName GROUP_MEMBER_SET_PROPERTY_NAME = new PropertyName("DAV:",GROUP_MEMBER_SET);
@@ -91,7 +95,7 @@ public class AuthenticationBusinessBean extends IBOServiceBean  implements Authe
 	 * @throws HttpException
 	 */
 	public void updateRoleMembershipForUser(String userLoginName, Set roleNamesForUser, Set loginNamesOfAllLoggedOnUsers) throws HttpException, RemoteException, IOException{
-		if(userLoginName!=null && userLoginName.length()>0 && !userLoginName.equals("root") ){
+		if(userLoginName!=null && userLoginName.length()>0 && !userLoginName.equals(SLIDE_DEFAULT_ROOT_USER) ){
 			IWSlideService service = getSlideServiceInstance();
 			UsernamePasswordCredentials rCredentials = service.getRootUserCredentials();
 			
@@ -139,7 +143,7 @@ public class AuthenticationBusinessBean extends IBOServiceBean  implements Authe
 			Set userSet = parseGroupMemberSetPropertyString(propertyString);
 			
 			if(userpathsOfAllLoggedOnUsers != null){
-				String rootUser = getUserURI("root");
+				String rootUser = getUserURI(SLIDE_DEFAULT_ROOT_USER);
 				for (Iterator iter = userSet.iterator(); iter.hasNext();) {
 					String token = (String) iter.next();
 					if(!rootUser.equals(token) && !userpathsOfAllLoggedOnUsers.contains(token)){
@@ -150,7 +154,7 @@ public class AuthenticationBusinessBean extends IBOServiceBean  implements Authe
 			}
 			
 			boolean userIsInRole = userSet.contains(userURI);
-			boolean userShouldBeInRole = "user".equals(role.getDisplayName()) || roleNamesForUser.contains(role.getDisplayName());
+			boolean userShouldBeInRole = SLIDE_ROLE_NAME_USER.equals(role.getDisplayName()) || roleNamesForUser.contains(role.getDisplayName());
 			
 			if(!userIsInRole && userShouldBeInRole){
 				userSet.add(userURI);
@@ -189,13 +193,7 @@ public class AuthenticationBusinessBean extends IBOServiceBean  implements Authe
 	 * @return
 	 */
 	private String encodeGroupMemberSetPropertyString(Set userOrGroupSet) {
-		String newGroupMemberSet = "";
-		for (Iterator iter = userOrGroupSet.iterator(); iter.hasNext();) {
-			String path = (String) iter.next();
-			newGroupMemberSet += "<D:href xmlns:D=\"DAV:\">"+path+"</D:href>";
-		}
-//		System.out.println("\t[newGroupMemberSet]: "+newGroupMemberSet);
-		return newGroupMemberSet;
+		return PropertyParser.encodePropertyString(null,userOrGroupSet);
 	}
 
 	/**
@@ -204,22 +202,7 @@ public class AuthenticationBusinessBean extends IBOServiceBean  implements Authe
 	 * @throws RemoteException
 	 */
 	private Set parseGroupMemberSetPropertyString(String propertyString) throws RemoteException {
-		String[] tokens = propertyString.split("<D:href xmlns:D=\"DAV:\">");
-		for (int i = 0; i < tokens.length; i++) {
-			int closeTagIndex = tokens[i].indexOf("</D:href>");
-			if(closeTagIndex >-1){
-//				System.out.println("\t"+tokens[i]);
-				tokens[i] = tokens[i].substring(0,closeTagIndex);
-//				System.out.println("\t"+tokens[i]);
-			}
-		}
-		Set userSet = new LinkedHashSet();
-		for (int i = 0; i < tokens.length; i++) {
-			if(tokens[i].indexOf("/")!=-1){
-				userSet.add(tokens[i]);
-			}
-		}
-		return userSet;
+		return PropertyParser.parsePropertyString(null,propertyString,true);
 	}
 
 	
