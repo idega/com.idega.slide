@@ -1,5 +1,5 @@
 /*
- * $Id: WebdavRootResource.java,v 1.1 2004/12/14 11:58:20 gummi Exp $
+ * $Id: WebdavRootResource.java,v 1.2 2005/02/25 16:39:37 gummi Exp $
  * Created on 13.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -35,13 +35,15 @@ import org.apache.webdav.lib.properties.ResourceTypeProperty;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/14 11:58:20 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/02/25 16:39:37 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class WebdavRootResource {
 	private WebdavResource rootResource = null;
+	
+	private boolean isClosed = false;
 	
 	public WebdavRootResource(WebdavResource resource){
 		rootResource = resource;
@@ -174,12 +176,18 @@ public class WebdavRootResource {
 	 */
 	public void close() throws IOException {
 		rootResource.close();
+		isClosed = true;
 	}
 	/**
 	 * @throws java.io.IOException
 	 */
 	public void closeSession() throws IOException {
 		rootResource.closeSession();
+		isClosed = true;
+	}
+	
+	public boolean isClosed(){
+		return isClosed;
 	}
 	/**
 	 * @return

@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.21 2005/02/24 14:12:52 gummi Exp $
+ * $Id: IWSlideServiceBean.java,v 1.22 2005/02/25 16:39:37 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -26,6 +26,7 @@ import org.apache.webdav.lib.Privilege;
 import org.apache.webdav.lib.WebdavFile;
 import org.apache.webdav.lib.WebdavResource;
 import org.apache.webdav.lib.properties.AclProperty;
+import org.apache.webdav.lib.util.WebdavStatus;
 import com.idega.business.IBOLookup;
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBORuntimeException;
@@ -41,10 +42,10 @@ import com.idega.util.IWTimestamp;
 
 /**
  * 
- *  Last modified: $Date: 2005/02/24 14:12:52 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/02/25 16:39:37 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.21 $
+ * @version $Revision: 1.22 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -223,12 +224,20 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 		if(path==null){
 			return false;
 		}
-		String pathToCheck = ((path.startsWith(getWebdavServerURI()))?path:getURI(path));
-//		System.out.println("[IWSlideServiceBean]: getExistence("+path+")->headerMethod("+ pathToCheck+")");
-		
-		Enumeration prop = getWebdavResourceAuthenticatedAsRoot().propfindMethod(pathToCheck, WebdavResource.DISPLAYNAME);
-		return !(prop == null || !prop.hasMoreElements());
-		
+		try {
+			String pathToCheck = ((path.startsWith(getWebdavServerURI()))?path:getURI(path));
+	//		System.out.println("[IWSlideServiceBean]: getExistence("+path+")->headerMethod("+ pathToCheck+")");
+			Enumeration prop = getWebdavResourceAuthenticatedAsRoot().propfindMethod(pathToCheck, WebdavResource.DISPLAYNAME);
+			return !(prop == null || !prop.hasMoreElements());
+		}
+		catch (HttpException e) {
+			if(e.getReasonCode()==WebdavStatus.SC_NOT_FOUND){
+				return false;
+			} else {
+				throw e;
+			}
+		}
+			
 //		return getWebdavResourceAuthenticatedAsRoot().headMethod(pathToCheck);
 	}
 

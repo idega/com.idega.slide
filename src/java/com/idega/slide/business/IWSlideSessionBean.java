@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.22 2005/02/24 14:12:53 gummi Exp $
+ * $Id: IWSlideSessionBean.java,v 1.23 2005/02/25 16:39:37 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -26,6 +26,7 @@ import org.apache.webdav.lib.Ace;
 import org.apache.webdav.lib.Privilege;
 import org.apache.webdav.lib.WebdavResource;
 import org.apache.webdav.lib.properties.AclProperty;
+import org.apache.webdav.lib.util.WebdavStatus;
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBOSessionBean;
 import com.idega.core.accesscontrol.business.LoggedOnInfo;
@@ -40,10 +41,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2005/02/24 14:12:53 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/02/25 16:39:37 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.22 $
+ * @version $Revision: 1.23 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -166,7 +167,8 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 			isLoggedOn = !isLoggedOn;
 		}
 		
-		if(webdavRootResource == null){
+		if(webdavRootResource == null || webdavRootResource.isClosed()){
+			webdavRootResource=null;
 			if(usersCredentials == null){
 				if(tmpIsLoggedOn){
 					usersCredentials = getUserCredentials();
@@ -212,9 +214,18 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		if(path==null){
 			return false;
 		}
-		String pathToCheck = ((path.startsWith(getWebdavServerURI()))?path:getURI(path));
-		Enumeration prop = getWebdavRootResource().propfindMethod(pathToCheck, WebdavResource.DISPLAYNAME);
-		return !(prop == null || !prop.hasMoreElements());
+		try {
+			String pathToCheck = ((path.startsWith(getWebdavServerURI()))?path:getURI(path));
+			Enumeration prop = getWebdavRootResource().propfindMethod(pathToCheck, WebdavResource.DISPLAYNAME);
+			return !(prop == null || !prop.hasMoreElements());
+		}
+		catch (HttpException e) {
+			if(e.getReasonCode()==WebdavStatus.SC_NOT_FOUND){
+				return false;
+			} else {
+				throw e;
+			}
+		}
 //		return getWebdavRootResource().headMethod(((path.startsWith(getWebdavServerURI()))?path:getURI(path)));
 	}
 
