@@ -1,5 +1,5 @@
 /*
- * $Id: FileSystemCopyServiceBean.java,v 1.1 2004/11/15 19:03:22 aron Exp $
+ * $Id: FileSystemCopyServiceBean.java,v 1.2 2004/11/29 16:09:51 aron Exp $
  * Created on 2.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -38,10 +38,10 @@ import com.idega.data.IDOLookupException;
 
 /**
  * 
- *  Last modified: $Date: 2004/11/15 19:03:22 $ by $Author: aron $
+ *  Last modified: $Date: 2004/11/29 16:09:51 $ by $Author: aron $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSystemCopyService{
     
@@ -52,6 +52,7 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
     private String path = null;
     private HttpURL httpURL = null;
     private boolean overwrite = true;
+    private String rootURL = "";
     
     
     private ICFileHome getFileHome(){
@@ -65,9 +66,11 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
     }
     
     public void run() throws Exception{
-        HttpURL url = getService().getWebdavServerURL();
-        if(url!=null){
-	        connect(url.getPath());
+        httpURL = getService().getWebdavServerURL();
+       
+        if(httpURL!=null){
+            rootURL = httpURL.getEscapedURI();
+            connect();
 	        copyPageFiles();
 	        copyGroupFiles();
 	        copyMediaSystem();
@@ -128,13 +131,8 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
     }
     
     
-    private void copyTemplateFiles(){
-        
-    }
-    
-    
-    
     private void copyGroupFiles(){
+        
         
     }
     
@@ -156,32 +154,34 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
         
     }
     
-    private void connect(String uri){
+    private void connect(){
+        
+        /*
         if (!uri.endsWith("/") && !uri.endsWith("\\")) {
             // append / to the path
              uri+="/";
         }
-
-        System.out.println("connect " + uri);
+        */
+        //System.out.println("connect " + uri);
         try {
-          httpURL = uriToHttpURL(uri);
+          //httpURL = uriToHttpURL(uri);
           httpURL.setUserinfo("root","root");
         if (webdavResource == null) {
             webdavResource = new WebdavResource(httpURL);
-            webdavResource.setDebug(Integer.MAX_VALUE);
+            //webdavResource.setDebug(Integer.MAX_VALUE);
             
             // is not a collection?
             if (!((ResourceTypeProperty)webdavResource.getResourceType()).isCollection()) {
                 webdavResource = null;
                 httpURL = null;
-                System.out.println("Error: " + uri + " is not a collection! Use open/connect only for collections!");
+                //System.out.println("Error: " + uri + " is not a collection! Use open/connect only for collections!");
             }
             
         } else {
             webdavResource.close();
             webdavResource.setHttpURL(httpURL);
         }
-        setPath(webdavResource.getPath());
+        setPath(webdavResource.getPath()+"/files");
         }
         catch (HttpException we) {
             System.out.print("HttpException.getReasonCode(): "+ we.getReasonCode());
@@ -205,11 +205,11 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
                         httpURL = null;
                         webdavResource = null;
                     }
-                    httpURL = uriToHttpURL(uri);
+                    //httpURL = uriToHttpURL(uri);
                     // It should be used like this way.
                     httpURL.setUserinfo(userName, password);
                     webdavResource = new WebdavResource(httpURL);
-                    webdavResource.setDebug(Integer.MAX_VALUE);
+                    //webdavResource.setDebug(Integer.MAX_VALUE);
                     setPath(webdavResource.getPath());
 
 
@@ -278,8 +278,7 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
     }
     
     private static HttpURL uriToHttpURL(String uri) throws URIException {
-        return uri.startsWith("https") ? new HttpsURL(uri)
-                                       : new HttpURL(uri);
+        return uri.startsWith("https") ? new HttpsURL(uri): new HttpURL(uri);
     }
     
     public void copy(String folder,Collection files)throws Exception{
@@ -305,11 +304,23 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
                 mkcol(folder);
         } catch (HttpException e) {
            mkcol(folder);
+           createFolderIfNotExists(folder);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
         
+    }
+    
+    public void createFolderIfNotExists(String folderPath){
+       
+        int index = folderPath.indexOf("/",1);
+        while(index>0){
+            String path = folderPath.substring(0,index+1);
+            //System.out.println(path);
+            mkcol(path);
+            index = folderPath.indexOf("/",index+1);
+        }
     }
     
     void put(ICFile file, String path)
@@ -332,6 +343,7 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
             		if(overwrite){
                     System.out.print("Uploading  '" + file.getName() + "' to '" + dest + "' ");
                     if (webdavResource.putMethod(dest, file.getFileValue())) {
+                        updateFile(file, dest);
                         System.out.println("succeeded.");
                     }
                     else {
@@ -345,6 +357,11 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
         catch (Exception ex) {
             handleException(ex);
         }
+    }
+    
+    private void updateFile(ICFile file, String path){
+        file.setExternalURL(path);
+        file.store();    
     }
     
     void mkcol(String path)
@@ -564,7 +581,5 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
         }
 
         this.path = normalize(path);
-    } 
-    
-
+    }   
 }
