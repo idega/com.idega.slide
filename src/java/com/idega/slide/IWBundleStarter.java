@@ -1,5 +1,5 @@
 /*
- * $Id: IWBundleStarter.java,v 1.3 2004/11/30 16:15:44 aron Exp $
+ * $Id: IWBundleStarter.java,v 1.4 2004/12/13 11:59:24 gummi Exp $
  * Created on 15.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -10,7 +10,6 @@
 package com.idega.slide;
 
 import java.rmi.RemoteException;
-
 import com.idega.business.IBOLookup;
 import com.idega.business.IBOLookupException;
 import com.idega.idegaweb.IWApplicationContext;
@@ -20,10 +19,10 @@ import com.idega.slide.business.IWSlideService;
 
 /**
  * 
- *  Last modified: $Date: 2004/11/30 16:15:44 $ by $Author: aron $
+ *  Last modified: $Date: 2004/12/13 11:59:24 $ by $Author: gummi $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class IWBundleStarter implements IWBundleStartable {
 
@@ -31,6 +30,10 @@ public class IWBundleStarter implements IWBundleStartable {
      * @see com.idega.idegaweb.IWBundleStartable#start(com.idega.idegaweb.IWBundle)
      */
     public void start(IWBundle starterBundle) {
+    	
+//    		System.out.println("[System.property]:java.security.auth.login.config="+starterBundle.getPropertiesRealPath()+ FileUtil.getFileSeparator()+"jaas.config");
+//		System.setProperty("java.security.auth.login.config",starterBundle.getPropertiesRealPath()+ FileUtil.getFileSeparator()+"jaas.config");
+		System.setProperty("file.encoding","UTF-8");
         
         IWApplicationContext iwac = starterBundle.getApplication().getIWApplicationContext();
         try {
