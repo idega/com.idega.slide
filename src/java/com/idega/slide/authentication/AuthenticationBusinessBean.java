@@ -1,5 +1,5 @@
 /*
- * $Id: AuthenticationBusinessBean.java,v 1.3 2004/12/14 21:11:50 gummi Exp $
+ * $Id: AuthenticationBusinessBean.java,v 1.4 2004/12/15 14:51:24 gummi Exp $
  * Created on 9.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -29,10 +29,10 @@ import com.idega.slide.business.IWSlideService;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/14 21:11:50 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/15 14:51:24 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class AuthenticationBusinessBean extends IBOServiceBean  implements AuthenticationBusiness{
 	
@@ -150,7 +150,7 @@ public class AuthenticationBusinessBean extends IBOServiceBean  implements Authe
 			}
 			
 			boolean userIsInRole = userSet.contains(userURI);
-			boolean userShouldBeInRole = "users".equals(role.getDisplayName()) || roleNamesForUser.contains(role.getDisplayName());
+			boolean userShouldBeInRole = "user".equals(role.getDisplayName()) || roleNamesForUser.contains(role.getDisplayName());
 			
 			if(!userIsInRole && userShouldBeInRole){
 				userSet.add(userURI);
