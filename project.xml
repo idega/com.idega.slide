@@ -3,7 +3,7 @@
   <pomVersion>1</pomVersion>
   <artifactId>com.idega.slide</artifactId>
   <name>com.idega.slide</name>
-  <groupId>com.idega.slide</groupId>
+  <groupId>bundles</groupId>
   <currentVersion>0.1-SNAPSHOT</currentVersion>  
   <organization>
     <name>Idega Software</name>
