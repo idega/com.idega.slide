@@ -8,6 +8,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.HttpsURL;
+import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.webdav.lib.Property;
 import org.apache.webdav.lib.WebdavResource;
@@ -240,8 +241,24 @@ public class WebdavExtendedResource extends WebdavResource {
 		return childResources;
 	}
 
-	public String getDecodedPath() throws IOException {
-		return URIUtil.decode(getPath());
+	public String getDecodedPath() {
+		try {
+			return URIUtil.decode(getPath());
+		}
+		catch (URIException e) {
+			e.printStackTrace();
+			return getPath();
+		}
+	}
+	
+	public String getEncodedPath() {
+		try {
+			return URIUtil.encodePath(getPath());
+		}
+		catch (URIException e) {
+			e.printStackTrace();
+			return getPath();
+		}
 	}
 	/**
 	 * @return Returns the comment.
