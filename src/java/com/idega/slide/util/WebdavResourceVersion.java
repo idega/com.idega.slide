@@ -1,5 +1,5 @@
 /*
- * $Id: WebdavResourceVersion.java,v 1.1 2004/12/20 02:59:19 eiki Exp $ Created on Dec
+ * $Id: WebdavResourceVersion.java,v 1.2 2004/12/20 03:17:55 eiki Exp $ Created on Dec
  * 19, 2004
  * 
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -14,15 +14,18 @@ import java.util.Map;
 import org.apache.webdav.lib.BaseProperty;
 import org.apache.webdav.lib.properties.CheckedinProperty;
 import org.apache.webdav.lib.properties.CheckedoutProperty;
+import com.idega.core.accesscontrol.business.LoginDBHandler;
+import com.idega.core.accesscontrol.data.LoginTable;
+import com.idega.user.data.User;
 
 /**
  * 
- * Last modified: $Date: 2004/12/20 02:59:19 $ by $Author: eiki $
+ * Last modified: $Date: 2004/12/20 03:17:55 $ by $Author: eiki $
  * 
  * A little wrapper for version information
  * 
  * @author <a href="mailto:eiki@idega.com">Eirikur S. Hrafnsson </a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class WebdavResourceVersion implements Comparable{
 
@@ -92,7 +95,21 @@ public class WebdavResourceVersion implements Comparable{
 	 * @return Returns the creatorDisplayName.
 	 */
 	public String getCreatorDisplayName() {
-		return creatorDisplayName.getPropertyAsString();
+		String userName = creatorDisplayName.getPropertyAsString();
+		String name = null;
+		
+		LoginTable login =  LoginDBHandler.getUserLoginByUserName(userName);
+		if(login!=null){
+			User user = (User)login.getUser();
+			name = user.getName();
+		}
+		
+		if(name!=null && !userName.equals(name)){
+			return name+" ("+userName+")";
+		}
+		else{
+			return userName;
+		}
 	}
 
 	/**
