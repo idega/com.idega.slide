@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideJDBCStore.java,v 1.3 2004/11/05 08:44:59 aron Exp $
+ * $Id: IWSlideJDBCStore.java,v 1.4 2004/11/15 18:58:05 aron Exp $
  * Created on 19.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -21,17 +21,16 @@ import org.apache.slide.store.impl.rdbms.MySql41RDBMSAdapter;
 import org.apache.slide.store.impl.rdbms.OracleRDBMSAdapter;
 import org.apache.slide.store.impl.rdbms.SQLServerRDBMSAdapter;
 
-import com.idega.slide.schema.SlideSchemaCreator;
 import com.idega.util.database.PoolManager;
 import com.idega.util.dbschema.SQLSchemaAdapter;
 
 
 /**
  * 
- *  Last modified: $Date: 2004/11/05 08:44:59 $ by $Author: aron $
+ *  Last modified: $Date: 2004/11/15 18:58:05 $ by $Author: aron $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class IWSlideJDBCStore extends JDBCStore {	
 	
@@ -84,12 +83,9 @@ public class IWSlideJDBCStore extends JDBCStore {
         _parameters.put("maxPooledConnections",String.valueOf(pManager.getMaximumConnectionCount()));
         _parameters.put("dbcpPooling","false");
         
-        try {
-			new SlideSchemaCreator().createEntities(datastoreType);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        
+        
+       
     		
     }
 
