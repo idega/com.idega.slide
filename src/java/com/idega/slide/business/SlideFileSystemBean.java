@@ -1,5 +1,5 @@
 /*
- * $Id: SlideFileSystemBean.java,v 1.3 2004/12/15 16:02:36 palli Exp $
+ * $Id: SlideFileSystemBean.java,v 1.4 2004/12/16 17:59:21 eiki Exp $
  * Created on 22.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -15,6 +15,7 @@ import javax.ejb.FinderException;
 
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBOServiceBean;
+import com.idega.core.file.business.FileIconSupplier;
 import com.idega.core.file.business.ICFileSystem;
 import com.idega.core.file.data.ICFile;
 import com.idega.data.IDOLookup;
@@ -27,10 +28,10 @@ import com.idega.slide.data.SlideFileHome;
  *  Abstracts users from using the Slide API making it easier to change
  *  repository implementation. 
  * 
- *  Last modified: $Date: 2004/12/15 16:02:36 $ by $Author: palli $
+ *  Last modified: $Date: 2004/12/16 17:59:21 $ by $Author: eiki $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class SlideFileSystemBean extends IBOServiceBean implements ICFileSystem , SlideFileSystem{
 
@@ -38,15 +39,14 @@ public class SlideFileSystemBean extends IBOServiceBean implements ICFileSystem 
 	 * @see com.idega.core.file.business.ICFileSystem#getFileIconURI(com.idega.core.file.data.ICFile)
 	 */
 	public String getFileIconURI(ICFile file) throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
+		return getIconURIByMimeType(file.getMimeType());
 	}
 	/* (non-Javadoc)
 	 * @see com.idega.core.file.business.ICFileSystem#getIconURIByMimeType(java.lang.String)
 	 */
 	public String getIconURIByMimeType(String mimeType) throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
+		FileIconSupplier iconSupplier = FileIconSupplier.getInstance();
+		return iconSupplier.getFileIconURIByMimeType(mimeType);
 	}
     /* (non-Javadoc)
      * @see com.idega.core.file.business.ICFileSystem#initialize()
