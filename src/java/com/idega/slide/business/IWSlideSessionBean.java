@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.10 2004/12/14 17:24:10 gummi Exp $
+ * $Id: IWSlideSessionBean.java,v 1.11 2004/12/16 17:58:46 eiki Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -16,7 +16,6 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.webdav.lib.WebdavResource;
-import com.idega.business.IBOLookup;
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBOSessionBean;
 import com.idega.core.accesscontrol.business.LoggedOnInfo;
@@ -27,10 +26,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/14 17:24:10 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/16 17:58:46 $ by $Author: eiki $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -85,7 +84,7 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	public IWSlideService getIWSlideService(){
 		if(service == null){
 			try {
-				service = (IWSlideService)IBOLookup.getServiceInstance(getIWApplicationContext(),IWSlideService.class);
+				service = (IWSlideService)this.getServiceInstance(IWSlideService.class);
 			}
 			catch (IBOLookupException e) {
 				e.printStackTrace();
