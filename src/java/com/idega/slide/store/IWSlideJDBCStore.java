@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideJDBCStore.java,v 1.6 2004/12/14 11:37:20 gummi Exp $
+ * $Id: IWSlideJDBCStore.java,v 1.7 2004/12/14 14:11:38 gummi Exp $
  * Created on 19.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -27,10 +27,10 @@ import com.idega.util.dbschema.SQLSchemaAdapter;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/14 11:37:20 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/14 14:11:38 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 public class IWSlideJDBCStore extends JDBCStore {	
 	
@@ -41,6 +41,7 @@ public class IWSlideJDBCStore extends JDBCStore {
         Connection conn = pManager.getConnection();
         String datastoreType = SQLSchemaAdapter.detectDataStoreType(conn);
         String adapter = "";
+        _parameters = new Hashtable();
         
         if(datastoreType.equals(SQLSchemaAdapter.DBTYPE_ORACLE)){
         		adapter = OracleRDBMSAdapter.class.getName();
@@ -52,6 +53,7 @@ public class IWSlideJDBCStore extends JDBCStore {
     			adapter = DB2RDBMSAdapter.class.getName();
         } else if(datastoreType.equals(SQLSchemaAdapter.DBTYPE_HSQL)){
         		adapter = HsqlRDBMSAdapter.class.getName();
+        		_parameters.put("dbcpPooling","false");
         } 
         
 //        else if(datastorType == DatastoreInterface.DBTYPE_POSTGRES){
@@ -74,7 +76,6 @@ public class IWSlideJDBCStore extends JDBCStore {
 //	    <parameter name="compress">false</parameter> // still handled in Domain.xml
         
         
-        _parameters = new Hashtable();
         _parameters.put("adapter",adapter);
         _parameters.put("driver",pManager.getDriverClassForPool());
         _parameters.put("url",pManager.getURLForPool());
@@ -100,10 +101,7 @@ public class IWSlideJDBCStore extends JDBCStore {
      */
     public void setParameters(Hashtable parameters) throws ServiceParameterErrorException, ServiceParameterMissingException {
     		parameters.putAll(_parameters);
-    		//Set default values
-    		if(!parameters.containsKey("dbcpPooling")){
-    			parameters.put("dbcpPooling","true");
-    		}
+    		
 		super.setParameters(parameters);
     }
 }
