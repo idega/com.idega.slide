@@ -255,16 +255,4 @@ public class WebdavExtendedResource extends WebdavResource {
 	public void setComment(String comment) {
 		this.comment = comment;
 	}
-	/**
-	 * @return Returns the path.
-	 */
-	public String getPath() {
-		return path;
-	}
-	/**
-	 * @param path The path to set.
-	 */
-	public void setPath(String path) {
-		this.path = path;
-	}
 }
