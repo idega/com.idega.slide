@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideJDBCStore.java,v 1.5 2004/12/13 22:55:14 eiki Exp $
+ * $Id: IWSlideJDBCStore.java,v 1.6 2004/12/14 11:37:20 gummi Exp $
  * Created on 19.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -27,10 +27,10 @@ import com.idega.util.dbschema.SQLSchemaAdapter;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/13 22:55:14 $ by $Author: eiki $
+ *  Last modified: $Date: 2004/12/14 11:37:20 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public class IWSlideJDBCStore extends JDBCStore {	
 	
@@ -81,11 +81,6 @@ public class IWSlideJDBCStore extends JDBCStore {
         _parameters.put("user",pManager.getUserNameForPool());
         _parameters.put("password",pManager.getPasswordForPool());
         _parameters.put("maxPooledConnections",String.valueOf(pManager.getMaximumConnectionCount()));
-        _parameters.put("dbcpPooling","true");
-        
-        
-        
-       
     		
     }
 
@@ -105,6 +100,10 @@ public class IWSlideJDBCStore extends JDBCStore {
      */
     public void setParameters(Hashtable parameters) throws ServiceParameterErrorException, ServiceParameterMissingException {
     		parameters.putAll(_parameters);
+    		//Set default values
+    		if(!parameters.containsKey("dbcpPooling")){
+    			parameters.put("dbcpPooling","true");
+    		}
 		super.setParameters(parameters);
     }
 }
