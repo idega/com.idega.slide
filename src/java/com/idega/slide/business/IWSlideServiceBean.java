@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.16 2005/01/07 20:20:33 gummi Exp $
+ * $Id: IWSlideServiceBean.java,v 1.17 2005/02/03 10:33:16 joakim Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -12,6 +12,7 @@ package com.idega.slide.business;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Enumeration;
+import java.util.StringTokenizer;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.URIException;
@@ -21,19 +22,24 @@ import org.apache.webdav.lib.Privilege;
 import org.apache.webdav.lib.WebdavFile;
 import org.apache.webdav.lib.WebdavResource;
 import org.apache.webdav.lib.properties.AclProperty;
+import com.idega.business.IBOLookup;
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBORuntimeException;
 import com.idega.business.IBOServiceBean;
+import com.idega.idegaweb.IWApplicationContext;
+import com.idega.idegaweb.IWUserContext;
+import com.idega.presentation.IWContext;
 import com.idega.slide.authentication.AuthenticationBusiness;
 import com.idega.slide.schema.SlideSchemaCreator;
+import com.idega.slide.util.WebdavRootResource;
 
 
 /**
  * 
- *  Last modified: $Date: 2005/01/07 20:20:33 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/02/03 10:33:16 $ by $Author: joakim $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.16 $
+ * @version $Revision: 1.17 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -377,7 +383,32 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 		return returner;
 	}
 	
+	/**
+	 * Creates all the folders in path 
+	 * @param path Path with all the folders to create. 
+	 * Should hold all the folders after Server URI (Typically /cms/content/)
+	 * @throws HttpException
+	 * @throws RemoteException
+	 * @throws IOException
+	 */
+	public void createAllFoldersInPath(String path) throws HttpException, RemoteException, IOException {
+		IWUserContext iwuc = IWContext.getInstance();
+		IWApplicationContext iwac = iwuc.getApplicationContext();
+		
+		IWSlideSession session = (IWSlideSession)IBOLookup.getSessionInstance(iwuc,IWSlideSession.class);
+		IWSlideService service = (IWSlideService)IBOLookup.getServiceInstance(iwac,IWSlideService.class);
 	
+		WebdavRootResource rootResource = session.getWebdavRootResource();
+		
+		StringBuffer createPath = new StringBuffer(service.getWebdavServerURI());
+		StringTokenizer st = new StringTokenizer(path,"/");
+		while(st.hasMoreTokens()) {
+			createPath.append("/").append(st.nextToken());
+			System.out.println("Creaet path "+createPath);
+			rootResource.mkcolMethod(createPath.toString());
+		}
+		
+	}
 
 	/**
 	 * @return
