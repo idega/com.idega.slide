@@ -1,5 +1,5 @@
 /*
- * $Id: ICFile2Slide.java,v 1.1 2004/11/12 16:27:32 aron Exp $
+ * $Id: ICFile2Slide.java,v 1.2 2004/11/12 16:44:46 aron Exp $
  * Created on 2.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -40,10 +40,10 @@ import com.idega.idegaweb.IWUserContext;
 
 /**
  * 
- *  Last modified: $Date: 2004/11/12 16:27:32 $ by $Author: aron $
+ *  Last modified: $Date: 2004/11/12 16:44:46 $ by $Author: aron $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class ICFile2Slide {
     
@@ -398,7 +398,7 @@ public class ICFile2Slide {
     public void copy(IWUserContext iwc,String folder, ICFile file)throws Exception{
         System.out.println("Moving "+file.getName()+" in folder "+folder);
         
-        WebdavFile rootFile = getService().getWebdavFile(iwc);
+        WebdavFile rootFile = getSession(iwc).getWebdavFile();
         
         File[] files = rootFile.listFiles();
         for (int i = 0; i < files.length; i++) {
@@ -459,6 +459,14 @@ public class ICFile2Slide {
     public IWSlideService getService(){
         try {
             return (IWSlideService) IBOLookup.getServiceInstance(iwac,IWSlideService.class);
+        } catch (IBOLookupException e) {
+            throw new IBORuntimeException(e);
+        }
+    }
+    
+    public IWSlideSession getSession(IWUserContext iwuc){
+        try {
+            return (IWSlideSession) IBOLookup.getSessionInstance(iwuc,IWSlideSession.class);
         } catch (IBOLookupException e) {
             throw new IBORuntimeException(e);
         }

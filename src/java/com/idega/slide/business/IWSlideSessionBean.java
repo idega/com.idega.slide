@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.3 2004/11/12 16:27:51 joakim Exp $
+ * $Id: IWSlideSessionBean.java,v 1.4 2004/11/12 16:44:46 aron Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -12,24 +12,30 @@ package com.idega.slide.business;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.StringTokenizer;
+
 import javax.servlet.http.HttpSessionBindingEvent;
+
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
+import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.webdav.lib.WebdavFile;
 import org.apache.webdav.lib.WebdavResource;
 import org.apache.webdav.lib.WebdavResources;
+
 import com.idega.business.IBOLookup;
 import com.idega.business.IBOLookupException;
+import com.idega.business.IBORuntimeException;
 import com.idega.business.IBOSessionBean;
 
 
 /**
  * 
- *  Last modified: $Date: 2004/11/12 16:27:51 $ by $Author: joakim $
+ *  Last modified: $Date: 2004/11/12 16:44:46 $ by $Author: aron $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -166,6 +172,42 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 				e.printStackTrace();
 			}
 		}	
+	}
+	
+	public HttpURL getWebdavServerURL(){
+	    
+	    try {
+	       String server = getUserContext().getApplicationContext().getDomain().getServerName();
+	       if(server.endsWith("/"))
+	           server = server.substring(0,server.lastIndexOf("/"));
+	       server += getWebdavServletURL();
+            HttpURL hrl = new HttpURL(server);
+            hrl.setUserinfo("root","root");
+            //hrl.setUserInfo("user","pass");
+            return hrl;
+        } catch (URIException e) {
+           throw new IBORuntimeException(e);
+        }
+	}
+	/*
+	public WebdavResource getWebdavResource(){
+	    try {
+            return new WebdavResource(getWebdavServerURL());
+        } catch (HttpException e) {
+            throw new IBORuntimeException(e);
+        } catch (IOException e) {
+            throw new IBORuntimeException(e);
+        }
+	}*/
+	
+	public WebdavFile getWebdavFile(){
+	    try {
+            return new WebdavFile(getWebdavServerURL());
+        } catch (HttpException e) {
+            throw new IBORuntimeException(e);
+        } catch (IOException e) {
+            throw new IBORuntimeException(e);
+        }
 	}
 	
 }
