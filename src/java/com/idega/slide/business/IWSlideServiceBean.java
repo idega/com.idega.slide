@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.15 2005/01/07 19:12:16 gummi Exp $
+ * $Id: IWSlideServiceBean.java,v 1.16 2005/01/07 20:20:33 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -26,15 +26,14 @@ import com.idega.business.IBORuntimeException;
 import com.idega.business.IBOServiceBean;
 import com.idega.slide.authentication.AuthenticationBusiness;
 import com.idega.slide.schema.SlideSchemaCreator;
-import com.idega.slide.util.IWSlideConstants;
 
 
 /**
  * 
- *  Last modified: $Date: 2005/01/07 19:12:16 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/01/07 20:20:33 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.16 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -204,7 +203,7 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 		return getWebdavResourceAuthenticatedAsRoot(null);
 	}
 	
-	public String getApplicationServerRelativePath(String path) throws RemoteException{
+	public String getURI(String path) throws RemoteException{
 		return getWebdavServerURI()+((path.startsWith(SLASH))?"":SLASH)+path;
 	}
 	
@@ -212,7 +211,7 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 		if(path==null){
 			return false;
 		}
-		String pathToCheck = ((path.startsWith(getWebdavServerURI()))?path:getApplicationServerRelativePath(path));
+		String pathToCheck = ((path.startsWith(getWebdavServerURI()))?path:getURI(path));
 //		System.out.println("[IWSlideServiceBean]: getExistence("+path+")->headerMethod("+ pathToCheck+")");
 		return getWebdavResourceAuthenticatedAsRoot().headMethod(pathToCheck);
 	}
@@ -278,7 +277,7 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 		if(loginName != null && !getExistence(getUserHomeFolderPath(loginName))){
 			WebdavResource rootFolder = getWebdavResourceAuthenticatedAsRoot();
 			
-			String userFolderPath = getApplicationServerRelativePath(getUserHomeFolderPath(loginName));
+			String userFolderPath = getURI(getUserHomeFolderPath(loginName));
 			rootFolder.mkcolMethod(userFolderPath);
 			rootFolder.mkcolMethod(userFolderPath+FOLDER_NAME_DROPBOX);
 			rootFolder.mkcolMethod(userFolderPath+FOLDER_NAME_PUBLIC);

@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideService.java,v 1.12 2004/12/31 03:32:46 gimmi Exp $
+ * $Id: IWSlideService.java,v 1.13 2005/01/07 20:20:33 gummi Exp $
  * Created on 21.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -21,10 +21,10 @@ import com.idega.business.IBOService;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/31 03:32:46 $ by $Author: gimmi $
+ *  Last modified: $Date: 2005/01/07 20:20:33 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.13 $
  */
 public interface IWSlideService extends IBOService {
 
@@ -93,9 +93,9 @@ public interface IWSlideService extends IBOService {
 			java.rmi.RemoteException;
 
 	/**
-	 * @see com.idega.slide.business.IWSlideServiceBean#getApplicationServerRelativePath
+	 * @see com.idega.slide.business.IWSlideServiceBean#getURI(String path)
 	 */
-	public String getApplicationServerRelativePath(String path) throws RemoteException;
+	public String getURI(String path) throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getExistence

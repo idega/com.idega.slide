@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSession.java,v 1.12 2005/01/07 19:16:06 gummi Exp $
+ * $Id: IWSlideSession.java,v 1.13 2005/01/07 20:20:33 gummi Exp $
  * Created on 1.1.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -22,10 +22,10 @@ import com.idega.slide.util.WebdavRootResource;
 
 /**
  * 
- *  Last modified: $Date: 2005/01/07 19:16:06 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/01/07 20:20:33 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.13 $
  */
 public interface IWSlideSession extends IBOSession {
 
@@ -75,9 +75,9 @@ public interface IWSlideSession extends IBOSession {
 	public WebdavExtendedResource getWebdavResource(String path) throws HttpException, IOException, RemoteException;
 
 	/**
-	 * @see com.idega.slide.business.IWSlideSessionBean#getApplicationServerRelativePath
+	 * @see com.idega.slide.business.IWSlideSessionBean#getURI(String path)
 	 */
-	public String getApplicationServerRelativePath(String path) throws RemoteException;
+	public String getURI(String path) throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideSessionBean#getExistence

@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.16 2005/01/07 19:16:06 gummi Exp $
+ * $Id: IWSlideSessionBean.java,v 1.17 2005/01/07 20:20:33 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -31,10 +31,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2005/01/07 19:16:06 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/01/07 20:20:33 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.16 $
+ * @version $Revision: 1.17 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -195,7 +195,7 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		return resource;
 	}
 	
-	public String getApplicationServerRelativePath(String path) throws RemoteException{
+	public String getURI(String path) throws RemoteException{
 		return getWebdavServerURI()+((path.startsWith("/"))?"":"/")+path;
 	}
 	
@@ -203,7 +203,7 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		if(path==null){
 			return false;
 		}
-		return getWebdavRootResource().headMethod(((path.startsWith(getWebdavServerURI()))?path:getApplicationServerRelativePath(path)));
+		return getWebdavRootResource().headMethod(((path.startsWith(getWebdavServerURI()))?path:getURI(path)));
 	}
 
 	
@@ -241,7 +241,7 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	
 	public boolean storeAccessControlList(AccessControlList acl) throws HttpException, IOException{
 		WebdavRootResource rResource = getWebdavRootResource();
-		String resourceURI = getApplicationServerRelativePath(acl.getResourcePath());
+		String resourceURI = getURI(acl.getResourcePath());
 		boolean value = rResource.aclMethod(resourceURI,acl.getAces());
 		
 		return value;
