@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideJDBCStore.java,v 1.4 2004/11/15 18:58:05 aron Exp $
+ * $Id: IWSlideJDBCStore.java,v 1.5 2004/12/13 22:55:14 eiki Exp $
  * Created on 19.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -27,10 +27,10 @@ import com.idega.util.dbschema.SQLSchemaAdapter;
 
 /**
  * 
- *  Last modified: $Date: 2004/11/15 18:58:05 $ by $Author: aron $
+ *  Last modified: $Date: 2004/12/13 22:55:14 $ by $Author: eiki $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class IWSlideJDBCStore extends JDBCStore {	
 	
@@ -81,7 +81,7 @@ public class IWSlideJDBCStore extends JDBCStore {
         _parameters.put("user",pManager.getUserNameForPool());
         _parameters.put("password",pManager.getPasswordForPool());
         _parameters.put("maxPooledConnections",String.valueOf(pManager.getMaximumConnectionCount()));
-        _parameters.put("dbcpPooling","false");
+        _parameters.put("dbcpPooling","true");
         
         
         
