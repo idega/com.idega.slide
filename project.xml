@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <pomVersion>1</pomVersion>
+  <extend>${base.project.dir}/block-dependencies.xml</extend>
   <artifactId>com.idega.slide</artifactId>
   <name>com.idega.slide</name>
   <groupId>bundles</groupId>
@@ -16,6 +17,16 @@
     <dependency>
       <groupId>bundles</groupId>
       <artifactId>com.idega.core</artifactId>
+      <version>SNAPSHOT</version>
+      <type>jar</type>
+      <url>http://www.idega.com/</url>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
+    </dependency>
+        <dependency>
+      <groupId>bundles</groupId>
+      <artifactId>org.apache.slide</artifactId>
       <version>SNAPSHOT</version>
       <type>jar</type>
       <url>http://www.idega.com/</url>
@@ -92,6 +103,24 @@
       <version>1.0-M1</version>
       <type>jar</type>
       <url>http://geronimo.apache.org/</url>
+    </dependency>
+    <dependency>
+      <groupId>bundles</groupId>
+      <artifactId>com.idega.block.login</artifactId>
+      <version>SNAPSHOT</version>
+      <type>jar</type>
+      <url>http://www.idega.com/</url>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
+    </dependency>
+    <!-- ServletAPI -->
+    <dependency>
+      <groupId>servletapi</groupId>
+      <artifactId>servletapi</artifactId>
+      <version>2.4</version>
+      <type>jar</type>
+      <url>http://java.sun.com/products/servlet/docs.html</url>
     </dependency>
   </dependencies>
   <build>
