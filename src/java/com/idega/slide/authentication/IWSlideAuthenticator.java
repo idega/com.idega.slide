@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticator.java,v 1.5 2004/12/22 20:13:18 gummi Exp $
+ * $Id: IWSlideAuthenticator.java,v 1.6 2005/01/07 18:57:28 gummi Exp $
  * Created on 8.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -34,10 +34,10 @@ import com.idega.slide.business.IWSlideSession;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/22 20:13:18 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/01/07 18:57:28 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public class IWSlideAuthenticator implements Filter {
 
@@ -102,8 +102,8 @@ public class IWSlideAuthenticator implements Filter {
 		
 		// the slide token is set so that business methods can get it from IWSlideSession.   
 		// The WebdavUtils#getSlideToken(request) can be expensive since it copies all attributes from session to the token.
-		IWSlideSession slideSession = (IWSlideSession)IBOLookup.getSessionInstance(iwc,IWSlideSession.class);
-		slideSession.setSlideToken(WebdavUtils.getSlideToken(iwc.getRequest()));
+//		IWSlideSession slideSession = (IWSlideSession)IBOLookup.getSessionInstance(iwc,IWSlideSession.class);
+//		slideSession.setSlideToken(WebdavUtils.getSlideToken(iwc.getRequest()));
 		
 		arg2.doFilter(iwc.getRequest(), iwc.getResponse());
 	}
