@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.5 2004/12/13 13:12:32 gummi Exp $
+ * $Id: IWSlideSessionBean.java,v 1.6 2004/12/14 11:44:58 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -11,31 +11,26 @@ package com.idega.slide.business;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
-import java.util.StringTokenizer;
 import javax.servlet.http.HttpSessionBindingEvent;
-import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
-import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.webdav.lib.WebdavFile;
 import org.apache.webdav.lib.WebdavResource;
-import org.apache.webdav.lib.WebdavResources;
 import com.idega.business.IBOLookup;
 import com.idega.business.IBOLookupException;
-import com.idega.business.IBORuntimeException;
 import com.idega.business.IBOSessionBean;
 import com.idega.core.accesscontrol.business.LoggedOnInfo;
 import com.idega.core.accesscontrol.business.LoginBusinessBean;
+import com.idega.slide.utils.WebdavRootResource;
 import com.idega.util.StringHandler;
 
 
 /**
  * 
- *  Last modified: $Date: 2004/12/13 13:12:32 $ by $Author: gummi $
+ *  Last modified: $Date: 2004/12/14 11:44:58 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -45,9 +40,9 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 //	public static final String PATH_CURRENT = null;
 	
 	
-	private WebdavResource webdavResource = null;
+	private WebdavRootResource webdavRootResource = null;
 	private boolean isLoggedOn = false;
-	private Credentials usersCredentials = null;
+	private UsernamePasswordCredentials usersCredentials = null;
 	private HttpURL rootURL = null;
 	
 	private IWSlideService service = null;
@@ -124,57 +119,57 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		return null;
 	}
 	
-	public WebdavResource getWebdavResource() throws HttpException, IOException{
+	
+	/**
+	 * This returns a wrapper for the root webdavresoure.  Only one instance of this object is created for each session.
+	 */
+	public WebdavRootResource getWebdavRootResource() throws HttpException, IOException{
 		boolean tmpIsLoggedOn = getUserContext().isLoggedOn();
-		if(webdavResource != null && isLoggedOn != tmpIsLoggedOn ){ //TMP || (tmpIsLoggedOn && usersCredentials != null && !((UsernamePasswordCredentials)usersCredentials).getUserName().equals(getUserContext().getCurrentUser().getUniqueId()))){
-			webdavResource.close();
-			webdavResource = null;
+		if(webdavRootResource != null && isLoggedOn != tmpIsLoggedOn || (tmpIsLoggedOn && usersCredentials != null && !(usersCredentials).getUserName().equals(LoginBusinessBean.getLoggedOnInfo(getUserContext()).getLogin()))){
+			webdavRootResource.close();
+			webdavRootResource = null;
 			usersCredentials = null;
 			isLoggedOn = !isLoggedOn;
 		}
 		
-		if(webdavResource == null){
+		if(webdavRootResource == null){
 			if(usersCredentials == null){
 				if(isLoggedOn){
-					//TMP User usr = getUserContext().getCurrentUser();
-					//TMP usersCredentials = new UsernamePasswordCredentials(usr.getUniqueId(),StringHandler.getRandomString(10));
 					usersCredentials = getUserCredentials();
 				}
 			}
-			webdavResource = new WebdavResource(getWebdavServletURL(),usersCredentials);
+			WebdavResource resource;
+			if(usersCredentials!=null){
+				resource = new WebdavResource(getIWSlideService().getWebdavServerURL(usersCredentials));
+			} else {
+				resource = new WebdavResource(getIWSlideService().getWebdavServerURL());
+			}
+			resource.setFollowRedirects(true);
+			
+			webdavRootResource = new WebdavRootResource(resource);
 		}
 		
-		return webdavResource;
+		return webdavRootResource;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.idega.slide.business.IWSlideSession#getWebdavResource(java.lang.String)
-	 */
-	//TEST
+
 	public WebdavResource getWebdavResource(String path) throws HttpException, IOException, RemoteException {
-		StringTokenizer tokens = new StringTokenizer(path,"/");
-		WebdavResource currentResource = getWebdavResource();
-		while ( tokens.hasMoreTokens()) {
-			String element = tokens.nextToken();
-			if(element == null || "".equals(element)){
-				continue;
-			}
-			WebdavResources childResources = currentResource.getChildResources();
-			currentResource = childResources.getResource(element);
-			if(currentResource == null){
-				throw new IOException("For path '"+path+"', '"+element+"' was not found");
-			}
+		WebdavResource resource;
+		if(usersCredentials!=null){
+			resource = new WebdavResource(getIWSlideService().getWebdavServerURL(usersCredentials,path));
+		} else {
+			resource = new WebdavResource(getIWSlideService().getWebdavServerURL(path));
 		}
 		
-		return currentResource;
+		return resource;
 	}
 
 	
 	public void close(){
-		if(webdavResource != null){
+		if(webdavRootResource != null){
 			try {
-				webdavResource.close();
-				webdavResource = null;
+				webdavRootResource.close();
+				webdavRootResource = null;
 			}
 			catch (IOException e) {
 				e.printStackTrace();
@@ -182,40 +177,5 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		}	
 	}
 	
-	public HttpURL getWebdavServerURL(){
-	    
-	    try {
-	       String server = getUserContext().getApplicationContext().getDomain().getServerName();
-	       if(server.endsWith("/"))
-	           server = server.substring(0,server.lastIndexOf("/"));
-	       server += getWebdavServletURL();
-            HttpURL hrl = new HttpURL(server);
-            hrl.setUserinfo("root","root");
-            //hrl.setUserInfo("user","pass");
-            return hrl;
-        } catch (URIException e) {
-           throw new IBORuntimeException(e);
-        }
-	}
-	/*
-	public WebdavResource getWebdavResource(){
-	    try {
-            return new WebdavResource(getWebdavServerURL());
-        } catch (HttpException e) {
-            throw new IBORuntimeException(e);
-        } catch (IOException e) {
-            throw new IBORuntimeException(e);
-        }
-	}*/
-	
-	public WebdavFile getWebdavFile(){
-	    try {
-            return new WebdavFile(getWebdavServerURL());
-        } catch (HttpException e) {
-            throw new IBORuntimeException(e);
-        } catch (IOException e) {
-            throw new IBORuntimeException(e);
-        }
-	}
 	
 }

@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSession.java,v 1.4 2004/11/12 16:44:46 aron Exp $
+ * $Id: IWSlideSession.java,v 1.5 2004/12/14 11:44:58 gummi Exp $
  * Created on 12.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -11,22 +11,18 @@ package com.idega.slide.business;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
-
 import javax.servlet.http.HttpSessionBindingEvent;
-
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpURL;
-import org.apache.webdav.lib.WebdavFile;
 import org.apache.webdav.lib.WebdavResource;
-
 import com.idega.business.IBOSession;
+import com.idega.slide.utils.WebdavRootResource;
 
 /**
  * 
- *  Last modified: $Date: 2004/11/12 16:44:46 $ by $Author: aron $
+ *  Last modified: $Date: 2004/12/14 11:44:58 $ by $Author: gummi $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public interface IWSlideSession extends IBOSession {
     /**
@@ -54,7 +50,7 @@ public interface IWSlideSession extends IBOSession {
     /**
      * @see com.idega.slide.business.IWSlideSessionBean#getWebdavResource
      */
-    public WebdavResource getWebdavResource() throws HttpException,
+    public WebdavRootResource getWebdavRootResource() throws HttpException,
             IOException, java.rmi.RemoteException;
 
     /**
@@ -67,15 +63,5 @@ public interface IWSlideSession extends IBOSession {
      * @see com.idega.slide.business.IWSlideSessionBean#close
      */
     public void close() throws java.rmi.RemoteException;
-
-    /**
-     * @see com.idega.slide.business.IWSlideSessionBean#getWebdavServerURL
-     */
-    public HttpURL getWebdavServerURL() throws java.rmi.RemoteException;
-
-    /**
-     * @see com.idega.slide.business.IWSlideSessionBean#getWebdavFile
-     */
-    public WebdavFile getWebdavFile() throws java.rmi.RemoteException;
 
 }
