@@ -1,6 +1,6 @@
 /*
- * $Id: IWSlideSession.java,v 1.9 2004/12/21 18:25:29 eiki Exp $
- * Created on 14.12.2004
+ * $Id: IWSlideSession.java,v 1.10 2004/12/29 11:32:16 gimmi Exp $
+ * Created on 28.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
  *
@@ -22,10 +22,10 @@ import com.idega.slide.util.WebdavRootResource;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/21 18:25:29 $ by $Author: eiki $
+ *  Last modified: $Date: 2004/12/29 11:32:16 $ by $Author: gimmi $
  * 
- * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.9 $
+ * @author <a href="mailto:gimmi@idega.com">gimmi</a>
+ * @version $Revision: 1.10 $
  */
 public interface IWSlideSession extends IBOSession {
 
@@ -43,6 +43,16 @@ public interface IWSlideSession extends IBOSession {
 	 * @see com.idega.slide.business.IWSlideSessionBean#getIWSlideService
 	 */
 	public IWSlideService getIWSlideService() throws java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideSessionBean#getUserFullName
+	 */
+	public String getUserFullName() throws java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideSessionBean#getUserFolderName
+	 */
+	public String getUserFolderName() throws java.rmi.RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideSessionBean#getWebdavServerURI
@@ -80,7 +90,12 @@ public interface IWSlideSession extends IBOSession {
 	public void close() throws java.rmi.RemoteException;
 
 	/**
-	 * @param slideToken
+	 * @see com.idega.slide.business.IWSlideSessionBean#getSlideToken
 	 */
-	public void setSlideToken(SlideToken slideToken);
+	public SlideToken getSlideToken() throws java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideSessionBean#setSlideToken
+	 */
+	public void setSlideToken(SlideToken slideToken) throws java.rmi.RemoteException;
 }

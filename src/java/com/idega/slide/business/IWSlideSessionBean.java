@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.13 2004/12/21 18:25:29 eiki Exp $
+ * $Id: IWSlideSessionBean.java,v 1.14 2004/12/29 11:32:16 gimmi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -21,6 +21,7 @@ import com.idega.business.IBOLookupException;
 import com.idega.business.IBOSessionBean;
 import com.idega.core.accesscontrol.business.LoggedOnInfo;
 import com.idega.core.accesscontrol.business.LoginBusinessBean;
+import com.idega.core.accesscontrol.business.NotLoggedOnException;
 import com.idega.slide.util.WebdavExtendedResource;
 import com.idega.slide.util.WebdavRootResource;
 import com.idega.util.StringHandler;
@@ -28,10 +29,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/21 18:25:29 $ by $Author: eiki $
+ *  Last modified: $Date: 2004/12/29 11:32:16 $ by $Author: gimmi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.14 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -94,6 +95,21 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 			}
 		}
 		return service;
+	}
+	
+	public String getUserFullName() {
+		try {
+			if (getCurrentUser() != null) {
+				return getCurrentUser().getName();
+			}
+		} catch (NotLoggedOnException e) {
+			return "not logged on (TMP, iwslideSessionBean";
+		}
+		return null;
+	}
+	
+	public String getUserFolderName() {
+		return getUserCredentials().getUserName();
 	}
 	
 	public String getWebdavServerURI(){
