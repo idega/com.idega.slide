@@ -1,5 +1,5 @@
 /*
- * $Id: AccessControlList.java,v 1.3 2005/03/10 23:45:00 gummi Exp $
+ * $Id: AccessControlList.java,v 1.4 2005/04/08 17:10:39 gummi Exp $
  * Created on 28.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -19,10 +19,10 @@ import org.apache.webdav.lib.Ace;
 
 /**
  * 
- *  Last modified: $Date: 2005/03/10 23:45:00 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/04/08 17:10:39 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class AccessControlList {
 	
@@ -35,6 +35,8 @@ public class AccessControlList {
 	protected List acesForUsers;
 	protected List acesForGroups;
 	protected List acesForOthers;
+	
+	boolean tmp = false;
 	
 	protected boolean guaranteeThatRootHasAllPrivileges = true;
 	
@@ -59,16 +61,20 @@ public class AccessControlList {
 	
 	public void setAces(Ace[] aces){
 		clearLists();
+//		System.out.println("setAces(...) starts");
 		if(aces != null){
 			for (int i = 0; i < aces.length; i++) {
 				Ace ace = aces[i];
 				addAce(ace);
 			}
 		}
+//		System.out.println("setAces(...) ends");
 	}
 	
 	public void add(AccessControlEntry entry){
+//		tmp=true;
 		addAceToList(aceList,entry);
+//		tmp=false;
 		
 		switch (entry.getPrincipalType()) {
 			case AccessControlEntry.PRINCIPAL_TYPE_ROLE:
@@ -91,6 +97,10 @@ public class AccessControlList {
 	}
 	
 	/**
+	 * This Method adds Ace to the list so that aces that have the same principal are added next to eachother
+	 * and the ace that returns false for entry#isNegative() gets lower index than the other. If entry#isNegative()
+	 * returns the same for both aces (and they have the same principal) the old one is swapped out for the new one.
+	 * 
 	 * @param entry
 	 */
 	private void addAceToList(List theList, AccessControlEntry entry) {
@@ -100,10 +110,10 @@ public class AccessControlList {
 		boolean listContainedAnalogousEntry = false;
 		for (ListIterator iter = theList.listIterator(); iter.hasNext();) {
 			AccessControlEntry ace = (AccessControlEntry) iter.next();
-			int lIndex = iter.nextIndex();
+			int lIndex = iter.nextIndex()-1;
 			if(entryPrincipal.equals(ace.getPrincipal())){
 				if(entryIsNegative==ace.isNegative()){  //swap entries
-					//System.out.println("Removing: "+ace.toString()+" and adding "+entry.toString());
+//					if(tmp){System.out.println("Removing: "+ace.toString()+" and adding "+entry.toString());}
 					iter.remove();
 					iter.add(entry);
 					index = -1;
@@ -114,15 +124,15 @@ public class AccessControlList {
 				}
 			}
 		}
-		
-		if(index > -1 || !listContainedAnalogousEntry) {
-			int indexOfSecondLastItem = theList.size()-2;
-			if(index < indexOfSecondLastItem && !listContainedAnalogousEntry){ //add next after it's sister item
-				//System.out.println("Adding after sister item ("+index+") : "+entry.toString());			
-				theList.add((index+1),entry);  
-			} else{
-				//System.out.println("Adding at end ("+index+") : "+entry.toString());	
+
+		boolean addBefore = !entryIsNegative;
+		if(!listContainedAnalogousEntry){ //add next after it's sister item
+//			if(tmp){	System.out.println("Adding "+((addBefore)?"before":"after")+" sister item ("+index+")(size:"+theList.size()+") : "+entry.toString());}	
+			int addIndex = (index+((addBefore)?0:1));
+			if(addIndex <= 0 || addIndex > theList.size()){
 				theList.add(entry);
+			} else {
+				theList.add(addIndex,entry);  
 			}
 		}
 	}

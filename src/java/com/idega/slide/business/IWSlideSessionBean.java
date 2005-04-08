@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.25 2005/03/10 18:29:59 eiki Exp $
+ * $Id: IWSlideSessionBean.java,v 1.26 2005/04/08 17:10:39 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -26,7 +26,6 @@ import org.apache.slide.structure.ObjectNotFoundException;
 import org.apache.webdav.lib.Ace;
 import org.apache.webdav.lib.Privilege;
 import org.apache.webdav.lib.WebdavResource;
-import org.apache.webdav.lib.properties.AclProperty;
 import org.apache.webdav.lib.util.WebdavStatus;
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBOSessionBean;
@@ -42,10 +41,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2005/03/10 18:29:59 $ by $Author: eiki $
+ *  Last modified: $Date: 2005/04/08 17:10:39 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.25 $
+ * @version $Revision: 1.26 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -246,31 +245,15 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	
 	public AccessControlList getAccessControlList(String path) throws HttpException, IOException{
 		WebdavRootResource rResource = getWebdavRootResource();
-		AccessControlList acl = new AccessControlList(getWebdavServerURI(),path);
-		
-		AclProperty aclProperty = null;
-		if(path!=null){ // && !"/".equals(path) && !"".equals(path)){
-			aclProperty = rResource.aclfindMethod(rResource.getPath()+path);
-		} else {
-			aclProperty = rResource.aclfindMethod();
-		}
-		if(aclProperty!=null){
-			Ace[] aclProperties = aclProperty.getAces();
-			if(aclProperties != null){
-				acl.setAces(aclProperties);
-			}
-		}
-		return acl;
+		return getIWSlideService().getAccessControlList(path, rResource);
 	}
 	
+
 	public boolean storeAccessControlList(AccessControlList acl) throws HttpException, IOException{
 		WebdavRootResource rResource = getWebdavRootResource();
-		String resourceURI = getURI(acl.getResourcePath());
-		boolean value = rResource.aclMethod(resourceURI,acl.getAces());
-		
-		return value;
+		return getIWSlideService().storeAccessControlList(acl, rResource);
 	}
-	
+
 	public String getUserHomeFolder() throws RemoteException {
 		String loginName = getUserContext().getRemoteUser();
 		if (loginName != null) {

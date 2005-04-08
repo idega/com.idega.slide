@@ -1,5 +1,5 @@
 /*
- * $Id: AccessControlEntry.java,v 1.1 2005/01/07 18:55:05 gummi Exp $
+ * $Id: AccessControlEntry.java,v 1.2 2005/04/08 17:10:39 gummi Exp $
  * Created on 28.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -17,10 +17,10 @@ import org.apache.webdav.lib.PropertyName;
 
 /**
  * 
- *  Last modified: $Date: 2005/01/07 18:55:05 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/04/08 17:10:39 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class AccessControlEntry extends Ace {
 
@@ -52,6 +52,13 @@ public class AccessControlEntry extends Ace {
 		super("");
 		this.ace = ace;
 		this.principalType = principalType;
+//		System.out.print("creating AcessControlEntry for ace: "+ace+" type:"+principalType);
+//		Enumeration e = ace.enumeratePrivileges();
+//		while (e.hasMoreElements()) {
+//			Privilege p = (Privilege) e.nextElement();
+//			System.out.print(", "+p.getName());
+//		}
+//		System.out.println();
 	}
 	
 	public int getPrincipalType(){
@@ -70,6 +77,16 @@ public class AccessControlEntry extends Ace {
 		return getPrincipalType() == PRINCIPAL_TYPE_GROUP;
 	}
 	
+	public boolean containsPrivilege(Privilege privilege){
+		Enumeration privileges = enumeratePrivileges();
+		while (privileges.hasMoreElements()) {
+			Privilege element = (Privilege) privileges.nextElement();
+			if(element.equals(privilege)){
+				return true;
+			}
+		}
+		return false;
+	}
 	
 	
 	/* (non-Javadoc)
@@ -90,6 +107,7 @@ public class AccessControlEntry extends Ace {
 	public Enumeration enumeratePrivileges() {
 		return ace.enumeratePrivileges();
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.apache.webdav.lib.Ace#equals(java.lang.Object)
 	 */

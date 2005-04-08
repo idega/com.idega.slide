@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideService.java,v 1.18 2005/03/10 18:29:59 eiki Exp $
+ * $Id: IWSlideService.java,v 1.19 2005/04/08 17:10:39 gummi Exp $
  * Created on 21.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -18,14 +18,16 @@ import org.apache.slide.security.Security;
 import org.apache.webdav.lib.WebdavFile;
 import org.apache.webdav.lib.WebdavResource;
 import com.idega.business.IBOService;
+import com.idega.slide.util.AccessControlList;
+import com.idega.slide.util.WebdavRootResource;
 
 
 /**
  * 
- *  Last modified: $Date: 2005/03/10 18:29:59 $ by $Author: eiki $
+ *  Last modified: $Date: 2005/04/08 17:10:39 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.18 $
+ * @version $Revision: 1.19 $
  */
 public interface IWSlideService extends IBOService {
 
@@ -118,4 +120,10 @@ public interface IWSlideService extends IBOService {
 	public String createUniqueFileName(String scope);
 	
 	public Security getSecurityHelper();
+	
+	public AccessControlList getAccessControlList(String path) throws HttpException, IOException;
+	public boolean storeAccessControlList(AccessControlList acl) throws HttpException, IOException;
+	
+	public AccessControlList getAccessControlList(String path, WebdavRootResource rResource) throws HttpException, IOException;
+	public boolean storeAccessControlList(AccessControlList acl, WebdavRootResource rResource) throws RemoteException, HttpException, IOException;
 }

@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.25 2005/03/10 18:29:59 eiki Exp $
+ * $Id: IWSlideServiceBean.java,v 1.26 2005/04/08 17:10:39 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
@@ -32,15 +34,19 @@ import com.idega.business.IBORuntimeException;
 import com.idega.business.IBOServiceBean;
 import com.idega.slide.authentication.AuthenticationBusiness;
 import com.idega.slide.schema.SlideSchemaCreator;
+import com.idega.slide.util.AccessControlEntry;
+import com.idega.slide.util.AccessControlList;
+import com.idega.slide.util.IWSlideConstants;
+import com.idega.slide.util.WebdavRootResource;
 import com.idega.util.IWTimestamp;
 
 
 /**
  * 
- *  Last modified: $Date: 2005/03/10 18:29:59 $ by $Author: eiki $
+ *  Last modified: $Date: 2005/04/08 17:10:39 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.25 $
+ * @version $Revision: 1.26 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -394,9 +400,250 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 //			logOutAcesForUserFolders(loginName);
 //		}
 		
+		try {
+			updateUserFolderPrivileges(loginName);
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 		return returner;
 	}
 	
+	public void updateUserFolderPrivileges(String loginName) throws IOException, IOException{
+		
+		String userFolderPath = getURI(getUserHomeFolderPath(loginName));
+		
+		AuthenticationBusiness aBusiness = getAuthenticationBusiness();
+		String userPrincipal = aBusiness.getUserURI(loginName);
+		
+		// user folder
+		AccessControlList userFolderList = getAccessControlList(userFolderPath);
+		// should be 'all' for the user himself
+		List userFolderUserACEs = userFolderList.getAccessControlEntriesForUsers();
+		AccessControlEntry usersPositiveAce = null;
+		AccessControlEntry usersNegativeAce = null;
+		boolean madeChangesToUserFolderList = false;
+		//Find the ace
+		for (Iterator iter = userFolderUserACEs.iterator(); iter.hasNext();) {
+			AccessControlEntry ace = (AccessControlEntry) iter.next();
+			if(ace.getPrincipal().equals(userPrincipal) && !ace.isInherited()){
+				if(ace.isNegative()){
+					usersNegativeAce = ace;
+				} else {
+					usersPositiveAce = ace;
+				}
+			}
+		}
+		if(usersPositiveAce == null){
+			usersPositiveAce = new AccessControlEntry(userPrincipal,false,false,false,null,AccessControlEntry.PRINCIPAL_TYPE_USER);
+			userFolderList.add(usersPositiveAce);
+		}
+		
+		if(!usersPositiveAce.containsPrivilege(IWSlideConstants.PRIVILEGE_ALL)){
+			if(usersNegativeAce != null && usersNegativeAce.containsPrivilege(IWSlideConstants.PRIVILEGE_ALL)){
+				// do nothing becuse this is not ment to reset permissions but to set them in the first
+				// first place and update for legacy reasons.  If Administrator has closed someones user folder
+				// for some reason, this is not supposed to reset that.
+			} else {
+				usersPositiveAce.addPrivilege(IWSlideConstants.PRIVILEGE_ALL);
+				madeChangesToUserFolderList = true;
+				
+				// temporary at least:
+				usersPositiveAce.setInherited(false);
+				usersPositiveAce.setInheritedFrom(null);
+				// temporary ends
+			}
+		}
+		if(madeChangesToUserFolderList){
+			storeAccessControlList(userFolderList);
+		}
+		
+		// dropbox
+		updateUsersDropboxPrivileges(userFolderPath);
+		
+		
+		//public folder
+		updateUsersPublicFolderPrivileges(userFolderPath);
+		
+		
+	}
+	
+	/**
+	 * @param userFolderPath
+	 * @throws HttpException
+	 * @throws IOException
+	 */
+	private void updateUsersDropboxPrivileges(String userFolderPath) throws HttpException, IOException {
+		//dropbox
+		AccessControlList dropboxList = getAccessControlList(userFolderPath+FOLDER_NAME_DROPBOX);
+		// should be 'write' for authenticated
+		
+		List publicFolderStandardACEs = dropboxList.getAccessControlEntriesForUsers();
+		String principalAuthenticated = IWSlideConstants.SUBJECT_URI_AUTHENTICATED;
+		AccessControlEntry prAuthenticatedPositiveAce = null;
+		AccessControlEntry prAuthenticatedNegativeAce = null;
+		boolean madeChangesToPublicFolderList = false;
+		//Find the ace
+		for (Iterator iter = publicFolderStandardACEs.iterator(); iter.hasNext();) {
+			AccessControlEntry ace = (AccessControlEntry) iter.next();
+			if(ace.getPrincipal().equals(principalAuthenticated) && !ace.isInherited()){
+				if(ace.isNegative()){
+					prAuthenticatedNegativeAce = ace;
+				} else {
+					prAuthenticatedPositiveAce = ace;
+				}
+			}
+		}
+		if(prAuthenticatedPositiveAce == null){
+			prAuthenticatedPositiveAce = new AccessControlEntry(principalAuthenticated,false,false,false,null,AccessControlEntry.PRINCIPAL_TYPE_STANDARD);
+			dropboxList.add(prAuthenticatedPositiveAce);
+		}
+		
+		if(!prAuthenticatedPositiveAce.containsPrivilege(IWSlideConstants.PRIVILEGE_WRITE)){
+			if(prAuthenticatedNegativeAce != null && prAuthenticatedNegativeAce.containsPrivilege(IWSlideConstants.PRIVILEGE_WRITE)){
+				// do nothing becuse this is not ment to reset permissions but to set them in the first
+				// first place and update for legacy reasons.
+			} else {
+				prAuthenticatedPositiveAce.addPrivilege(IWSlideConstants.PRIVILEGE_WRITE);
+				madeChangesToPublicFolderList = true;
+				
+				// temporary at least:
+				prAuthenticatedPositiveAce.setInherited(false);
+				prAuthenticatedPositiveAce.setInheritedFrom(null);
+				// temporary ends
+			}
+		}
+		if(madeChangesToPublicFolderList){
+			storeAccessControlList(dropboxList);
+		}
+	}
+	
+	/**
+	 * @param userFolderPath
+	 * @throws HttpException
+	 * @throws IOException
+	 */
+	private void updateUsersPublicFolderPrivileges(String userFolderPath) throws HttpException, IOException {
+		//public folder
+		AccessControlList publicFolderList = getAccessControlList(userFolderPath+FOLDER_NAME_PUBLIC);
+		// should be 'read' for everyone (and preferably nothing set for 'write')
+		
+		List publicFolderStandardACEs = publicFolderList.getAccessControlEntriesForUsers();
+		String principalEveryone = IWSlideConstants.SUBJECT_URI_ALL;
+		AccessControlEntry prEveryonePositiveAce = null;
+		AccessControlEntry prEveryoneNegativeAce = null;
+		boolean madeChangesToPublicFolderList = false;
+		//Find the ace
+		for (Iterator iter = publicFolderStandardACEs.iterator(); iter.hasNext();) {
+			AccessControlEntry ace = (AccessControlEntry) iter.next();
+			if(ace.getPrincipal().equals(principalEveryone) && !ace.isInherited()){
+				if(ace.isNegative()){
+					prEveryoneNegativeAce = ace;
+				} else {
+					prEveryonePositiveAce = ace;
+				}
+			}
+		}
+		if(prEveryonePositiveAce == null){
+			prEveryonePositiveAce = new AccessControlEntry(principalEveryone,false,false,false,null,AccessControlEntry.PRINCIPAL_TYPE_STANDARD);
+			publicFolderList.add(prEveryonePositiveAce);
+		}
+		
+		if(!prEveryonePositiveAce.containsPrivilege(IWSlideConstants.PRIVILEGE_READ)){
+			if(prEveryoneNegativeAce != null && prEveryoneNegativeAce.containsPrivilege(IWSlideConstants.PRIVILEGE_READ)){
+				// do nothing becuse this is not ment to reset permissions but to set them in the first
+				// first place and update for legacy reasons.
+			} else {
+				prEveryonePositiveAce.addPrivilege(IWSlideConstants.PRIVILEGE_READ);
+				madeChangesToPublicFolderList = true;
+				
+				// temporary at least:
+				prEveryonePositiveAce.setInherited(false);
+				prEveryonePositiveAce.setInheritedFrom(null);
+				// temporary ends
+			}
+		}
+		if(madeChangesToPublicFolderList){
+			storeAccessControlList(publicFolderList);
+		}
+	}
+
+	public AccessControlList getAccessControlList(String path) throws HttpException, IOException{
+		WebdavResource rResource = getWebdavResourceAuthenticatedAsRoot();
+		return getAccessControlList(path, new WebdavRootResource(rResource));
+	}
+	
+	/**
+	 * @param path
+	 * @param rResource
+	 * @return
+	 * @throws RemoteException
+	 * @throws HttpException
+	 * @throws IOException
+	 */
+	public AccessControlList getAccessControlList(String path, WebdavRootResource rResource) throws HttpException, IOException {
+		String thePath = null;
+		if(path!=null){
+			thePath = getPath(path);
+		}
+		AccessControlList acl = new AccessControlList(getWebdavServerURI(),thePath);
+		
+		AclProperty aclProperty = null;
+		if(thePath!=null){ // && !"/".equals(path) && !"".equals(path)){
+			aclProperty = rResource.aclfindMethod(getURI(thePath));
+		} else {
+			aclProperty = rResource.aclfindMethod();
+		}
+		if(aclProperty!=null){
+			Ace[] aclProperties = aclProperty.getAces();
+			if(aclProperties != null){
+				acl.setAces(aclProperties);
+			}
+		}
+		return acl;
+	}
+
+	public boolean storeAccessControlList(AccessControlList acl) throws HttpException, IOException{
+		WebdavResource rResource = getWebdavResourceAuthenticatedAsRoot();
+		return storeAccessControlList(acl, new WebdavRootResource(rResource));
+	}
+	
+	/**
+	 * @param acl
+	 * @param rResource
+	 * @return
+	 * @throws RemoteException
+	 * @throws HttpException
+	 * @throws IOException
+	 */
+	public boolean storeAccessControlList(AccessControlList acl, WebdavRootResource rResource) throws HttpException, IOException {
+		String resourceURI = getURI(acl.getResourcePath());
+		Ace[] aces = acl.getAces();
+		System.out.println("Saving for resource: "+resourceURI);
+		for(int i = 0; i < aces.length; i++) {
+			System.out.print("Saving:"+aces[i]);
+			Enumeration e = aces[i].enumeratePrivileges();
+			while (e.hasMoreElements()) {
+				Privilege p = (Privilege) e.nextElement();
+				System.out.print(", "+p.getName());
+			}
+			System.out.println();
+		}
+		
+		boolean value = rResource.aclMethod(resourceURI,aces);
+		System.out.println("Success: "+value);
+//		if (!value){
+//			//try
+//			String path = getPath(resourceURI);
+//			System.out.println("Try path: "+path);
+//			rResource.aclMethod(path,aces);
+//			System.out.println("Success: "+value);
+//		}
+		System.out.println("Done - ------------------");
+		return value;
+	}
+
 	/**
 	 * @return
 	 * @throws IBOLookupException
