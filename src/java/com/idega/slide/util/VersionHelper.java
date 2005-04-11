@@ -30,41 +30,23 @@ import com.idega.slide.business.IWSlideService;
 public class VersionHelper {
 
 	public static final String PROPERTY_DISPLAY_NAME = "displayname";
-
 	public static final String PROPERTY_PREDECESSOR_SET = "predecessor-set";
-
 	public static final String PROPERTY_SUCCESSOR_SET = "successor-set";
-
 	public static final String PROPERTY_VERSION_NAME = "version-name";
-
 	public static final String PROPERTY_VERSION_TREE = "version-tree";
-
 	public static final String PROPERTY_LATEST_ACTIVITY_VERSION = "latest-activity-version";
-
 	public static final String PROPERTY_CREATOR_DISPLAY_NAME = "creator-displayname";
-
 	public static final String PROPERTY_CHECKED_OUT_SET = "checkedout-set";
-
 	public static final String PROPERTY_CHECKED_OUT = CheckedoutProperty.TAG_NAME;
-
 	public static final String PROPERTY_CHECKED_IN = CheckedinProperty.TAG_NAME;
-
 	public static final String PROPERTY_LOCK_DISCOVERY = "lockdiscovery";
-
 	public static final String PROPERTY_RESOURCE_TYPE = "resourcetype";
-
 	public static final String PROPERTY_CONTENT_TYPE = WebdavResource.GETCONTENTTYPE;
-
 	public static final String PROPERTY_CONTENT_LENGTH = WebdavResource.GETCONTENTLENGTH;
-
 	public static final String PROPERTY_LAST_MODIFIED = WebdavResource.GETLASTMODIFIED;
-
 	public static final String PROPERTY_CREATION_DATE = WebdavResource.CREATIONDATE;
-	
 	public static final String PROPERTY_COMMENT = "comment";
-
 	public static final int DEFAULT_LOCK_TIMEOUT = 86400;
-
 	public static final String CHECKED_OUT_PREFIX = "Checked-out by : ";
 	
 	/**
