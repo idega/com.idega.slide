@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.26 2005/04/08 17:10:39 gummi Exp $
+ * $Id: IWSlideServiceBean.java,v 1.27 2005/04/11 01:25:37 gummi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -43,10 +43,10 @@ import com.idega.util.IWTimestamp;
 
 /**
  * 
- *  Last modified: $Date: 2005/04/08 17:10:39 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/04/11 01:25:37 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.26 $
+ * @version $Revision: 1.27 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -620,19 +620,19 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 	public boolean storeAccessControlList(AccessControlList acl, WebdavRootResource rResource) throws HttpException, IOException {
 		String resourceURI = getURI(acl.getResourcePath());
 		Ace[] aces = acl.getAces();
-		System.out.println("Saving for resource: "+resourceURI);
-		for(int i = 0; i < aces.length; i++) {
-			System.out.print("Saving:"+aces[i]);
-			Enumeration e = aces[i].enumeratePrivileges();
-			while (e.hasMoreElements()) {
-				Privilege p = (Privilege) e.nextElement();
-				System.out.print(", "+p.getName());
-			}
-			System.out.println();
-		}
+//		System.out.println("Saving for resource: "+resourceURI);
+//		for(int i = 0; i < aces.length; i++) {
+//			System.out.print("Saving:"+aces[i]);
+//			Enumeration e = aces[i].enumeratePrivileges();
+//			while (e.hasMoreElements()) {
+//				Privilege p = (Privilege) e.nextElement();
+//				System.out.print(", "+p.getName());
+//			}
+//			System.out.println();
+//		}
 		
 		boolean value = rResource.aclMethod(resourceURI,aces);
-		System.out.println("Success: "+value);
+//		System.out.println("Success: "+value);
 //		if (!value){
 //			//try
 //			String path = getPath(resourceURI);
@@ -640,7 +640,7 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 //			rResource.aclMethod(path,aces);
 //			System.out.println("Success: "+value);
 //		}
-		System.out.println("Done - ------------------");
+//		System.out.println("Done - ------------------");
 		return value;
 	}
 
