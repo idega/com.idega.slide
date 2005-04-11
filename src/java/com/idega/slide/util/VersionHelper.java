@@ -1,6 +1,7 @@
 package com.idega.slide.util;
 
 import java.io.IOException;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -16,6 +17,9 @@ import org.apache.webdav.lib.ResponseEntity;
 import org.apache.webdav.lib.WebdavResource;
 import org.apache.webdav.lib.properties.CheckedinProperty;
 import org.apache.webdav.lib.properties.CheckedoutProperty;
+import com.idega.business.IBOLookup;
+import com.idega.presentation.IWContext;
+import com.idega.slide.business.IWSlideService;
 
 /**
  * A helper class to perform version control operations on WebdavResources
@@ -75,6 +79,22 @@ public class VersionHelper {
 		}	else {
 			return null;
 		}
+	}
+	
+	public static String getLatestVersion(String resourcePath) throws HttpException, RemoteException, IOException {
+		List list = getAllVersions(resourcePath);
+		if (!list.isEmpty()) {
+			return list.get(0).toString();
+		}	else {
+			return null;
+		}
+	}
+	
+	
+	public static List getAllVersions(String resourcePath) throws HttpException, RemoteException, IOException {
+		IWContext iwc = IWContext.getInstance();
+		IWSlideService service = (IWSlideService)IBOLookup.getServiceInstance(iwc,IWSlideService.class);
+		return getAllVersions(service.getWebdavResourceAuthenticatedAsRoot(resourcePath));
 	}
 	
 	/**
