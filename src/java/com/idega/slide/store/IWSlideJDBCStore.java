@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideJDBCStore.java,v 1.7 2004/12/14 14:11:38 gummi Exp $
+ * $Id: IWSlideJDBCStore.java,v 1.8 2005/04/12 20:29:33 tryggvil Exp $
  * Created on 19.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -15,6 +15,7 @@ import java.util.Hashtable;
 import org.apache.slide.common.ServiceParameterErrorException;
 import org.apache.slide.common.ServiceParameterMissingException;
 import org.apache.slide.store.impl.rdbms.DB2RDBMSAdapter;
+import org.apache.slide.store.impl.rdbms.DerbyRDBMSAdapter;
 import org.apache.slide.store.impl.rdbms.HsqlRDBMSAdapter;
 import org.apache.slide.store.impl.rdbms.JDBCStore;
 import org.apache.slide.store.impl.rdbms.MySql41RDBMSAdapter;
@@ -27,10 +28,10 @@ import com.idega.util.dbschema.SQLSchemaAdapter;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/14 14:11:38 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/04/12 20:29:33 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public class IWSlideJDBCStore extends JDBCStore {	
 	
@@ -54,7 +55,10 @@ public class IWSlideJDBCStore extends JDBCStore {
         } else if(datastoreType.equals(SQLSchemaAdapter.DBTYPE_HSQL)){
         		adapter = HsqlRDBMSAdapter.class.getName();
         		_parameters.put("dbcpPooling","false");
-        } 
+        }else if(datastoreType.equals(SQLSchemaAdapter.DBTYPE_DERBY)){
+			adapter = DerbyRDBMSAdapter.class.getName();
+			_parameters.put("dbcpPooling","false");
+		} 		
         
 //        else if(datastorType == DatastoreInterface.DBTYPE_POSTGRES){
 //			adapter = PostgresRDBMSAdapter.class.getName();
