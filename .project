@@ -6,8 +6,8 @@
   </comment>
   <projects>
     <project>com.idega.core</project>
-    <project>org.apache.slide</project>
     <project>com.idega.block.login</project>
+    <project>org.apache.slide</project>
   </projects>
   <buildSpec>
     <buildCommand>
