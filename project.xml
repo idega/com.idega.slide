@@ -6,8 +6,9 @@
   <artifactId>com.idega.slide</artifactId>
   <name>idegaWeb Slide</name>
   <groupId>bundles</groupId>
-    <currentVersion>0.4.2</currentVersion>
+  <currentVersion>0.4.2</currentVersion>
   <!--currentVersion>0.5.0-SNAPSHOT</currentVersion-->
+
   <organization>
     <name>Idega Software</name>
     <url>www.idega.com</url>
@@ -17,12 +18,12 @@
   <shortDescription>Idega bridge for the org.apache.slide project</shortDescription>
   <issueTrackingUrl>http://issues.idega.is</issueTrackingUrl>
   <versions>
-      <version>
+    <version>
       <id>0.2.0</id>
       <name>0.2.0</name>
       <tag>SLIDE_0_2_0</tag>
     </version>
-      <version>
+    <version>
       <id>0.3.0</id>
       <name>0.3.0</name>
       <tag>SLIDE_0_3_0</tag>
@@ -37,36 +38,42 @@
       <name>0.4.1</name>
       <tag>SLIDE_0_4_1</tag>
     </version>
+    <version>
+      <id>0.4.2</id>
+      <name>0.4.2</name>
+      <tag>SLIDE_0_4_2</tag>
+    </version>
   </versions>
-    <developers>
-        <developer>
-            <id>tryggvil</id>
-            <name>Tryggvi Larusson</name>
-            <email>tryggvi@idega.is</email>
-            <organization>idega software</organization>
-            <roles/>
-        </developer>
-        <developer>
-            <id>gummi</id>
-            <name>Gudmundur Saemundsson</name>
-            <email>gummi@idega.is</email>
-            <organization>idega software</organization>
-            <roles/>
-        </developer>
-        <developer>
-            <id>eiki</id>
-            <name>Eirikur Hrafnsson</name>
-            <email>eiki@idega.is</email>
-            <organization>idega software</organization>
-            <roles/>
-        </developer>
+  <developers>
+    <developer>
+      <id>tryggvil</id>
+      <name>Tryggvi Larusson</name>
+      <email>tryggvi@idega.is</email>
+      <organization>idega software</organization>
+      <roles/>
+    </developer>
+    <developer>
+      <id>gummi</id>
+      <name>Gudmundur Saemundsson</name>
+      <email>gummi@idega.is</email>
+      <organization>idega software</organization>
+      <roles/>
+    </developer>
+    <developer>
+      <id>eiki</id>
+      <name>Eirikur Hrafnsson</name>
+      <email>eiki@idega.is</email>
+      <organization>idega software</organization>
+      <roles/>
+    </developer>
   </developers>
   <dependencies>
-   <dependency>
+    <dependency>
       <groupId>bundles</groupId>
       <artifactId>com.idega.core</artifactId>
       <!--HELPER--><version>3.0.5</version><!--HELPER-->
       <!--HELPERversion>SNAPSHOT</versionHELPER-->
+
       <type>jar</type>
       <url>http://www.idega.com/</url>
       <properties>
@@ -78,6 +85,7 @@
       <artifactId>com.idega.block.login</artifactId>
       <!--HELPER--><version>1.1.4</version><!--HELPER-->
       <!--HELPERversion>SNAPSHOT</versionHELPER-->
+
       <type>jar</type>
       <url>http://www.idega.com/</url>
       <properties>
@@ -94,7 +102,6 @@
         <eclipse.dependency>true</eclipse.dependency>
       </properties>
     </dependency>
-    
     <dependency>
       <groupId>commons-transaction</groupId>
       <artifactId>commons-transaction</artifactId>
@@ -103,6 +110,7 @@
       <url>http://jakarta.apache.org/commons/sandbox/transaction/</url>
     </dependency>
     <!-- ServletAPI -->
+
     <dependency>
       <groupId>servletapi</groupId>
       <artifactId>servletapi</artifactId>
@@ -117,7 +125,6 @@
       <type>jar</type>
       <url>http://jakarta.apache.org/commons/httpclient/</url>
     </dependency>
- 
     <dependency>
       <groupId>slide</groupId>
       <artifactId>jakarta-slide-webdavlib</artifactId>
@@ -183,4 +190,3 @@
     </dependency>
   </dependencies>
 </project>
-
