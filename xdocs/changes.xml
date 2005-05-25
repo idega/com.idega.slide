@@ -8,7 +8,7 @@
       <action dev="tryggvil" type="update">
         Changed version for use with core 3.0.5
       </action>              
-    </release
+    </release>
     <release version="0.4.1" date="2005-04-06">
       <action dev="tryggvil" type="update">
         Changed version for use with core 3.0.4
