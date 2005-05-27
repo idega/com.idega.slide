@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticator.java,v 1.10 2005/03/10 14:17:05 gummi Exp $
+ * $Id: IWSlideAuthenticator.java,v 1.11 2005/05/27 10:09:45 gummi Exp $
  * Created on 8.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -33,10 +33,10 @@ import com.idega.slide.business.IWSlideSession;
 
 /**
  * 
- *  Last modified: $Date: 2005/03/10 14:17:05 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/05/27 10:09:45 $ by $Author: gummi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  */
 public class IWSlideAuthenticator implements Filter {
 
@@ -106,6 +106,11 @@ public class IWSlideAuthenticator implements Filter {
 		slideSession.setSlideToken(WebdavUtils.getSlideToken(iwc.getRequest()));
 		
 		arg2.doFilter(iwc.getRequest(), iwc.getResponse());
+		
+		//2005.05.27 - Gummi
+		//Workaround to ensure that the response is fully flushed.  
+		//Needed because of troubles with jakarta-slide.
+		iwc.getWriter().flush();
 	}
 	
 	/**
