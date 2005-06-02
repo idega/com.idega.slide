@@ -1,5 +1,5 @@
 /*
- * $Id: SlideFileSystemBean.java,v 1.4 2004/12/16 17:59:21 eiki Exp $
+ * $Id: SlideFileSystemBean.java,v 1.5 2005/06/02 12:05:10 gummi Exp $
  * Created on 22.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -28,10 +28,10 @@ import com.idega.slide.data.SlideFileHome;
  *  Abstracts users from using the Slide API making it easier to change
  *  repository implementation. 
  * 
- *  Last modified: $Date: 2004/12/16 17:59:21 $ by $Author: eiki $
+ *  Last modified: $Date: 2005/06/02 12:05:10 $ by $Author: gummi $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class SlideFileSystemBean extends IBOServiceBean implements ICFileSystem , SlideFileSystem{
 
@@ -82,5 +82,12 @@ public class SlideFileSystemBean extends IBOServiceBean implements ICFileSystem 
     private IWSlideService getSlideService() throws IBOLookupException{
         return (IWSlideService)getServiceInstance(IWSlideService.class);
     }
+	/* (non-Javadoc)
+	 * @see com.idega.core.file.business.ICFileSystem#getFileURI(int, java.lang.String)
+	 */
+	public String getFileURI(int fileId, String datasource) throws RemoteException {
+		// TODO Auto-generated method stub
+		return getFileURI(fileId);
+	}
 
 }
