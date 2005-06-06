@@ -18,7 +18,7 @@
       <action dev="tryggvil" type="update">
         Changed version for use with core 3.0RC1
       </action>              
-    </release
+    </release>
     <release version="0.3.0" date="2005-03-10">
       <action dev="tryggvil" type="update">
         Changed version for use with core 3.0.0
