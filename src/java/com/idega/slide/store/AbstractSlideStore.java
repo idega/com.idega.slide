@@ -1,5 +1,5 @@
 /*
- * $Id: AbstractSlideStore.java,v 1.1 2005/06/28 11:34:14 tryggvil Exp $
+ * $Id: AbstractSlideStore.java,v 1.2 2005/06/28 12:09:52 tryggvil Exp $
  * Created on Jun 27, 2005 in project com.idega.slide
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -56,10 +56,10 @@ import org.apache.slide.util.logger.Logger;
  * <p>
  * Simple wrapper class around the standard Slide Store interfaces
  * </p>
- *  Last modified: $Date: 2005/06/28 11:34:14 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2005/06/28 12:09:52 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class AbstractSlideStore 
 	implements Service,NodeStore,ContentStore,LockStore,RevisionDescriptorsStore,RevisionDescriptorStore,
@@ -87,6 +87,9 @@ public class AbstractSlideStore
 	 * @return Returns the contentStore.
 	 */
 	protected ContentStore getContentStore() {
+		if(contentStore==null){
+			throw new RuntimeException(this.getClass().getName()+": ContentStore instance it not set");
+		}
 		return contentStore;
 	}
 
@@ -103,6 +106,9 @@ public class AbstractSlideStore
 	 * @return Returns the lockStore.
 	 */
 	protected LockStore getLockStore() {
+		if(lockStore==null){
+			throw new RuntimeException(this.getClass().getName()+": LockStore instance it not set");
+		}
 		return lockStore;
 	}
 
@@ -119,6 +125,9 @@ public class AbstractSlideStore
 	 * @return Returns the nodeStore.
 	 */
 	protected NodeStore getNodeStore() {
+		if(nodeStore==null){
+			throw new RuntimeException(this.getClass().getName()+": NodeStore instance it not set");
+		}
 		return nodeStore;
 	}
 
@@ -135,6 +144,9 @@ public class AbstractSlideStore
 	 * @return Returns the revisionDescriptorsStore.
 	 */
 	protected RevisionDescriptorsStore getRevisionDescriptorsStore() {
+		if(revisionDescriptorsStore==null){
+			throw new RuntimeException(this.getClass().getName()+": RevisionDescriptorsStore instance it not set");
+		}
 		return revisionDescriptorsStore;
 	}
 
@@ -151,6 +163,9 @@ public class AbstractSlideStore
 	 * @return Returns the revisionDescriptorStore.
 	 */
 	protected RevisionDescriptorStore getRevisionDescriptorStore() {
+		if(revisionDescriptorStore==null){
+			throw new RuntimeException(this.getClass().getName()+": RevisionDescriptorStore instance it not set");
+		}
 		return revisionDescriptorStore;
 	}
 
@@ -167,6 +182,9 @@ public class AbstractSlideStore
 	 * @return Returns the service.
 	 */
 	protected Service getService() {
+		if(service==null){
+			throw new RuntimeException(this.getClass().getName()+": Service instance it not set");
+		}
 		return service;
 	}
 
@@ -183,6 +201,9 @@ public class AbstractSlideStore
 	 * @return Returns the ibasicExpressionFactoryProvider.
 	 */
 	protected IBasicExpressionFactoryProvider getIbasicExpressionFactoryProvider() {
+		if(ibasicExpressionFactoryProvider==null){
+			throw new RuntimeException(this.getClass().getName()+": IBasicExpressionFactoryProvider instance it not set");
+		}
 		return ibasicExpressionFactoryProvider;
 	}
 
@@ -201,6 +222,9 @@ public class AbstractSlideStore
 	 * @return Returns the securityStore.
 	 */
 	protected SecurityStore getSecurityStore() {
+		if(securityStore==null){
+			throw new RuntimeException(this.getClass().getName()+": SecurityStore instance it not set");
+		}
 		return securityStore;
 	}
 
@@ -219,6 +243,9 @@ public class AbstractSlideStore
 	 * @return Returns the sequenceStore.
 	 */
 	protected SequenceStore getSequenceStore() {
+		if(sequenceStore==null){
+			throw new RuntimeException(this.getClass().getName()+": SequenceyStore instance it not set");
+		}
 		return sequenceStore;
 	}
 
