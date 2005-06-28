@@ -2,26 +2,26 @@ package com.idega.slide.schema;
 
 import java.sql.Connection;
 
-import com.idega.util.database.PoolManager;
+import com.idega.util.database.ConnectionBroker;
 import com.idega.util.dbschema.SQLSchemaAdapter;
 import com.idega.util.dbschema.SQLSchemaCreator;
 
 /**
  * 
  * 
- *  Last modified: $Date: 2004/11/15 18:58:05 $ by $Author: aron $
+ *  Last modified: $Date: 2005/06/28 11:34:14 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class SlideSchemaCreator {
     
     public void createSchemas(){
         try {
-            PoolManager pManager = PoolManager.getInstance();
-            Connection conn = pManager.getConnection();
+            //PoolManager pManager = PoolManager.getInstance();
+            Connection conn = ConnectionBroker.getConnection();
             String datastoreType = SQLSchemaAdapter.detectDataStoreType(conn);
-            pManager.freeConnection(conn);
+            ConnectionBroker.freeConnection(conn);
             createSchemas(datastoreType);
         } catch (Exception e) {
            
