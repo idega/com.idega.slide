@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideJDBCStore.java,v 1.8 2005/04/12 20:29:33 tryggvil Exp $
+ * $Id: IWSlideJDBCStore.java,v 1.9 2005/06/28 14:15:28 tryggvil Exp $
  * Created on 19.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -28,10 +28,10 @@ import com.idega.util.dbschema.SQLSchemaAdapter;
 
 /**
  * 
- *  Last modified: $Date: 2005/04/12 20:29:33 $ by $Author: tryggvil $
- * 
+ * Last modified: $Date: 2005/06/28 14:15:28 $ by $Author: tryggvil $
+ * @deprecated This Class i now deprecated in favour of IWSlideStore
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public class IWSlideJDBCStore extends JDBCStore {	
 	
