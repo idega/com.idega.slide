@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.26 2005/04/08 17:10:39 gummi Exp $
+ * $Id: IWSlideSessionBean.java,v 1.27 2005/09/01 21:35:49 eiki Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -23,7 +23,6 @@ import org.apache.slide.security.Security;
 import org.apache.slide.structure.ActionNode;
 import org.apache.slide.structure.LinkNode;
 import org.apache.slide.structure.ObjectNotFoundException;
-import org.apache.webdav.lib.Ace;
 import org.apache.webdav.lib.Privilege;
 import org.apache.webdav.lib.WebdavResource;
 import org.apache.webdav.lib.util.WebdavStatus;
@@ -41,10 +40,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2005/04/08 17:10:39 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/09/01 21:35:49 $ by $Author: eiki $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.26 $
+ * @version $Revision: 1.27 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -161,10 +160,14 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		boolean tmpIsLoggedOn = getUserContext().isLoggedOn();
 		//if("resource is null" && ("has logged on/off" || ("is logged on" && "has some usersCredentials" && "the credential does not match his current login, that is he has logged in as some other user")))
 		if(webdavRootResource != null && (isLoggedOn != tmpIsLoggedOn || (tmpIsLoggedOn && usersCredentials != null && !(usersCredentials).getUserName().equals(getUserContext().getRemoteUser())))){
-			webdavRootResource.close();
-			webdavRootResource = null;
-			usersCredentials = null;
-			isLoggedOn = !isLoggedOn;
+			String userName = (usersCredentials).getUserName();
+			//extra check because "Administrator" is "root"
+			if(!(userName.equals("root") && getUserContext().isSuperAdmin())){
+				webdavRootResource.close();
+				webdavRootResource = null;
+				usersCredentials = null;
+				isLoggedOn = !isLoggedOn;
+			}
 		}
 		
 		if(webdavRootResource == null || webdavRootResource.isClosed()){
@@ -210,6 +213,9 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		return ((uri.startsWith(uriPrefix))?uri.substring(uriPrefix.length()):uri);
 	}
 	
+	/**
+	 * Differs from the method in the service bean a little. The service bean uses the root credentials but this uses the current users credentials.
+	 */
 	public boolean getExistence(String path) throws HttpException, IOException{
 		if(path==null){
 			return false;
