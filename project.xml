@@ -6,8 +6,8 @@
   <artifactId>com.idega.slide</artifactId>
   <name>idegaWeb Slide</name>
   <groupId>bundles</groupId>
-  <currentVersion>1.0</currentVersion>
-  <!--currentVersion>1.0.1-SNAPSHOT</currentVersion-->
+  <!--currentVersion>1.0</currentVersion-->
+  <currentVersion>1.0.1-SNAPSHOT</currentVersion>
 
   <organization>
     <name>Idega Software</name>
@@ -43,6 +43,11 @@
       <name>0.4.2</name>
       <tag>SLIDE_0_4_2</tag>
     </version>
+    <version>
+      <id>1.0</id>
+      <name>1.0</name>
+      <tag>SLIDE_1_0</tag>
+    </version>
   </versions>
   <developers>
     <developer>
@@ -71,8 +76,8 @@
     <dependency>
       <groupId>bundles</groupId>
       <artifactId>com.idega.core</artifactId>
-      <!--HELPER--><version>3.0.6</version><!--HELPER-->
-      <!--HELPERversion>SNAPSHOT</versionHELPER-->
+      <!--version>3.0.6</version-->
+      <version>SNAPSHOT</version>
 
       <type>jar</type>
       <url>http://www.idega.com/</url>
@@ -83,8 +88,8 @@
     <dependency>
       <groupId>bundles</groupId>
       <artifactId>com.idega.block.login</artifactId>
-      <!--HELPER--><version>1.1.5</version><!--HELPER-->
-      <!--HELPERversion>SNAPSHOT</versionHELPER-->
+      <!--version>1.1.5</version-->
+      <version>SNAPSHOT</version>
 
       <type>jar</type>
       <url>http://www.idega.com/</url>
