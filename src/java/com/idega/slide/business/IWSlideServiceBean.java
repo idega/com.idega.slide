@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.28 2005/04/11 04:47:11 gummi Exp $
+ * $Id: IWSlideServiceBean.java,v 1.29 2005/10/12 22:43:18 tryggvil Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.URIException;
@@ -37,16 +38,20 @@ import com.idega.slide.schema.SlideSchemaCreator;
 import com.idega.slide.util.AccessControlEntry;
 import com.idega.slide.util.AccessControlList;
 import com.idega.slide.util.IWSlideConstants;
+import com.idega.slide.util.WebdavExtendedResource;
 import com.idega.slide.util.WebdavRootResource;
 import com.idega.util.IWTimestamp;
 
 
 /**
+ * <p>
+ * This is the main bean for accessing system wide information about the slide store.
+ * </p>
  * 
- *  Last modified: $Date: 2005/04/11 04:47:11 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/10/12 22:43:18 $ by $Author: tryggvil $
  * 
- * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.28 $
+ * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
+ * @version $Revision: 1.29 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -74,6 +79,16 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 		super();
 	}
 	
+	/**
+	 * <p>
+	 * Gets the URI for the root of the slide repository.
+	 * The repository is by default mapped on '/content' under the web application.<br/>
+	 * This method returns the context path for the application so if it is e.g. mapped under '/cms' this method returns '/cms/content'.
+	 * If the webapplication is mapped on '/' the method returns '/content'
+	 * </p>
+	 * @param path
+	 * @return
+	 */
 	public String getWebdavServerURI(){
 		String appContext = getIWMainApplication().getApplicationContextURI();
 		if (appContext.endsWith("/")){
@@ -83,7 +98,10 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 	}
 	
 	/**
-	 * Gets the URL from with a path in the filesystem (e.g.) /files/content
+	 * <p>
+	 * Gets the URL from with a path in the filesystem (e.g.) if the given path is '/files/public/myfile.pdf' then this
+	 * method returns 'http://[hostname]:[port]/[contextpath]/content/files/public/myfile.pdf'
+	 * </p>
 	 * @param path
 	 * @return
 	 */
@@ -197,13 +215,44 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 		}
 	}
 	
+	/**
+	 * <p>
+	 * Returns the WebdavResource for the "/" or root of the WebDav server.
+	 * </p>
+	 * @param credentials
+	 * @return
+	 * @throws HttpException
+	 * @throws IOException
+	 * @throws RemoteException
+	 */
+	public WebdavResource getWebdavRootResource(UsernamePasswordCredentials credentials) throws HttpException, IOException, RemoteException {
+		return getWebdavExtendedResource(null,credentials);
+		
+	}
+	
+	public WebdavResource getWebdavResource(String path,UsernamePasswordCredentials credentials) throws HttpException, IOException, RemoteException {
+		return getWebdavExtendedResource(path,credentials);
+		
+	}
+	
+	public WebdavExtendedResource getWebdavExtendedResource(String path,UsernamePasswordCredentials credentials) throws HttpException, IOException, RemoteException {
+		WebdavExtendedResource resource;
+//		if(getUserContext().isLoggedOn()){
+			resource = new WebdavExtendedResource(getWebdavServerURL(credentials,getPath(path)));
+//		} else {
+//			resource = new WebdavExtendedResource(getIWSlideService().getWebdavServerURL(path));
+//		}
+		return resource;
+	}
 	
 	/**
 	 * Returns the WebdavResource at the given path and authenticated as root
 	 */
 	public WebdavResource getWebdavResourceAuthenticatedAsRoot(String path) throws HttpException, IOException{
-		String thePath = (path==null)?null:getPath(path);
-		return new WebdavResource(getWebdavServerURL(getRootUserCredentials(),thePath));
+		//String thePath = (path==null)?null:getPath(path);
+		//return new WebdavResource(getWebdavServerURL(getRootUserCredentials(),thePath));
+		String thePath=path;
+		return getWebdavResource(thePath,getRootUserCredentials());
 	}
 	
 	/**
@@ -213,13 +262,26 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 		return getWebdavResourceAuthenticatedAsRoot(null);
 	}
 	
+	/**
+	 * <p>
+	 * Gets the URI from with a path in the filesystem (e.g.) if the given path is '/files/public/myfile.pdf' then this
+	 * method returns '/[contextpath]/content/files/public/myfile.pdf'
+	 * </p>
+	 * @param path
+	 * @return
+	 */
 	public String getURI(String path) throws RemoteException{
 		return getWebdavServerURI()+((path.startsWith(SLASH))?"":SLASH)+path;
 	}
 	
 	public String getPath(String uri) throws RemoteException{
 		String uriPrefix = getWebdavServerURI();
-		return ((uri.startsWith(uriPrefix))?uri.substring(uriPrefix.length()):uri);
+		if(uri==null){
+			return null;
+		}
+		else{
+			return ((uri.startsWith(uriPrefix))?uri.substring(uriPrefix.length()):uri);
+		}
 	}
 	
 	public boolean getExistence(String path) throws HttpException, IOException{
@@ -698,6 +760,48 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 			security = token.getSecurityHelper();
 		}
 		return security;
+	}
+	
+	
+	
+	/**
+	 * Creates all the folders in path 
+	 * @param path Path with all the folders to create. 
+	 * Should hold all the folders after Server URI (Typically /cms/content/)
+	 * @throws HttpException
+	 * @throws RemoteException
+	 * @throws IOException
+	 * @return true if it needed to create the folders
+	 */
+	public boolean createAllFoldersInPath(String path,UsernamePasswordCredentials credentials) throws HttpException, RemoteException, IOException {
+		boolean hadToCreate = false;
+		WebdavResource rootResource = getWebdavRootResource(credentials);
+		
+		hadToCreate = !getExistence(path);
+		if(hadToCreate){
+			StringBuffer createPath = new StringBuffer(getWebdavServerURI());
+			StringTokenizer st = new StringTokenizer(path,"/");
+			while(st.hasMoreTokens()) {
+				createPath.append("/").append(st.nextToken());
+				rootResource.mkcolMethod(createPath.toString());
+			}
+		}
+		return hadToCreate;
+		
+	}
+
+	
+	/**
+	 * Creates all the folders in path with credentatials of the root/administrator user.
+	 * @param path Path with all the folders to create. 
+	 * Should hold all the folders after Server URI (Typically /cms/content/)
+	 * @throws HttpException
+	 * @throws RemoteException
+	 * @throws IOException
+	 * @return true if it needed to create the folders
+	 */
+	public boolean createAllFoldersInPathAsRoot(String path) throws HttpException, RemoteException, IOException {
+		return createAllFoldersInPath(path,getRootUserCredentials());
 	}
 	
 }

@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.27 2005/09/01 21:35:49 eiki Exp $
+ * $Id: IWSlideSessionBean.java,v 1.28 2005/10/12 22:43:18 tryggvil Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -40,10 +40,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2005/09/01 21:35:49 $ by $Author: eiki $
+ *  Last modified: $Date: 2005/10/12 22:43:18 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.27 $
+ * @version $Revision: 1.28 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -196,7 +196,9 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	public WebdavExtendedResource getWebdavResource(String path) throws HttpException, IOException, RemoteException {
 		WebdavExtendedResource resource;
 //		if(getUserContext().isLoggedOn()){
-			resource = new WebdavExtendedResource(getIWSlideService().getWebdavServerURL(getUserCredentials(),getPath(path)));
+			//resource = new WebdavExtendedResource(getIWSlideService().getWebdavServerURL(getUserCredentials(),getPath(path)));
+			IWSlideService service = getIWSlideService();
+			resource = service.getWebdavExtendedResource(path,getUserCredentials());
 //		} else {
 //			resource = new WebdavExtendedResource(getIWSlideService().getWebdavServerURL(path));
 //		}
@@ -366,7 +368,7 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	 * @return true if it needed to create the folders
 	 */
 	public boolean createAllFoldersInPath(String path) throws HttpException, RemoteException, IOException {
-		boolean hadToCreate = false;
+		/*boolean hadToCreate = false;
 		WebdavRootResource rootResource = getWebdavRootResource();
 		
 		hadToCreate = !getExistence(path);
@@ -378,7 +380,9 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 				rootResource.mkcolMethod(createPath.toString());
 			}
 		}
-		return hadToCreate;
+		return hadToCreate;*/
+		IWSlideService slideService = getIWSlideService();
+		return slideService.createAllFoldersInPath(path,getUserCredentials());
 		
 	}
 }

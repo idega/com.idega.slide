@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideService.java,v 1.19 2005/04/08 17:10:39 gummi Exp $
+ * $Id: IWSlideService.java,v 1.20 2005/10/12 22:43:18 tryggvil Exp $
  * Created on 21.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -19,20 +19,29 @@ import org.apache.webdav.lib.WebdavFile;
 import org.apache.webdav.lib.WebdavResource;
 import com.idega.business.IBOService;
 import com.idega.slide.util.AccessControlList;
+import com.idega.slide.util.WebdavExtendedResource;
 import com.idega.slide.util.WebdavRootResource;
 
 
 /**
  * 
- *  Last modified: $Date: 2005/04/08 17:10:39 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/10/12 22:43:18 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.19 $
+ * @version $Revision: 1.20 $
  */
 public interface IWSlideService extends IBOService {
 
+	
 	/**
-	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavServerURI
+	 * <p>
+	 * Gets the URI for the root of the slide repository.
+	 * The repository is by default mapped on '/content' under the web application.<br/>
+	 * This method returns the context path for the application so if it is e.g. mapped under '/cms' this method returns '/cms/content'.
+	 * If the webapplication is mapped on '/' the method returns '/content'
+	 * </p>
+	 * @param path
+	 * @return
 	 */
 	public String getWebdavServerURI() throws java.rmi.RemoteException;
 
@@ -126,4 +135,43 @@ public interface IWSlideService extends IBOService {
 	
 	public AccessControlList getAccessControlList(String path, WebdavRootResource rResource) throws HttpException, IOException;
 	public boolean storeAccessControlList(AccessControlList acl, WebdavRootResource rResource) throws RemoteException, HttpException, IOException;
+	
+	/**
+	 * Creates all the folders in path 
+	 * @param path Path with all the folders to create. 
+	 * Should hold all the folders after Server URI (Typically /cms/content/)
+	 * @throws HttpException
+	 * @throws RemoteException
+	 * @throws IOException
+	 * @return true if it needed to create the folders
+	 */
+	public boolean createAllFoldersInPath(String path,UsernamePasswordCredentials credentials) throws HttpException, RemoteException, IOException;
+	/**
+	 * Creates all the folders in path with credentatials of the root/administrator user.
+	 * @param path Path with all the folders to create. 
+	 * Should hold all the folders after Server URI (Typically /cms/content/)
+	 * @throws HttpException
+	 * @throws RemoteException
+	 * @throws IOException
+	 * @return true if it needed to create the folders
+	 */
+	public boolean createAllFoldersInPathAsRoot(String path) throws HttpException, RemoteException, IOException;
+	
+	
+	/**
+	 * <p>
+	 * Returns the WebdavResource for the "/" or root of the WebDav server.
+	 * </p>
+	 * @param credentials
+	 * @return
+	 * @throws HttpException
+	 * @throws IOException
+	 * @throws RemoteException
+	 */
+	public WebdavResource getWebdavRootResource(UsernamePasswordCredentials credentials) throws HttpException, IOException, RemoteException;
+	
+	public WebdavResource getWebdavResource(String path,UsernamePasswordCredentials credentials) throws HttpException, IOException, RemoteException;
+	
+	public WebdavExtendedResource getWebdavExtendedResource(String path,UsernamePasswordCredentials credentials) throws HttpException, IOException, RemoteException;
+
 }
