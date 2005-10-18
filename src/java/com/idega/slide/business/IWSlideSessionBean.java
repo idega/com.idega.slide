@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.28 2005/10/12 22:43:18 tryggvil Exp $
+ * $Id: IWSlideSessionBean.java,v 1.29 2005/10/18 08:51:00 laddi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -12,7 +12,6 @@ package com.idega.slide.business;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Enumeration;
-import java.util.StringTokenizer;
 import javax.servlet.http.HttpSessionBindingEvent;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
@@ -40,10 +39,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2005/10/12 22:43:18 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2005/10/18 08:51:00 $ by $Author: laddi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.28 $
+ * @version $Revision: 1.29 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
