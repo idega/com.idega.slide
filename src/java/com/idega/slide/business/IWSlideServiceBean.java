@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.29 2005/10/12 22:43:18 tryggvil Exp $
+ * $Id: IWSlideServiceBean.java,v 1.30 2005/11/16 12:59:50 gimmi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -48,10 +48,10 @@ import com.idega.util.IWTimestamp;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2005/10/12 22:43:18 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2005/11/16 12:59:50 $ by $Author: gimmi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.29 $
+ * @version $Revision: 1.30 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -135,6 +135,8 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 		           server = server.substring(0,server.lastIndexOf("/"));
 		       if(server.startsWith("http://"))
 		       		server = server.substring(7,server.length());
+		       if(server.startsWith("https://"))
+		       		server = server.substring(8,server.length());
 		       if(server.indexOf(":")!=-1){
 		       		String sPort = server.substring(server.indexOf(":")+1,server.length());
 		       		port = Integer.parseInt(sPort);
