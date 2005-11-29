@@ -1,5 +1,5 @@
 /*
- * $Id: FileSystemCopyServiceBean.java,v 1.5 2004/12/14 13:55:22 gummi Exp $
+ * $Id: FileSystemCopyServiceBean.java,v 1.6 2005/11/29 15:29:31 laddi Exp $
  * Created on 2.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -14,18 +14,14 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.StringTokenizer;
-
 import javax.ejb.EJBException;
 import javax.ejb.FinderException;
-
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.HttpsURL;
 import org.apache.commons.httpclient.URIException;
 import org.apache.webdav.lib.WebdavResource;
-import org.apache.webdav.lib.properties.ResourceTypeProperty;
-
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBORuntimeException;
 import com.idega.business.IBOServiceBean;
@@ -42,10 +38,10 @@ import com.idega.util.database.ConnectionBroker;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/14 13:55:22 $ by $Author: gummi $
+ *  Last modified: $Date: 2005/11/29 15:29:31 $ by $Author: laddi $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSystemCopyService{
     
@@ -302,7 +298,7 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
             //webdavResource.setDebug(Integer.MAX_VALUE);
             
             // is not a collection?
-            if (!((ResourceTypeProperty)webdavResource.getResourceType()).isCollection()) {
+            if (!webdavResource.getResourceType().isCollection()) {
                 webdavResource = null;
                 httpURL = null;
                 //System.out.println("Error: " + uri + " is not a collection! Use open/connect only for collections!");
@@ -345,7 +341,7 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
                     setPath(webdavResource.getPath());
 
 
-                    if (!((ResourceTypeProperty)webdavResource.getResourceType()).isCollection()) {
+                    if (!webdavResource.getResourceType().isCollection()) {
                         webdavResource = null;
                         httpURL = null;
                         System.out.println("Error: " + httpURL.getURI() + " is not a collection! Use open/connect only for collections!");
