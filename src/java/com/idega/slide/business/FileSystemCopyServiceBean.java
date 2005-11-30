@@ -1,5 +1,5 @@
 /*
- * $Id: FileSystemCopyServiceBean.java,v 1.6 2005/11/29 15:29:31 laddi Exp $
+ * $Id: FileSystemCopyServiceBean.java,v 1.7 2005/11/30 09:35:35 laddi Exp $
  * Created on 2.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -38,10 +38,10 @@ import com.idega.util.database.ConnectionBroker;
 
 /**
  * 
- *  Last modified: $Date: 2005/11/29 15:29:31 $ by $Author: laddi $
+ *  Last modified: $Date: 2005/11/30 09:35:35 $ by $Author: laddi $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSystemCopyService{
     
@@ -163,7 +163,6 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
             rs = stmt.executeQuery(sql);
             while(rs.next()){
                 String username = rs.getString(1);
-                Integer userID = new Integer(rs.getInt(2));
                 Integer fileID = new Integer(rs.getInt(3));
                 ICFile root = getICFileHome().findByPrimaryKey(fileID);
                 if(root.isFolder()){
@@ -454,7 +453,6 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
     void put(ICFile file, String path)
     {
         try {
-            String src  = file.getName();
             String dest = getRemoteTargetFileName( file.getName(),  path);
             
             String currentPath = webdavResource.getPath();
