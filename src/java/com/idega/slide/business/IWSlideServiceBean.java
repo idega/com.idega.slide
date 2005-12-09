@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.30 2005/11/16 12:59:50 gimmi Exp $
+ * $Id: IWSlideServiceBean.java,v 1.31 2005/12/09 22:59:32 tryggvil Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -48,10 +48,10 @@ import com.idega.util.IWTimestamp;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2005/11/16 12:59:50 $ by $Author: gimmi $
+ *  Last modified: $Date: 2005/12/09 22:59:32 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.30 $
+ * @version $Revision: 1.31 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -121,15 +121,16 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 		return getWebdavServerURL(credential,path,getWebdavServerURI());
 	}
 	
-	/**
+	/**df öh
 	 * Gets the root url for the webdav server with authentication
 	 * @return
 	 */
 	private HttpURL getWebdavServerURL(UsernamePasswordCredentials credential,String path,String servletPath){
 	    
 	    try {
-	       String server = getIWApplicationContext().getDomain().getServerName();
-	       if(server!=null){
+	       //String server = getIWApplicationContext().getDomain().getServerName();
+	       String server = getIWApplicationContext().getDomain().getURL();
+	    		if(server!=null){
 	       		int port = 80;
 		       if(server.endsWith("/"))
 		           server = server.substring(0,server.lastIndexOf("/"));
