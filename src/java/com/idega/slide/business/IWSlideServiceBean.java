@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.31 2005/12/09 22:59:32 tryggvil Exp $
+ * $Id: IWSlideServiceBean.java,v 1.32 2005/12/11 12:41:05 gimmi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
+import org.apache.commons.httpclient.HttpsURL;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.slide.common.NamespaceAccessToken;
@@ -48,10 +49,10 @@ import com.idega.util.IWTimestamp;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2005/12/09 22:59:32 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2005/12/11 12:41:05 $ by $Author: gimmi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.31 $
+ * @version $Revision: 1.32 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -132,12 +133,15 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 	       String server = getIWApplicationContext().getDomain().getURL();
 	    		if(server!=null){
 	       		int port = 80;
+	       		boolean https = false;
 		       if(server.endsWith("/"))
 		           server = server.substring(0,server.lastIndexOf("/"));
 		       if(server.startsWith("http://"))
 		       		server = server.substring(7,server.length());
-		       if(server.startsWith("https://"))
+		       if(server.startsWith("https://")) {
+		    	   https = true;
 		       		server = server.substring(8,server.length());
+		       }
 		       if(server.indexOf(":")!=-1){
 		       		String sPort = server.substring(server.indexOf(":")+1,server.length());
 		       		port = Integer.parseInt(sPort);
@@ -151,7 +155,12 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 		       }
 		       
 		       //server += getWebdavServletURL();
-		       HttpURL hrl = new HttpURL(server,port,realPath);
+		       HttpURL hrl = null;
+		       if (https) {
+		    	   hrl = new HttpsURL(server,port,realPath);
+		       } else {
+		    	   hrl = new HttpURL(server,port,realPath);
+		       }
 		       
 		       
 			   if(credential!=null){
