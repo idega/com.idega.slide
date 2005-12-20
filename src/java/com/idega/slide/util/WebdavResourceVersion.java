@@ -1,5 +1,5 @@
 /*
- * $Id: WebdavResourceVersion.java,v 1.5 2005/09/14 23:34:38 tryggvil Exp $ Created on Dec
+ * $Id: WebdavResourceVersion.java,v 1.6 2005/12/20 17:13:25 tryggvil Exp $ Created on Dec
  * 19, 2004
  * 
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -9,6 +9,7 @@
  */
 package com.idega.slide.util;
 
+import java.io.Serializable;
 import java.text.Collator;
 import java.util.Map;
 import org.apache.webdav.lib.BaseProperty;
@@ -20,14 +21,19 @@ import com.idega.user.data.User;
 
 /**
  * 
- * Last modified: $Date: 2005/09/14 23:34:38 $ by $Author: tryggvil $
+ * Last modified: $Date: 2005/12/20 17:13:25 $ by $Author: tryggvil $
  * 
  * A little wrapper for version information
  * 
  * @author <a href="mailto:eiki@idega.com">Eirikur S. Hrafnsson </a>
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
-public class WebdavResourceVersion implements Comparable{
+public class WebdavResourceVersion implements Comparable,Serializable{
+
+	/**
+	 * Comment for <code>serialVersionUID</code>
+	 */
+	private static final long serialVersionUID = -9196111629242509312L;
 
 	private BaseProperty versionName;
 

@@ -54,10 +54,14 @@ public class VersionHelper {
 	 * @param resource
 	 * @return
 	 */
-	public static String getLatestVersion(WebdavResource resource) {
+	public static String getLatestVersionName(WebdavResource resource) {
 		List list = getAllVersions(resource);
-		if (!list.isEmpty()) {
-			return list.get(0).toString();
+		return getLatestVersionName(list);
+	}
+	
+	public static String getLatestVersionName(List versionList) {
+		if (!versionList.isEmpty()) {
+			return versionList.get(0).toString();
 		}	else {
 			return null;
 		}
