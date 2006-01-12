@@ -1,5 +1,5 @@
 /*
- * $Id: AuthenticationBusinessBean.java,v 1.8 2005/01/07 19:06:03 gummi Exp $
+ * $Id: AuthenticationBusinessBean.java,v 1.9 2006/01/12 16:10:31 tryggvil Exp $
  * Created on 9.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -15,6 +15,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.webdav.lib.PropertyName;
@@ -33,10 +34,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2005/01/07 19:06:03 $ by $Author: gummi $
+ *  Last modified: $Date: 2006/01/12 16:10:31 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public class AuthenticationBusinessBean extends IBOServiceBean  implements AuthenticationBusiness{
 	
@@ -44,17 +45,17 @@ public class AuthenticationBusinessBean extends IBOServiceBean  implements Authe
 	private static final String PATH_GROUPS = IWSlideConstants.PATH_GROUPS;
 	private static final String PATH_ROLES = IWSlideConstants.PATH_ROLES;
 	private static final String SLASH = "/";
-	private static final String SLIDE_ROLE_NAME_ROOT = "root";
+	//private static final String SLIDE_ROLE_NAME_ROOT = "root";
 	private static final String SLIDE_DEFAULT_ROOT_USER = "root";
 	private static final String SLIDE_ROLE_NAME_USER = "user";
-	private static final String SLIDE_ROLE_NAME_GUEST = "guset";
+	//private static final String SLIDE_ROLE_NAME_GUEST = "guset";
 	private IWSlideService slideService = null;
 	private static final String GROUP_MEMBER_SET = "group-member-set";
 	private static final PropertyName GROUP_MEMBER_SET_PROPERTY_NAME = new PropertyName("DAV:",GROUP_MEMBER_SET);
 	private static final String NO_PASSWORD = "no_password";
 	private static final String ROOT_USER_NAME = "root";
 	private final UsernamePasswordCredentials rootCredential = new UsernamePasswordCredentials(ROOT_USER_NAME,NO_PASSWORD);
-	private LoginBusinessBean _loginBusiness = new LoginBusinessBean();
+	//private LoginBusinessBean _loginBusiness = new LoginBusinessBean();
 	
 	
 	public WebdavResources getAllRoles() throws HttpException, RemoteException, IOException{
@@ -229,15 +230,17 @@ public class AuthenticationBusinessBean extends IBOServiceBean  implements Authe
 		return rootCredential;
 	}
 	
-	public boolean isRootUser(IWContext iwc){
-		LoginBusinessBean loginBusiness = getLoginBusiness(iwc);
-		String[] usernameAndPassword = loginBusiness.getLoginNameAndPasswordFromBasicAuthenticationRequest(iwc);
+	public boolean isRootUser(HttpServletRequest request){
+		//HttpServletRequest request = iwc.getRequest();
+		LoginBusinessBean loginBusiness = getLoginBusiness();
+		String[] usernameAndPassword = loginBusiness.getLoginNameAndPasswordFromBasicAuthenticationRequest(request);
 		UsernamePasswordCredentials tmpCredential = getRootUserCredentials();
 		return tmpCredential.getUserName().equals(usernameAndPassword[0]) && tmpCredential.getPassword().equals(usernameAndPassword[1]);
 	}
 	
-	protected LoginBusinessBean getLoginBusiness(IWContext iwc){
-		return _loginBusiness;
+	protected LoginBusinessBean getLoginBusiness(){
+		//return _loginBusiness;
+		return LoginBusinessBean.getLoginBusinessBean(getIWApplicationContext());
 	}
 	
 	
