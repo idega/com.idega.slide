@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticator.java,v 1.13 2006/01/12 16:10:31 tryggvil Exp $
+ * $Id: IWSlideAuthenticator.java,v 1.14 2006/01/13 00:25:27 tryggvil Exp $
  * Created on 8.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -40,10 +40,10 @@ import com.idega.slide.business.IWSlideSession;
  * This filter is mapped before any request to the Slide WebdavServlet to make sure
  * a logged in user from idegaWeb is logged also into the Slide authentication system.
  * </p>
- *  Last modified: $Date: 2006/01/12 16:10:31 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2006/01/13 00:25:27 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.14 $
  */
 public class IWSlideAuthenticator extends BaseFilter{
 
@@ -77,7 +77,7 @@ public class IWSlideAuthenticator extends BaseFilter{
 		try{
 			if(loginBusiness.isLoggedOn(request)){
 				LoggedOnInfo lInfo = loginBusiness.getLoggedOnInfo(session);
-				setAsAuthenticatedInSlide(request,lInfo.getLogin(),lInfo);
+				request = setAsAuthenticatedInSlide(request,lInfo.getLogin(),lInfo);
 			} else {
 				String[] loginAndPassword = loginBusiness.getLoginNameAndPasswordFromBasicAuthenticationRequest(request);
 				String loggedInUser = getUserAuthenticatedBySlide(session);
