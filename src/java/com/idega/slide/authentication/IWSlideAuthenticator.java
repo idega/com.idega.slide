@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticator.java,v 1.15 2006/01/14 22:41:08 laddi Exp $
+ * $Id: IWSlideAuthenticator.java,v 1.16 2006/02/22 17:48:12 tryggvil Exp $
  * Created on 8.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -28,6 +28,7 @@ import com.idega.core.accesscontrol.business.LoggedOnInfo;
 import com.idega.core.accesscontrol.business.LoginBusinessBean;
 import com.idega.core.accesscontrol.business.LoginSession;
 import com.idega.idegaweb.IWApplicationContext;
+import com.idega.idegaweb.IWMainApplication;
 import com.idega.presentation.IWContext;
 import com.idega.servlet.filter.BaseFilter;
 import com.idega.slide.business.IWSlideService;
@@ -39,10 +40,10 @@ import com.idega.slide.business.IWSlideSession;
  * This filter is mapped before any request to the Slide WebdavServlet to make sure
  * a logged in user from idegaWeb is logged also into the Slide authentication system.
  * </p>
- *  Last modified: $Date: 2006/01/14 22:41:08 $ by $Author: laddi $
+ *  Last modified: $Date: 2006/02/22 17:48:12 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.16 $
  */
 public class IWSlideAuthenticator extends BaseFilter{
 
@@ -50,6 +51,8 @@ public class IWSlideAuthenticator extends BaseFilter{
 	private static int tmpHeaderCount = 0;
 	
 	private static final String SLIDE_USER_PRINCIPAL_ATTRIBUTE_NAME = "org.apache.slide.webdav.method.principal";
+
+	private static final String PROPERTY_ENABLED = "com.idega.slide.authenticator.enable";
 	
 	private LoginBusinessBean loginBusiness = new LoginBusinessBean();
 	
@@ -60,10 +63,49 @@ public class IWSlideAuthenticator extends BaseFilter{
 		// TODO Auto-generated method stub
 	}
 
+	
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
+		ServletException{
+	
+		HttpServletRequest hRequest = (HttpServletRequest)request;
+		
+		String requestUri = hRequest.getRequestURI();
+		System.out.println(" - '"+requestUri+"'");
+		
+		boolean isEnabled=isEnabled(hRequest);
+		if(isEnabled){
+			doAuthentication(request,response,chain);
+		}
+		else{
+			chain.doFilter(request,response);
+		}
+	
+	}
+	
+	/**
+	 * <p>
+	 * TODO tryggvil describe method isEnabled
+	 * </p>
+	 * @return
+	 */
+	private boolean isEnabled(HttpServletRequest request) {
+		
+		IWMainApplication iwma = getIWMainApplication(request);
+		
+		String prop = iwma.getSettings().getProperty(PROPERTY_ENABLED);
+		if(prop==null){
+			return true;
+		}
+		else{
+			return Boolean.valueOf(prop).booleanValue();
+		}
+	}
+
+
 	/* (non-Javadoc)
 	 * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse, javax.servlet.FilterChain)
 	 */
-	public void doFilter(ServletRequest arg0, ServletResponse arg1, FilterChain arg2) throws IOException,
+	public void doAuthentication(ServletRequest arg0, ServletResponse arg1, FilterChain arg2) throws IOException,
 			ServletException {	
 		
 		//IWContext iwc = new IWContext((HttpServletRequest)arg0, (HttpServletResponse)arg1, ((HttpServletRequest)arg0).getSession().getServletContext());
