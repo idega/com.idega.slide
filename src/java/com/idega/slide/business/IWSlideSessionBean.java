@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.29 2005/10/18 08:51:00 laddi Exp $
+ * $Id: IWSlideSessionBean.java,v 1.30 2006/02/22 22:07:52 laddi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -14,7 +14,6 @@ import java.rmi.RemoteException;
 import java.util.Enumeration;
 import javax.servlet.http.HttpSessionBindingEvent;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.slide.common.ServiceAccessException;
 import org.apache.slide.common.SlideToken;
@@ -39,10 +38,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2005/10/18 08:51:00 $ by $Author: laddi $
+ *  Last modified: $Date: 2006/02/22 22:07:52 $ by $Author: laddi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.29 $
+ * @version $Revision: 1.30 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -55,8 +54,6 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	private WebdavRootResource webdavRootResource = null;
 	private boolean isLoggedOn = false;
 	private UsernamePasswordCredentials usersCredentials = null;
-	private HttpURL rootURL = null;
-	
 	private IWSlideService service = null;
 	
 	private String servletPath = null;

@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.32 2005/12/11 12:41:05 gimmi Exp $
+ * $Id: IWSlideServiceBean.java,v 1.33 2006/02/22 22:07:52 laddi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -26,7 +26,6 @@ import org.apache.slide.common.NamespaceAccessToken;
 import org.apache.slide.security.Security;
 import org.apache.slide.webdav.WebdavServlet;
 import org.apache.webdav.lib.Ace;
-import org.apache.webdav.lib.Privilege;
 import org.apache.webdav.lib.WebdavFile;
 import org.apache.webdav.lib.WebdavResource;
 import org.apache.webdav.lib.properties.AclProperty;
@@ -49,10 +48,10 @@ import com.idega.util.IWTimestamp;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2005/12/11 12:41:05 $ by $Author: gimmi $
+ *  Last modified: $Date: 2006/02/22 22:07:52 $ by $Author: laddi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.32 $
+ * @version $Revision: 1.33 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -317,60 +316,6 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 //		return getWebdavResourceAuthenticatedAsRoot().headMethod(pathToCheck);
 	}
 
-	
-	private void logOutAcesForUserFolders(String loginName) throws HttpException, IOException{
-		WebdavResource user = getWebdavResourceAuthenticatedAsRoot();
-		String userPath = getUserHomeFolderPath(loginName);
-		AclProperty userFolderProperty = user.aclfindMethod(userPath);
-		System.out.println("[IWSlideService#generateUserFolders("+user.getPath()+userPath+")]");
-		if(userFolderProperty!=null){
-			Ace[] userFolderProperties = userFolderProperty.getAces();
-			
-			for (int i = 0; i < userFolderProperties.length; i++) {
-				Ace ace = userFolderProperties[i];
-				System.out.print("\t"+i+":"+ace);
-				Enumeration privileges = ace.enumeratePrivileges();
-				while(privileges.hasMoreElements()){
-					System.out.print("   "+((Privilege)privileges.nextElement()).getName());
-				}
-				System.out.println();
-			}
-		}
-		
-		AclProperty userDropboxProperty = user.aclfindMethod(user.getPath()+userPath+FOLDER_NAME_DROPBOX);
-		System.out.println("[IWSlideService#generateUserFolders("+user.getPath()+userPath+FOLDER_NAME_DROPBOX+")]");
-		if(userDropboxProperty!=null){
-			Ace[] userDropboxProperties = userDropboxProperty.getAces();
-			
-			for (int i = 0; i < userDropboxProperties.length; i++) {
-				Ace ace = userDropboxProperties[i];
-				System.out.print("\t"+i+":"+ace);
-				Enumeration privileges = ace.enumeratePrivileges();
-				while(privileges.hasMoreElements()){
-					System.out.print("   "+((Privilege)privileges.nextElement()).getName());
-				}
-				System.out.println();
-			}
-		}
-		
-		AclProperty userPublicFolderProperty = user.aclfindMethod(user.getPath()+userPath+FOLDER_NAME_PUBLIC);
-		System.out.println("[IWSlideService#generateUserFolders("+user.getPath()+userPath+FOLDER_NAME_PUBLIC+")]");
-		if(userPublicFolderProperty!=null){
-			Ace[] userPublicFolderProperties = userPublicFolderProperty.getAces();
-			
-			for (int i = 0; i < userPublicFolderProperties.length; i++) {
-				Ace ace = userPublicFolderProperties[i];
-				System.out.print("\t"+i+":"+ace);
-				Enumeration privileges = ace.enumeratePrivileges();
-				while(privileges.hasMoreElements()){
-					System.out.print("   "+((Privilege)privileges.nextElement()).getName());
-				}
-				System.out.println();
-			}
-		}
-		
-		user.close();
-	}
 	
 	public boolean generateUserFolders(String loginName) throws HttpException, IOException{
 		boolean returner = false;

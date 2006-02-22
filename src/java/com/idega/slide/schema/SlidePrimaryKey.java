@@ -22,7 +22,6 @@ import com.idega.util.dbschema.SchemaColumn;
 public class SlidePrimaryKey implements PrimaryKey {
 	
 	private List fields = new ArrayList();
-	private Class primaryKeyClass;
 	private boolean composite = false;
 	
 	public SlidePrimaryKey(){

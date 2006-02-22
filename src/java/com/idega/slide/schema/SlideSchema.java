@@ -12,10 +12,10 @@ import com.idega.util.dbschema.UniqueKey;
 /**
  * 
  * 
- *  Last modified: $Date: 2004/11/05 08:44:59 $ by $Author: aron $
+ *  Last modified: $Date: 2006/02/22 22:07:52 $ by $Author: laddi $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public abstract class SlideSchema implements Schema {
 	
@@ -24,7 +24,6 @@ public abstract class SlideSchema implements Schema {
 	private SlidePrimaryKey primaryKey = new SlidePrimaryKey();
 	private List indexes = new ArrayList();
 	private boolean autoIncrementColumn;
-	private boolean beanCachingActive;
 	private List uniqueKeys = new ArrayList();
 
 	/* (non-Javadoc)

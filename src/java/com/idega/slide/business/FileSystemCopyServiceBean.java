@@ -1,5 +1,5 @@
 /*
- * $Id: FileSystemCopyServiceBean.java,v 1.7 2005/11/30 09:35:35 laddi Exp $
+ * $Id: FileSystemCopyServiceBean.java,v 1.8 2006/02/22 22:07:52 laddi Exp $
  * Created on 2.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -14,19 +14,19 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.StringTokenizer;
+
 import javax.ejb.EJBException;
 import javax.ejb.FinderException;
+
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.HttpURL;
-import org.apache.commons.httpclient.HttpsURL;
-import org.apache.commons.httpclient.URIException;
 import org.apache.webdav.lib.WebdavResource;
+
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBORuntimeException;
 import com.idega.business.IBOServiceBean;
 import com.idega.core.builder.data.ICPage;
-import com.idega.core.builder.data.ICPageHome;
 import com.idega.core.file.data.ICFile;
 import com.idega.core.file.data.ICFileHome;
 import com.idega.data.IDOLookup;
@@ -38,22 +38,20 @@ import com.idega.util.database.ConnectionBroker;
 
 /**
  * 
- *  Last modified: $Date: 2005/11/30 09:35:35 $ by $Author: laddi $
+ *  Last modified: $Date: 2006/02/22 22:07:52 $ by $Author: laddi $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSystemCopyService{
     
     private SlideFileHome fileHome = null;
     private ICFileHome icFileHome = null;
-    private ICPageHome pageHome = null;
    
     private WebdavResource webdavResource = null;
     private String path = null;
     private HttpURL httpURL = null;
     private boolean overwrite = true;
-    private String rootURL = "";
     
     private String pageFolderName = "Pages";
     private String templateFolderName = "Templates";
@@ -85,7 +83,7 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
         httpURL = getService().getWebdavServerURL();
        
         if(httpURL!=null){
-            rootURL = httpURL.getEscapedURI();
+            httpURL.getEscapedURI();
             connect();
 	        copyPageFiles();
 	        copyGroupFiles();
@@ -101,7 +99,6 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
     
     private void copyPageFiles(){
         try {
-            pageHome = (ICPageHome) IDOLookup.getHome(ICPage.class);
             ICPage startPage = getIWApplicationContext().getDomain().getStartPage();
             String folder = pageFolderName;
             checkAndCreateFolder(folder);
@@ -402,10 +399,6 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
             System.out.println("Please, email to slide-user@jakarta.apache.org");
            
         }
-    }
-    
-    private static HttpURL uriToHttpURL(String uri) throws URIException {
-        return uri.startsWith("https") ? new HttpsURL(uri): new HttpURL(uri);
     }
     
     public void copy(String folder,Collection files)throws Exception{

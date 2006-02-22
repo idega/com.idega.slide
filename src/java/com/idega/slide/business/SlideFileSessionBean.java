@@ -1,5 +1,5 @@
 /*
- * $Id: SlideFileSessionBean.java,v 1.2 2004/12/15 16:02:36 palli Exp $
+ * $Id: SlideFileSessionBean.java,v 1.3 2006/02/22 22:07:52 laddi Exp $
  * Created on 30.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -9,7 +9,6 @@
  */
 package com.idega.slide.business;
 
-import com.idega.business.IBOLookupException;
 import com.idega.business.IBOSessionBean;
 import com.idega.core.data.ICTreeNode;
 import com.idega.core.file.business.ICFileSystemSession;
@@ -18,35 +17,13 @@ import com.idega.core.file.data.ICFile;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/15 16:02:36 $ by $Author: palli $
+ *  Last modified: $Date: 2006/02/22 22:07:52 $ by $Author: laddi $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class SlideFileSessionBean extends IBOSessionBean implements ICFileSystemSession {
    
-    private IWSlideSession slideSession = null;
-    private ResourceHelper helper = null;
-    
-    private IWSlideSession getSlideSession(){
-        if(slideSession==null){
-            try {
-                slideSession = (IWSlideSession) getSessionInstance(IWSlideSession.class);
-            } catch (IBOLookupException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        
-        }
-        return slideSession;
-    }
-    
-    private ResourceHelper getHelper(){
-        if(helper==null)
-            helper = new ResourceHelper("root");
-        return helper;
-    }
-
     /* (non-Javadoc)
      * @see com.idega.core.file.business.ICFileSession#getHome()
      */

@@ -13,15 +13,14 @@ import com.idega.util.dbschema.SchemaColumn;
 /**
  * 
  * 
- *  Last modified: $Date: 2004/11/05 08:44:59 $ by $Author: aron $
+ *  Last modified: $Date: 2006/02/22 22:07:52 $ by $Author: laddi $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class SlideSchemaColumn implements SchemaColumn {
 	
 	private String SQLName;
-	private String uniqueName = null;
 	private Class dataTypeClass;
 	private int maxLength = -1;
 	private boolean nullAllowed = true;
@@ -150,7 +149,6 @@ public class SlideSchemaColumn implements SchemaColumn {
 	 * @param uniqueFieldName The uniqueFieldName to set.
 	 */
 	public void setUniqueFieldName(String uniqueFieldName) {
-		this.uniqueName = uniqueFieldName;
 	}
 	
 	public void setOneToManyEntity(SlideSchema relatedEntity){
