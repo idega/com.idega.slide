@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticator.java,v 1.17 2006/02/22 17:49:35 tryggvil Exp $
+ * $Id: IWSlideAuthenticator.java,v 1.18 2006/02/22 21:08:25 laddi Exp $
  * Created on 8.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -40,16 +40,13 @@ import com.idega.slide.business.IWSlideSession;
  * This filter is mapped before any request to the Slide WebdavServlet to make sure
  * a logged in user from idegaWeb is logged also into the Slide authentication system.
  * </p>
- *  Last modified: $Date: 2006/02/22 17:49:35 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2006/02/22 21:08:25 $ by $Author: laddi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.17 $
+ * @version $Revision: 1.18 $
  */
 public class IWSlideAuthenticator extends BaseFilter{
 
-//	private static int tmpCounter = 0;
-	private static int tmpHeaderCount = 0;
-	
 	private static final String SLIDE_USER_PRINCIPAL_ATTRIBUTE_NAME = "org.apache.slide.webdav.method.principal";
 
 	private static final String PROPERTY_ENABLED = "com.idega.slide.authenticator.enable";
