@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticator.java,v 1.16 2006/02/22 17:48:12 tryggvil Exp $
+ * $Id: IWSlideAuthenticator.java,v 1.17 2006/02/22 17:49:35 tryggvil Exp $
  * Created on 8.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -40,10 +40,10 @@ import com.idega.slide.business.IWSlideSession;
  * This filter is mapped before any request to the Slide WebdavServlet to make sure
  * a logged in user from idegaWeb is logged also into the Slide authentication system.
  * </p>
- *  Last modified: $Date: 2006/02/22 17:48:12 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2006/02/22 17:49:35 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.16 $
+ * @version $Revision: 1.17 $
  */
 public class IWSlideAuthenticator extends BaseFilter{
 
@@ -69,8 +69,8 @@ public class IWSlideAuthenticator extends BaseFilter{
 	
 		HttpServletRequest hRequest = (HttpServletRequest)request;
 		
-		String requestUri = hRequest.getRequestURI();
-		System.out.println(" - '"+requestUri+"'");
+		//String requestUri = hRequest.getRequestURI();
+		//System.out.println(" - '"+requestUri+"'");
 		
 		boolean isEnabled=isEnabled(hRequest);
 		if(isEnabled){
