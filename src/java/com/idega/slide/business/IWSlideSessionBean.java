@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.30 2006/02/22 22:07:52 laddi Exp $
+ * $Id: IWSlideSessionBean.java,v 1.31 2006/02/23 18:40:30 eiki Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -38,10 +38,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2006/02/22 22:07:52 $ by $Author: laddi $
+ *  Last modified: $Date: 2006/02/23 18:40:30 $ by $Author: eiki $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.30 $
+ * @version $Revision: 1.31 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -316,7 +316,7 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	}
 	
 	
-	private Security getSecurity(){
+	private Security getSecurity() throws RemoteException{
 		return getIWSlideService().getSecurityHelper();
 	}
 	

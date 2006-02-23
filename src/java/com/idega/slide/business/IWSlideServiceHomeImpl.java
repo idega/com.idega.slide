@@ -1,8 +1,8 @@
 /*
- * $Id: IWSlideServiceHomeImpl.java,v 1.9 2004/12/22 20:13:18 gummi Exp $
- * Created on 21.12.2004
+ * $Id: IWSlideServiceHomeImpl.java,v 1.10 2006/02/23 18:40:30 eiki Exp $
+ * Created on Feb 23, 2006
  *
- * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
+ * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
  *
  * This software is the proprietary information of Idega hf.
  * Use is subject to license terms.
@@ -14,10 +14,10 @@ import com.idega.business.IBOHomeImpl;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/22 20:13:18 $ by $Author: gummi $
+ *  Last modified: $Date: 2006/02/23 18:40:30 $ by $Author: eiki $
  * 
- * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.9 $
+ * @author <a href="mailto:eiki@idega.com">eiki</a>
+ * @version $Revision: 1.10 $
  */
 public class IWSlideServiceHomeImpl extends IBOHomeImpl implements IWSlideServiceHome {
 

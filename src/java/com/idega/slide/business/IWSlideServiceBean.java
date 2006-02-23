@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.33 2006/02/22 22:07:52 laddi Exp $
+ * $Id: IWSlideServiceBean.java,v 1.34 2006/02/23 18:40:30 eiki Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -9,6 +9,7 @@
  */
 package com.idega.slide.business;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Enumeration;
@@ -48,10 +49,10 @@ import com.idega.util.IWTimestamp;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2006/02/22 22:07:52 $ by $Author: laddi $
+ *  Last modified: $Date: 2006/02/23 18:40:30 $ by $Author: eiki $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.33 $
+ * @version $Revision: 1.34 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -760,5 +761,66 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 	public boolean createAllFoldersInPathAsRoot(String path) throws HttpException, RemoteException, IOException {
 		return createAllFoldersInPath(path,getRootUserCredentials());
 	}
+	
+	/**
+	 * Creates the parent folder if needed and uploads the content of the string as a utf8 encoded file of the contenttype/mimetype you specify
+	 * 
+	 */
+	public boolean uploadFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName, String fileContentString, String contentType){
+		boolean returnValue = false;
+		try {
+			createAllFoldersInPathAsRoot(parentPath);
+			
+			String filePath = parentPath+fileName;
+			WebdavResource rootResource = getWebdavResourceAuthenticatedAsRoot();
+			ByteArrayInputStream utf8stream = new ByteArrayInputStream(fileContentString.getBytes("UTF-8"));
+			
+			//Conflict fix: uri for creating but path for updating
+			//Note! This is a patch to what seems to be a bug in WebDav
+			//Apparently in verion below works in some cases and the other in other cases.
+			//Seems to be connected to creating files in folders created in same tomcat session or similar
+			//not quite clear...
+			
+			if(rootResource.putMethod(filePath,utf8stream)){
+				if(contentType!=null){
+					rootResource.proppatchMethod(filePath,WebdavResource.GETCONTENTTYPE,contentType,true);
+				}
+			}
+			else{
+				utf8stream = new ByteArrayInputStream(fileContentString.getBytes("UTF-8"));
+				String fixedURL = getURI(filePath);
+				rootResource.putMethod(fixedURL,utf8stream);
+				if(contentType!=null){
+					rootResource.proppatchMethod(fixedURL,WebdavResource.GETCONTENTTYPE,contentType,true);
+				}
+			}
+			
+			rootResource.close();
+			
+			
+			log(rootResource.getStatusMessage());
+			
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	
+		
+		return returnValue;
+	}
+	
+	/**
+	 * Uploads the supplied string as a file with the content type "text/xml"
+	 * @param parentPath
+	 * @param fileName
+	 * @param fileContentString
+	 * @param contentType
+	 * @return
+	 */
+	public boolean uploadXMLFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName, String fileContentString){
+		return uploadFileAndCreateFoldersFromStringAsRoot(parentPath, fileName, fileContentString,"text/xml");
+	}
+	
+	
 	
 }
