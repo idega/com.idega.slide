@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.34 2006/02/23 18:40:30 eiki Exp $
+ * $Id: IWSlideServiceBean.java,v 1.35 2006/02/24 14:27:49 eiki Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -49,10 +49,10 @@ import com.idega.util.IWTimestamp;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2006/02/23 18:40:30 $ by $Author: eiki $
+ *  Last modified: $Date: 2006/02/24 14:27:49 $ by $Author: eiki $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.34 $
+ * @version $Revision: 1.35 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 
@@ -796,9 +796,7 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 			}
 			
 			rootResource.close();
-			
-			
-			log(rootResource.getStatusMessage());
+			//log(rootResource.getStatusMessage());
 			
 		}
 		catch (Exception e) {
