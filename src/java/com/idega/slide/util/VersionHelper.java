@@ -105,13 +105,16 @@ public class VersionHelper {
 			Enumeration props = resource.reportMethod(resource.getHttpURL(), p);
 			while (props.hasMoreElements()) {
 				ResponseEntity responseEntity = (ResponseEntity) props.nextElement();
-				
+				boolean responseEmpty=true;
 				for (Enumeration e = responseEntity.getProperties(); e.hasMoreElements();) {
 					BaseProperty property = (BaseProperty) e.nextElement();
 					String propertyName = property.getLocalName();
 					propMap.put(propertyName, property);
+					responseEmpty=false;
 				}
-				versions.add(new WebdavResourceVersion(propMap));
+				if(!responseEmpty){
+					versions.add(new WebdavResourceVersion(propMap));
+				}
 			}
 		}
 		catch (HttpException e) {
