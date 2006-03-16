@@ -1,5 +1,5 @@
 /*
- * $Id: WebdavRootResource.java,v 1.3 2005/04/08 17:10:39 gummi Exp $
+ * $Id: WebdavRootResource.java,v 1.4 2006/03/16 15:44:42 tryggvil Exp $
  * Created on 13.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -35,10 +35,10 @@ import org.apache.webdav.lib.properties.ResourceTypeProperty;
 
 /**
  * 
- *  Last modified: $Date: 2005/04/08 17:10:39 $ by $Author: gummi $
+ *  Last modified: $Date: 2006/03/16 15:44:42 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class WebdavRootResource {
 	private WebdavResource rootResource = null;
@@ -47,7 +47,7 @@ public class WebdavRootResource {
 	
 	public WebdavRootResource(WebdavResource resource){
 		rootResource = resource;
-		try {
+		/*try {
 			//Set path to root to be sure
 			rootResource.setPath(null);
 		}
@@ -58,7 +58,7 @@ public class WebdavRootResource {
 		catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}		
+		}*/
 	}
 	/**
 	 * @return
