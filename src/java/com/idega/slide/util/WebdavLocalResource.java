@@ -1,5 +1,5 @@
 /*
- * $Id: WebdavLocalResource.java,v 1.1 2005/11/14 17:14:08 tryggvil Exp $
+ * $Id: WebdavLocalResource.java,v 1.2 2006/03/22 15:52:16 tryggvil Exp $
  * Created on 11.10.2005 in project com.idega.slide
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -13,17 +13,34 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
+import javax.transaction.NotSupportedException;
+import javax.transaction.SystemException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.URIException;
+import org.apache.slide.authenticate.CredentialsToken;
+import org.apache.slide.authenticate.SecurityToken;
+import org.apache.slide.common.Domain;
+import org.apache.slide.common.NamespaceAccessToken;
+import org.apache.slide.common.SlideToken;
+import org.apache.slide.common.SlideTokenImpl;
+import org.apache.slide.content.Content;
+import org.apache.slide.content.NodeProperty;
+import org.apache.slide.content.NodeRevisionDescriptor;
+import org.apache.slide.content.NodeRevisionDescriptors;
+import org.apache.slide.structure.ObjectNotFoundException;
 import org.apache.webdav.lib.Ace;
 import org.apache.webdav.lib.Property;
 import org.apache.webdav.lib.PropertyName;
@@ -31,10 +48,16 @@ import org.apache.webdav.lib.Subscription;
 import org.apache.webdav.lib.WebdavResource;
 import org.apache.webdav.lib.WebdavResources;
 import org.apache.webdav.lib.WebdavState;
+import org.apache.webdav.lib.methods.XMLResponseMethodBase;
 import org.apache.webdav.lib.properties.AclProperty;
 import org.apache.webdav.lib.properties.LockDiscoveryProperty;
 import org.apache.webdav.lib.properties.PrincipalCollectionSetProperty;
 import org.apache.webdav.lib.properties.ResourceTypeProperty;
+import org.apache.webdav.lib.util.WebdavStatus;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.Text;
 
 
 /**
@@ -43,10 +66,10 @@ import org.apache.webdav.lib.properties.ResourceTypeProperty;
  * operations locally (in the jvm) instead of going through http when communicating with
  * the built in WebDav server. This class is experimental only.
  * </p>
- *  Last modified: $Date: 2005/11/14 17:14:08 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2006/03/22 15:52:16 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class WebdavLocalResource extends WebdavExtendedResource {
 
@@ -316,22 +339,6 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 	protected void setNamedProp(int arg0, Vector arg1) throws HttpException, IOException {
 		// TODO Auto-generated method stub
 		super.setNamedProp(arg0, arg1);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.apache.webdav.lib.WebdavResource#setAllProp(int)
-	 */
-	protected void setAllProp(int arg0) throws HttpException, IOException {
-		// TODO Auto-generated method stub
-		super.setAllProp(arg0);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.apache.webdav.lib.WebdavResource#setWebdavProperties(java.util.Enumeration)
-	 */
-	protected void setWebdavProperties(Enumeration arg0) throws HttpException, IOException {
-		// TODO Auto-generated method stub
-		super.setWebdavProperties(arg0);
 	}
 
 	/* (non-Javadoc)
@@ -1206,21 +1213,6 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 		return super.reportMethod(arg0, arg1, arg2);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.apache.webdav.lib.WebdavResource#propfindMethod(int)
-	 */
-	public Enumeration propfindMethod(int arg0) throws HttpException, IOException {
-		// TODO Auto-generated method stub
-		return super.propfindMethod(arg0);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.apache.webdav.lib.WebdavResource#propfindMethod(java.lang.String, int)
-	 */
-	public Enumeration propfindMethod(String arg0, int arg1) throws HttpException, IOException {
-		// TODO Auto-generated method stub
-		return super.propfindMethod(arg0, arg1);
-	}
 
 	/* (non-Javadoc)
 	 * @see org.apache.webdav.lib.WebdavResource#propfindMethod(int, java.util.Vector)
@@ -1228,14 +1220,6 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 	public Enumeration propfindMethod(int arg0, Vector arg1) throws HttpException, IOException {
 		// TODO Auto-generated method stub
 		return super.propfindMethod(arg0, arg1);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.apache.webdav.lib.WebdavResource#propfindMethod(java.lang.String, int, java.util.Vector)
-	 */
-	public Enumeration propfindMethod(String arg0, int arg1, Vector arg2) throws HttpException, IOException {
-		// TODO Auto-generated method stub
-		return super.propfindMethod(arg0, arg1, arg2);
 	}
 
 	/* (non-Javadoc)
@@ -1901,4 +1885,158 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 		// TODO Auto-generated method stub
 		super.closeSession(arg0);
 	}
+	
+	//Special overridden low-level methods:
+	
+    /**
+     * Set all properties for this resource.
+     *
+     * @param depth The depth
+     */
+    protected void setAllProp(int depth)
+        throws HttpException, IOException {
+    		
+    		//super.setAllProp(arg0);
+    	
+        Enumeration responses = propfindMethod(depth);
+        setWebdavProperties(responses);
+    }
+	
+    /** Default Namespace */
+    private NamespaceAccessToken namespace;
+    /** Security Token */
+    private SlideToken token;
+    
+	/* (non-Javadoc)
+	 * @see org.apache.webdav.lib.WebdavResource#propfindMethod(java.lang.String, int)
+	 */
+	public Enumeration propfindMethod(String path, int depth) throws HttpException, IOException {
+		return propfindMethod(path,depth,null);
+	}
+		
+	public Enumeration propfindMethod(String path, int depth,Vector presetProperties) throws HttpException, IOException {
+		// TODO Auto-generated method stub
+		//return super.propfindMethod(path, depth,presetProperties);
+	
+        this.namespace = Domain.accessNamespace(new SecurityToken(""), Domain.getDefaultNamespace());
+        String userPrincipal = "root";
+        this.token = new SlideTokenImpl(new CredentialsToken(userPrincipal));
+        this.token.setForceStoreEnlistment(true);
+        String resourcePath = getPath();
+        String contextPath = "/uppsala";
+        String servletPath = "/content";
+        if(resourcePath.startsWith(contextPath)){
+        		resourcePath = resourcePath.substring(contextPath.length());
+        }
+        if(resourcePath.startsWith(servletPath)){
+        		resourcePath = resourcePath.substring(servletPath.length());
+        }
+        
+        Vector responses = new Vector();
+        LocalResponse response = new LocalResponse();
+        response.setHref(path);
+        responses.add(response);
+        try {
+			this.namespace.begin();
+	        try {
+	            Content c = this.namespace.getContentHelper();
+	            NodeRevisionDescriptors revs = c.retrieve(this.token, resourcePath);
+	            NodeRevisionDescriptor rev = c.retrieve(this.token, revs, revs
+	                    .getLatestRevision());
+	            Enumeration e = rev.enumerateProperties();
+	            Vector properties = new Vector();
+	            while (e.hasMoreElements()) {
+	                NodeProperty p = (NodeProperty) e.nextElement();
+	                //System.out.println(p.getName()+" = "+p.getValue());
+	                String localName = p.getPropertyName().getName();
+	                //else if (property.getLocalName().equals(RESOURCETYPE)) {
+	                Property property=null;
+	                if(localName.equals(RESOURCETYPE)){
+	                
+	                    DocumentBuilderFactory factory =
+	                        DocumentBuilderFactory.newInstance();
+	                    factory.setNamespaceAware(true);
+	                    factory.setValidating(false);
+	                    DocumentBuilder builder = factory.newDocumentBuilder();
+		                Object oValue = p.getValue();
+		                String value=null;
+		                if(oValue!=null){
+		                	value=oValue.toString();
+		                }
+		                Document doc = builder.newDocument();
+		                //doc.setPrefix(p.getNamespace());
+		                String namespace = p.getNamespace();
+		                String tagName = p.getName();
+		                Element element = doc.createElementNS(namespace,tagName);
+		                Node child=null;
+		                if(value.equals("<collection/>")){
+		                		child =doc.createElementNS(namespace,"collection");
+		                }
+		                else{
+		                		child = doc.createTextNode(value);
+		                }
+		                //element.setNodeValue(value);
+		                element.appendChild(child);
+	                    String elLocalName = element.getLocalName();
+	                    property = new ResourceTypeProperty(response,element);
+	                    
+	                }
+	                else if(localName.equals(LOCKDISCOVERY)){
+	                    /*DocumentBuilderFactory factory =
+	                        DocumentBuilderFactory.newInstance();
+	                    factory.setNamespaceAware(true);
+	                    DocumentBuilder builder = factory.newDocumentBuilder();
+	                    Document doc = builder.newDocument();
+	                    Element element = doc.createElement("collection");
+	                    property = new LockDiscoveryProperty(response,element);*/
+	                		throw new RuntimeException("LockDiscoveryProperty not yet implemented for:"+path);
+	                }
+	                else{
+		                LocalProperty lProperty = new LocalProperty(response);
+		                property=lProperty;
+		                lProperty.setName(p.getName());
+		                lProperty.setNamespaceURI(p.getNamespace());
+		                lProperty.setLocalName(p.getName());
+		                Object oValue = p.getValue();
+		                String value=null;
+		                if(oValue!=null){
+		                	value=oValue.toString();
+		                }
+		                lProperty.setPropertyAsString(value);
+	                }
+
+	                properties.add(property);
+	            }
+	            response.setProperties(properties);
+	        }catch(ObjectNotFoundException onfe){
+	        		HttpException he = new HttpException("Resource on path: "+path+" not found");
+	        		he.setReasonCode(WebdavStatus.SC_NOT_FOUND);
+	        		throw he;
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        } finally {
+	            this.namespace.rollback();
+	        }
+		}
+		catch (NotSupportedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		catch (SystemException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		return responses.elements();
+        
+	}
+	
+	
+	/* (non-Javadoc)
+	 * @see org.apache.webdav.lib.WebdavResource#setWebdavProperties(java.util.Enumeration)
+	 */
+	protected void setWebdavProperties(Enumeration arg0) throws HttpException, IOException {
+		// TODO Auto-generated method stub
+		super.setWebdavProperties(arg0);
+	}
+	
 }
