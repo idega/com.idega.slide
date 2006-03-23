@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.36 2006/03/22 15:54:12 tryggvil Exp $
+ * $Id: IWSlideServiceBean.java,v 1.37 2006/03/23 11:45:45 laddi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.HttpsURL;
@@ -31,6 +32,7 @@ import org.apache.webdav.lib.WebdavFile;
 import org.apache.webdav.lib.WebdavResource;
 import org.apache.webdav.lib.properties.AclProperty;
 import org.apache.webdav.lib.util.WebdavStatus;
+
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBORuntimeException;
 import com.idega.business.IBOServiceBean;
@@ -40,7 +42,6 @@ import com.idega.slide.util.AccessControlEntry;
 import com.idega.slide.util.AccessControlList;
 import com.idega.slide.util.IWSlideConstants;
 import com.idega.slide.util.WebdavExtendedResource;
-import com.idega.slide.util.WebdavLocalResource;
 import com.idega.slide.util.WebdavRootResource;
 import com.idega.util.IWTimestamp;
 
@@ -50,10 +51,10 @@ import com.idega.util.IWTimestamp;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2006/03/22 15:54:12 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2006/03/23 11:45:45 $ by $Author: laddi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.36 $
+ * @version $Revision: 1.37 $
  */
 public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
 

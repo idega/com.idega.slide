@@ -1,5 +1,5 @@
 /*
- * $Id: WebdavLocalResource.java,v 1.2 2006/03/22 15:52:16 tryggvil Exp $
+ * $Id: WebdavLocalResource.java,v 1.3 2006/03/23 11:45:45 laddi Exp $
  * Created on 11.10.2005 in project com.idega.slide
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -13,17 +13,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Vector;
+
 import javax.transaction.NotSupportedException;
 import javax.transaction.SystemException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -48,7 +48,6 @@ import org.apache.webdav.lib.Subscription;
 import org.apache.webdav.lib.WebdavResource;
 import org.apache.webdav.lib.WebdavResources;
 import org.apache.webdav.lib.WebdavState;
-import org.apache.webdav.lib.methods.XMLResponseMethodBase;
 import org.apache.webdav.lib.properties.AclProperty;
 import org.apache.webdav.lib.properties.LockDiscoveryProperty;
 import org.apache.webdav.lib.properties.PrincipalCollectionSetProperty;
@@ -57,7 +56,6 @@ import org.apache.webdav.lib.util.WebdavStatus;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.Text;
 
 
 /**
@@ -66,10 +64,10 @@ import org.w3c.dom.Text;
  * operations locally (in the jvm) instead of going through http when communicating with
  * the built in WebDav server. This class is experimental only.
  * </p>
- *  Last modified: $Date: 2006/03/22 15:52:16 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2006/03/23 11:45:45 $ by $Author: laddi $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class WebdavLocalResource extends WebdavExtendedResource {
 
@@ -1977,7 +1975,7 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 		                }
 		                //element.setNodeValue(value);
 		                element.appendChild(child);
-	                    String elLocalName = element.getLocalName();
+	                    /*String elLocalName = */element.getLocalName();
 	                    property = new ResourceTypeProperty(response,element);
 	                    
 	                }
