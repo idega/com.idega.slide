@@ -1,6 +1,6 @@
 /*
- * $Id: IWSlideService.java,v 1.21 2006/02/23 18:40:30 eiki Exp $
- * Created on Feb 23, 2006
+ * $Id: IWSlideService.java,v 1.22 2006/03/24 16:44:09 eiki Exp $
+ * Created on Mar 24, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
  *
@@ -11,9 +11,12 @@ package com.idega.slide.business;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.slide.event.ContentEvent;
 import org.apache.slide.security.Security;
 import org.apache.webdav.lib.WebdavFile;
 import org.apache.webdav.lib.WebdavResource;
@@ -27,12 +30,12 @@ import com.idega.slide.util.WebdavRootResource;
 
 /**
  * 
- *  Last modified: $Date: 2006/02/23 18:40:30 $ by $Author: eiki $
+ *  Last modified: $Date: 2006/03/24 16:44:09 $ by $Author: eiki $
  * 
  * @author <a href="mailto:eiki@idega.com">eiki</a>
- * @version $Revision: 1.21 $
+ * @version $Revision: 1.22 $
  */
-public interface IWSlideService extends IBOService {
+public interface IWSlideService extends IBOService, IWSlideChangeListener {
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavServerURI
@@ -178,7 +181,7 @@ public interface IWSlideService extends IBOService {
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#createUniqueFileName
 	 */
-	public String createUniqueFileName(String scope) ;
+	public String createUniqueFileName(String scope);
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getSecurityHelper
@@ -207,4 +210,95 @@ public interface IWSlideService extends IBOService {
 	 */
 	public boolean uploadXMLFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName,
 			String fileContentString) throws java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#getIWSlideChangeListeners
+	 */
+	public IWSlideChangeListener[] getIWSlideChangeListeners() throws java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#setIWSlideChangeListeners
+	 */
+	public void setIWSlideChangeListeners(List iwSlideChangeListeners) throws java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#addIWSlideChangeListeners
+	 */
+	public void addIWSlideChangeListeners(IWSlideChangeListener iwSlideChangeListener) throws java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#getChildCountExcludingFoldersAndHiddenFiles
+	 */
+	public int getChildCountExcludingFoldersAndHiddenFiles(String folderURI) throws java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#getChildFolderCount
+	 */
+	public int getChildFolderCount(String folderURI) throws java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#getChildCount
+	 */
+	public int getChildCount(String folderURI) throws java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#getChildPathsExcludingFoldersAndHiddenFiles
+	 */
+	public List getChildPathsExcludingFoldersAndHiddenFiles(String folderURI) throws java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#getChildFolderPaths
+	 */
+	public List getChildFolderPaths(String folderURI) throws java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#getChildPaths
+	 */
+	public List getChildPaths(String folderURI) throws java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#invalidateCacheForAllFoldersInURIPath
+	 */
+	public void invalidateCacheForAllFoldersInURIPath(String URI) throws java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#getChildFolderPathsCacheMap
+	 */
+	public Map getChildFolderPathsCacheMap() throws java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#setChildFolderPathsCacheMap
+	 */
+	public void setChildFolderPathsCacheMap(Map childFolderPathsCacheMap) throws java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#getChildPathsCacheMap
+	 */
+	public Map getChildPathsCacheMap() throws java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#setChildPathsCacheMap
+	 */
+	public void setChildPathsCacheMap(Map childPathsCacheMap) throws java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#getChildPathsExcludingFolderAndHiddenFilesCacheMap
+	 */
+	public Map getChildPathsExcludingFolderAndHiddenFilesCacheMap() throws java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#setChildPathsExcludingFolderAndHiddenFilesCacheMap
+	 */
+	public void setChildPathsExcludingFolderAndHiddenFilesCacheMap(Map childPathsExcludingFolderAndHiddenFilesCacheMap)
+			throws java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#onSlideChange
+	 */
+	public void onSlideChange(ContentEvent contentEvent);
+	
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#getParentPath
+	 */
+	public String getParentPath(WebdavResource resource);
 }

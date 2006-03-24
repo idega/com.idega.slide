@@ -1,5 +1,5 @@
 /*
- * $Id: AuthenticationBusinessBean.java,v 1.10 2006/01/14 22:40:46 laddi Exp $
+ * $Id: AuthenticationBusinessBean.java,v 1.11 2006/03/24 16:44:09 eiki Exp $
  * Created on 9.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -33,13 +33,13 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2006/01/14 22:40:46 $ by $Author: laddi $
+ *  Last modified: $Date: 2006/03/24 16:44:09 $ by $Author: eiki $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  */
 public class AuthenticationBusinessBean extends IBOServiceBean  implements AuthenticationBusiness{
-	
+	//TODO extend Authenticationbusiness from core
 	private static final String PATH_USERS = IWSlideConstants.PATH_USERS;
 	private static final String PATH_GROUPS = IWSlideConstants.PATH_GROUPS;
 	private static final String PATH_ROLES = IWSlideConstants.PATH_ROLES;

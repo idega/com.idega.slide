@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.37 2006/03/23 11:45:45 laddi Exp $
+ * $Id: IWSlideServiceBean.java,v 1.38 2006/03/24 16:44:09 eiki Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -12,27 +12,28 @@ package com.idega.slide.business;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.HttpsURL;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.slide.common.NamespaceAccessToken;
+import org.apache.slide.event.ContentEvent;
 import org.apache.slide.security.Security;
 import org.apache.slide.webdav.WebdavServlet;
 import org.apache.webdav.lib.Ace;
 import org.apache.webdav.lib.WebdavFile;
 import org.apache.webdav.lib.WebdavResource;
+import org.apache.webdav.lib.WebdavResources;
 import org.apache.webdav.lib.properties.AclProperty;
 import org.apache.webdav.lib.util.WebdavStatus;
-
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBORuntimeException;
 import com.idega.business.IBOServiceBean;
@@ -51,12 +52,20 @@ import com.idega.util.IWTimestamp;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2006/03/23 11:45:45 $ by $Author: laddi $
+ *  Last modified: $Date: 2006/03/24 16:44:09 $ by $Author: eiki $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.37 $
+ * @version $Revision: 1.38 $
  */
-public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideService {
+public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService,IWSlideChangeListener {
+	
+	//listeners and caching
+	private List iwSlideChangeListeners = null;
+	private IWSlideChangeListener[] iwSlideChangeListenersArray = null;
+	private Map childPathsCacheMap = new HashMap();
+	private Map childPathsExcludingFolderAndHiddenFilesCacheMap = new HashMap();
+	private Map childFolderPathsCacheMap = new HashMap();
+	//
 
 	protected static final String SLASH = "/";
 	
@@ -124,7 +133,7 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 		return getWebdavServerURL(credential,path,getWebdavServerURI());
 	}
 	
-	/**df öh
+	/**
 	 * Gets the root url for the webdav server with authentication
 	 * @return
 	 */
@@ -821,7 +830,325 @@ public class IWSlideServiceBean extends IBOServiceBean  implements IWSlideServic
 	public boolean uploadXMLFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName, String fileContentString){
 		return uploadFileAndCreateFoldersFromStringAsRoot(parentPath, fileName, fileContentString,"text/xml");
 	}
+
+	
+	/**
+	 * @return Returns the array of IWSlideChangeListeners.
+	 */
+	public IWSlideChangeListener[] getIWSlideChangeListeners() {
+		return iwSlideChangeListenersArray;
+	}
+
+	
+	/**
+	 * @param iwSlideChangeListeners The iwSlideChangeListeners to set. Overwrites the current list
+	 */
+	public void setIWSlideChangeListeners(List iwSlideChangeListeners) {
+		this.iwSlideChangeListeners = iwSlideChangeListeners;
+		iwSlideChangeListenersArray = (IWSlideChangeListener[]) iwSlideChangeListeners.toArray(new IWSlideChangeListener[0]);
+	}
+	
+	/**
+	 * Add a listener that get's notified whenever content changes in Slide, filter the event yourself by event.getURI() for example
+	 * @param iwSlideChangeListener
+	 */
+	public void addIWSlideChangeListeners(IWSlideChangeListener iwSlideChangeListener) {
+		if(iwSlideChangeListeners==null){
+			iwSlideChangeListeners = new ArrayList();
+		}
+		
+		if(!iwSlideChangeListeners.contains(iwSlideChangeListener)){
+			iwSlideChangeListeners.add(iwSlideChangeListener);
+			//update the array, for speed optimization
+			iwSlideChangeListenersArray = (IWSlideChangeListener[]) iwSlideChangeListeners.toArray(new IWSlideChangeListener[0]);
+		}
+		
+	}
 	
 	
+	/**
+	 * 
+	 * @param folderURI
+	 * @return the count of "real" child resources, excluding folders and hidden files
+	 */
+	public int getChildCountExcludingFoldersAndHiddenFiles(String folderURI) {
+		List children = getChildPathsExcludingFoldersAndHiddenFiles(folderURI);
+		
+		if(children!=null){
+			return children.size();
+		}
+		return 0;
+	}
+	
+	/**
+	 * 
+	 * @param folderURI
+	 * @return the count of folder resources under the sepcified path, excluding files and hidden files
+	 */
+	public int getChildFolderCount(String folderURI) {
+		List children = getChildFolderPaths(folderURI);
+		
+		if(children!=null){
+			return children.size();
+		}
+		return 0;
+	}
+	
+	/**
+	 * 
+	 * @param folderURI
+	 * @return the count of ALL child resources, including folders and hidden files
+	 */
+	public int getChildCount(String folderURI) {
+	
+		List children = getChildPaths(folderURI);
+		
+		if(children!=null){
+			return children.size();
+		}
+		return 0;
+	}
+	
+	
+	/**
+	 * 
+	 * @param folderURI
+	 * @return the count of "real" child resources, excluding folders and hidden files
+	 */
+	public List getChildPathsExcludingFoldersAndHiddenFiles(String folderURI) {
+		
+		Map cache = getChildPathsCacheMap();
+		List paths = (List) cache.get(folderURI);
+		
+		if(paths==null){
+			try {
+				//todo optimize by using a dasl search!
+				WebdavResource resource = getWebdavResourceAuthenticatedAsRoot(folderURI);
+	
+				if (resource.isCollection()) {
+					WebdavResources children = resource.getChildResources();
+					WebdavResource[] resources = children.listResources();
+					
+					if(resources.length>0){
+						paths = new ArrayList();
+						for (int i = 0; i < resources.length; i++) {
+							WebdavResource wResource = resources[i];
+							String path = wResource.getPath();
+							String fileName = path.substring(path.lastIndexOf("/")+1);
+							if (!resources[i].isCollection() && !fileName.startsWith(".")) {
+								paths.add(wResource.getPath());
+							}
+						}
+						cache.put(folderURI,paths);
+					}
+				}
+			}
+			catch (HttpException e) {
+				e.printStackTrace();
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		
+		return paths;
+	}
+	
+	/**
+	 * 
+	 * @param folderURI
+	 * @return the paths of folder resources under the specified path, excluding files and hidden files
+	 */
+	public List getChildFolderPaths(String folderURI) {
+		
+		Map cache = getChildFolderPathsCacheMap();
+		List paths = (List) cache.get(folderURI);
+		
+		if(paths==null){
+			try {
+				//todo optimize by using a dasl search!
+				WebdavResource resource = getWebdavResourceAuthenticatedAsRoot(folderURI);
+	
+				if (resource.isCollection()) {
+					WebdavResources children = resource.getChildResources();
+					WebdavResource[] resources = children.listResources();
+					
+					if(resources.length>0){
+						paths = new ArrayList();
+						for (int i = 0; i < resources.length; i++) {
+							WebdavResource wResource = resources[i];
+							if (resources[i].isCollection()) {
+								paths.add(wResource.getPath());
+							}
+						}
+						cache.put(folderURI,paths);
+					}
+				}
+			}
+			catch (HttpException e) {
+				e.printStackTrace();
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		
+		return paths;
+	}
+	
+	/**
+	 * 
+	 * @param folderURI
+	 * @return the path of ALL child resources, including folders and hidden files. Null if no children
+	 */
+	public List getChildPaths(String folderURI) {
+		
+		Map cache = getChildPathsCacheMap();
+		List paths = (List) cache.get(folderURI);
+		
+		if(paths==null){
+			try {
+				//todo optimize by using a dasl search!
+				WebdavResource resource = getWebdavResourceAuthenticatedAsRoot(folderURI);
+	
+				if (resource.isCollection()) {
+					WebdavResources children = resource.getChildResources();
+					WebdavResource[] resources = children.listResources();
+					
+					if(resources.length>0){
+						paths = new ArrayList();
+						for (int i = 0; i < resources.length; i++) {
+							WebdavResource wResource = resources[i];
+							paths.add(wResource.getPath());
+						}
+						cache.put(folderURI,paths);
+					}
+				}
+			}
+			catch (HttpException e) {
+				e.printStackTrace();
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		
+		return paths;
+		
+	}
+	
+	
+	/**
+	 * Takes the URI and splits it by each "/" and invalidates child counts and childpath caches for each folder
+	 * @param URI
+	 */
+	public void invalidateCacheForAllFoldersInURIPath(String URI){
+		//rip the URI apart and then rebuild it from ground up, invalidating each folders cache
+		//must end with a "/"
+		if(!URI.endsWith("/")){
+			URI+="/";
+		}
+		StringBuffer createPath = new StringBuffer();
+		StringTokenizer st = new StringTokenizer(URI,"/");
+		while(st.hasMoreTokens()) {
+			
+			if(!createPath.toString().startsWith("/")){
+				createPath.append("/");
+			}
+				createPath.append(st.nextToken()).append("/");
+			//clear from maps
+			String path = createPath.toString();
+			getChildFolderPathsCacheMap().remove(path);
+			getChildPathsCacheMap().remove(path);
+			getChildPathsExcludingFolderAndHiddenFilesCacheMap().remove(path);
+		}
+		
+		
+	}
+
+	
+	/**
+	 * @return Returns the childFolderPathsCacheMap.
+	 */
+	public Map getChildFolderPathsCacheMap() {
+		return childFolderPathsCacheMap;
+	}
+
+	
+	/**
+	 * @param childFolderPathsCacheMap The childFolderPathsCacheMap to set.
+	 */
+	public void setChildFolderPathsCacheMap(Map childFolderPathsCacheMap) {
+		this.childFolderPathsCacheMap = childFolderPathsCacheMap;
+	}
+
+	
+	/**
+	 * @return Returns the childPathsCacheMap.
+	 */
+	public Map getChildPathsCacheMap() {
+		return childPathsCacheMap;
+	}
+
+	
+	/**
+	 * @param childPathsCacheMap The childPathsCacheMap to set.
+	 */
+	public void setChildPathsCacheMap(Map childPathsCacheMap) {
+		this.childPathsCacheMap = childPathsCacheMap;
+	}
+
+	
+	/**
+	 * @return Returns the childPathsExcludingFolderAndHiddenFilesCacheMap.
+	 */
+	public Map getChildPathsExcludingFolderAndHiddenFilesCacheMap() {
+		return childPathsExcludingFolderAndHiddenFilesCacheMap;
+	}
+
+	
+	/**
+	 * @param childPathsExcludingFolderAndHiddenFilesCacheMap The childPathsExcludingFolderAndHiddenFilesCacheMap to set.
+	 */
+	public void setChildPathsExcludingFolderAndHiddenFilesCacheMap(Map childPathsExcludingFolderAndHiddenFilesCacheMap) {
+		this.childPathsExcludingFolderAndHiddenFilesCacheMap = childPathsExcludingFolderAndHiddenFilesCacheMap;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.idega.slide.business.IWSlideChangeListener#onSlideChange(org.apache.slide.event.ContentEvent)
+	 */
+	public void onSlideChange(ContentEvent contentEvent) {
+		//get the url changing and invalidate
+		String URI = contentEvent.getUri();
+		invalidateCacheForAllFoldersInURIPath(URI);
+	}
+	
+	
+	/**
+	 * Gets the parent path of the resource
+	 * @param resource
+	 * @return
+	 */
+	public String getParentPath(WebdavResource resource) {
+		String path = resource.getPath();
+		String parentPath = null;
+		if (path != null) {
+			int index = path.lastIndexOf("/");
+			if (index == 0) {
+				parentPath = "";
+			}
+			else {
+				parentPath = path.substring(0, index);
+			}
+		}
+		else {
+			return null;
+		}
+		return parentPath;
+	}
+
 	
 }

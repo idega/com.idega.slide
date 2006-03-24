@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Enumeration;
-
 import org.apache.slide.common.Service;
 import org.apache.slide.common.ServiceAccessException;
 import org.apache.slide.common.Uri;
@@ -18,13 +17,14 @@ import org.apache.slide.structure.ObjectNotFoundException;
 import org.apache.slide.util.logger.Logger;
 
 /**
- * 
- * Last modified: $Date: 2004/12/28 03:08:46 $ by $Author: eiki $
+ * TODO change delete x from X to delete from X where in (...)
+ * Last modified: $Date: 2006/03/24 16:44:09 $ by $Author: eiki $
  * 
  * @author <a href="mailto:aron@idega.com">aron </a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class HsqlRDBMSAdapter extends StandardRDBMSAdapter {
+//	CommonRDBMSAdapter {
 
     public HsqlRDBMSAdapter(Service service, Logger logger) {
         super(service, logger);
@@ -57,7 +57,7 @@ public class HsqlRDBMSAdapter extends StandardRDBMSAdapter {
             // delete links
             try {
                 statement = connection
-                        .prepareStatement("delete from LINKS  where URI_ID  in  (select URI_ID  from URI  where URI_STRING = ? )");
+                        .prepareStatement("delete from LINKS where URI_ID  in  (select URI_ID  from URI  where URI_STRING = ? )");
                 statement.setString(1, uri.toString());
                 statement.executeUpdate();
             } finally {
@@ -68,7 +68,7 @@ public class HsqlRDBMSAdapter extends StandardRDBMSAdapter {
             // the object is removed???
             try {
                 statement = connection
-                        .prepareStatement("delete from VERSION_HISTORY  where URI_ID in (select URI_ID from URI where URI_STRING = ? )");
+                        .prepareStatement("delete from VERSION_HISTORY where URI_ID in (select URI_ID from URI where URI_STRING = ? )");
                 statement.setString(1, uri.toString());
                 statement.executeUpdate();
             } finally {
@@ -192,7 +192,7 @@ public class HsqlRDBMSAdapter extends StandardRDBMSAdapter {
             close(statement);
         }
     }
-
+  
     protected long getVersionID(Connection connection, String uriString,
             NodeRevisionDescriptor revisionDescriptor) throws SQLException {
         PreparedStatement statement = null;
@@ -391,7 +391,7 @@ public class HsqlRDBMSAdapter extends StandardRDBMSAdapter {
         // clear this uri from having bindings and being bound
         try {
             statement = connection
-                    .prepareStatement("delete  from BINDING where URI_ID in ( select URI_ID from  URI  where URI_STRING = ?)");
+                    .prepareStatement("delete from BINDING where URI_ID in ( select URI_ID from  URI  where URI_STRING = ?)");
             //"delete c from BINDING c, URI u where c.URI_ID = u.URI_ID and
             // u.URI_STRING = ?");
             statement.setString(1, uri.toString());
@@ -402,7 +402,7 @@ public class HsqlRDBMSAdapter extends StandardRDBMSAdapter {
 
         try {
             statement = connection
-                    .prepareStatement("delete  from PARENT_BINDING where URI_ID in ( select URI_ID from  URI  where URI_STRING = ?)");
+                    .prepareStatement("delete from PARENT_BINDING where URI_ID in ( select URI_ID from  URI  where URI_STRING = ?)");
             //"delete c from PARENT_BINDING c, URI u where c.URI_ID = u.URI_ID
             // and u.URI_STRING = ?");
             statement.setString(1, uri.toString());

@@ -1,5 +1,5 @@
 /*
- * $Id: IWBundleStarter.java,v 1.7 2005/02/01 18:07:02 thomas Exp $
+ * $Id: IWBundleStarter.java,v 1.8 2006/03/24 16:44:09 eiki Exp $
  * Created on 15.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -20,10 +20,10 @@ import com.idega.slide.util.DirtyUnloader;
 
 /**
  * 
- *  Last modified: $Date: 2005/02/01 18:07:02 $ by $Author: thomas $
+ *  Last modified: $Date: 2006/03/24 16:44:09 $ by $Author: eiki $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public class IWBundleStarter implements IWBundleStartable {
 
@@ -42,6 +42,9 @@ public class IWBundleStarter implements IWBundleStartable {
         try {
             IWSlideService service = (IWSlideService) IBOLookup.getServiceInstance(iwac,IWSlideService.class);
             service.createSlideSchemas();
+            
+            //add it as a slide change listener for caching purposes
+            service.addIWSlideChangeListeners(service);
             
         } catch (IBOLookupException e) {
             e.printStackTrace();
