@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.38 2006/03/24 16:44:09 eiki Exp $
+ * $Id: IWSlideServiceBean.java,v 1.39 2006/03/24 18:15:03 gimmi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -52,10 +52,10 @@ import com.idega.util.IWTimestamp;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2006/03/24 16:44:09 $ by $Author: eiki $
+ *  Last modified: $Date: 2006/03/24 18:15:03 $ by $Author: gimmi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.38 $
+ * @version $Revision: 1.39 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService,IWSlideChangeListener {
 	
@@ -909,6 +909,12 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		return 0;
 	}
 	
+	public boolean isHiddenFile(String fileName) {
+		if (fileName != null) {
+			return fileName.startsWith(".") || fileName.startsWith("Thumbs.db");
+		}
+		return false;
+	}
 	
 	/**
 	 * 
@@ -935,7 +941,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 							WebdavResource wResource = resources[i];
 							String path = wResource.getPath();
 							String fileName = path.substring(path.lastIndexOf("/")+1);
-							if (!resources[i].isCollection() && !fileName.startsWith(".")) {
+							if (!resources[i].isCollection() && !isHiddenFile(fileName)) {
 								paths.add(wResource.getPath());
 							}
 						}
