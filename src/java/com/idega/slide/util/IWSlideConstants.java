@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideConstants.java,v 1.5 2005/03/09 14:39:43 eiki Exp $
+ * $Id: IWSlideConstants.java,v 1.6 2006/03/27 14:54:50 eiki Exp $
  * Created on 27.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -21,10 +21,10 @@ import org.apache.webdav.lib.properties.CheckedoutProperty;
 
 /**
  * 
- *  Last modified: $Date: 2005/03/09 14:39:43 $ by $Author: eiki $
+ *  Last modified: $Date: 2006/03/27 14:54:50 $ by $Author: eiki $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public class IWSlideConstants {
 	
@@ -79,7 +79,20 @@ public class IWSlideConstants {
 	public static final String PROPERTYNAME_CREATION_DATE = WebdavResource.CREATIONDATE;
 	public static final String PROPERTYNAME_COMMENT = "comment";
 	//NON-STANDARD
+	//content item
 	public static final String PROPERTYNAME_CATEGORY = "categories";
+	//content item
+	//imagepropertyextractor
+    public static final String PROPERTYNAME_HEIGHT = "height";
+    public static final String PROPERTYNAME_WIDTH = "width";
+    public static final String PROPERTYNAME_BITS_PER_PIXEL = "bits-per-pixel";
+    public static final String PROPERTYNAME_DPI = "dpi";
+    /**
+     * Property for width and height combined to minimize propFind calls. the format is widthxheight e.g. 100x200
+     */
+	public static final String PROPERTYNAME_WIDTH_AND_HEIGHT_PROPERTY = "widthXheight";
+    //imagepropertyextractor
+	
 	
 	public static final PropertyName PROPERTY_DISPLAY_NAME = new PropertyName("DAV:", PROPERTYNAME_DISPLAY_NAME);
 	public static final PropertyName PROPERTY_PREDECESSOR_SET = new PropertyName("DAV:", PROPERTYNAME_PREDECESSOR_SET);
@@ -99,7 +112,16 @@ public class IWSlideConstants {
 	public static final PropertyName PROPERTY_CREATION_DATE = new PropertyName("DAV:", PROPERTYNAME_CREATION_DATE);
 	public static final PropertyName PROPERTY_COMMENT = new PropertyName("DAV:", PROPERTYNAME_COMMENT);
 	//NON-STANDARD
+	//content item
 	public static final PropertyName PROPERTY_CATEGORY = new PropertyName("DAV:", PROPERTYNAME_CATEGORY);
-	
-	
+	//content item
+	//imagepropertyextractor
+    public static final PropertyName PROPERTY_HEIGHT =  new PropertyName("DAV:", PROPERTYNAME_HEIGHT);
+    public static final PropertyName PROPERTY_WIDTH = new PropertyName("DAV:", PROPERTYNAME_WIDTH);
+    public static final PropertyName PROPERTY_BITS_PER_PIXEL = new PropertyName("DAV:", PROPERTYNAME_BITS_PER_PIXEL);
+    public static final PropertyName PROPERTY_DPI = new PropertyName("DAV:", PROPERTYNAME_DPI);
+    public static final PropertyName PROPERTY_WIDTH_AND_HEIGHT = new PropertyName("DAV:",PROPERTYNAME_WIDTH_AND_HEIGHT_PROPERTY);
+    //imagepropertyextractor
+
+    
 }
