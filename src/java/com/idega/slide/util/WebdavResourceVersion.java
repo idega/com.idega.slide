@@ -1,5 +1,5 @@
 /*
- * $Id: WebdavResourceVersion.java,v 1.6 2005/12/20 17:13:25 tryggvil Exp $ Created on Dec
+ * $Id: WebdavResourceVersion.java,v 1.7 2006/03/29 13:11:46 laddi Exp $ Created on Dec
  * 19, 2004
  * 
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -21,12 +21,12 @@ import com.idega.user.data.User;
 
 /**
  * 
- * Last modified: $Date: 2005/12/20 17:13:25 $ by $Author: tryggvil $
+ * Last modified: $Date: 2006/03/29 13:11:46 $ by $Author: laddi $
  * 
  * A little wrapper for version information
  * 
  * @author <a href="mailto:eiki@idega.com">Eirikur S. Hrafnsson </a>
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 public class WebdavResourceVersion implements Comparable,Serializable{
 
@@ -109,7 +109,7 @@ public class WebdavResourceVersion implements Comparable,Serializable{
 		
 		LoginTable login =  LoginDBHandler.getUserLoginByUserName(userName);
 		if(login!=null){
-			User user = (User)login.getUser();
+			User user = login.getUser();
 			name = user.getName();
 		}
 		
