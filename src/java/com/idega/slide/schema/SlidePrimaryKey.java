@@ -36,15 +36,16 @@ public class SlidePrimaryKey implements PrimaryKey {
 	 * @see com.idega.data.store.PrimaryKeyDefinition#getFields()
 	 */
 	public SchemaColumn[] getColumns() {
-		return (SchemaColumn[]) fields.toArray(new SlideSchemaColumn[0]);
+		return (SchemaColumn[]) this.fields.toArray(new SlideSchemaColumn[0]);
 	}
 
 	/* (non-Javadoc)
 	 * @see com.idega.data.store.PrimaryKeyDefinition#getField()
 	 */
 	public SchemaColumn getColumn() throws CompositePrimaryKeyException {
-		if(fields.size()==1)
-			return (SlideSchemaColumn)fields.get(0);
+		if(this.fields.size()==1) {
+			return (SlideSchemaColumn)this.fields.get(0);
+		}
 		return null;
 	}
 
@@ -52,22 +53,23 @@ public class SlidePrimaryKey implements PrimaryKey {
 	 * @see com.idega.data.store.PrimaryKeyDefinition#isComposite()
 	 */
 	public boolean isComposite() {
-		return composite;
+		return this.composite;
 	}
 
 	/* (non-Javadoc)
 	 * @see com.idega.data.store.PrimaryKeyDefinition#getPrimaryKeyClass()
 	 */
 	public Class getPrimaryKeyClass() {
-		if(fields.size()==1)
-			return ((SlideSchemaColumn)fields.get(0)).getDataTypeClass();
+		if(this.fields.size()==1) {
+			return ((SlideSchemaColumn)this.fields.get(0)).getDataTypeClass();
+		}
 		return null;
 	}
 	
 	protected void addField(SlideSchemaColumn field){
-		fields.add(field);
-		if(fields.size()>1){
-			composite = true;
+		this.fields.add(field);
+		if(this.fields.size()>1){
+			this.composite = true;
 		}
 			
 	}

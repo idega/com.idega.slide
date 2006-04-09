@@ -1,5 +1,5 @@
 /*
- * $Id: WebdavRootResource.java,v 1.4 2006/03/16 15:44:42 tryggvil Exp $
+ * $Id: WebdavRootResource.java,v 1.5 2006/04/09 11:44:15 laddi Exp $
  * Created on 13.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -35,10 +35,10 @@ import org.apache.webdav.lib.properties.ResourceTypeProperty;
 
 /**
  * 
- *  Last modified: $Date: 2006/03/16 15:44:42 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class WebdavRootResource {
 	private WebdavResource rootResource = null;
@@ -46,7 +46,7 @@ public class WebdavRootResource {
 	private boolean isClosed = false;
 	
 	public WebdavRootResource(WebdavResource resource){
-		rootResource = resource;
+		this.rootResource = resource;
 		/*try {
 			//Set path to root to be sure
 			rootResource.setPath(null);
@@ -89,7 +89,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean abortTransaction() throws IOException {
-		return rootResource.abortTransaction();
+		return this.rootResource.abortTransaction();
 	}
 	/**
 	 * @return
@@ -97,7 +97,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public AclProperty aclfindMethod() throws HttpException, IOException {
-		return rootResource.aclfindMethod();
+		return this.rootResource.aclfindMethod();
 	}
 	/**
 	 * @param path
@@ -106,7 +106,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public AclProperty aclfindMethod(String path) throws HttpException, IOException {
-		return rootResource.aclfindMethod(path);
+		return this.rootResource.aclfindMethod(path);
 	}
 	/**
 	 * @param path
@@ -116,7 +116,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean aclMethod(String path, Ace[] aces) throws HttpException, IOException {
-		return rootResource.aclMethod(path, aces);
+		return this.rootResource.aclMethod(path, aces);
 	}
 	/**
 	 * @param path
@@ -128,7 +128,7 @@ public class WebdavRootResource {
 	 */
 	public Enumeration aclReportMethod(String path, Collection properties, int reportType) throws HttpException,
 			IOException {
-		return rootResource.aclReportMethod(path, properties, reportType);
+		return this.rootResource.aclReportMethod(path, properties, reportType);
 	}
 	/**
 	 * @param newBinding
@@ -137,7 +137,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean bindMethod(String newBinding) throws HttpException, IOException {
-		return rootResource.bindMethod(newBinding);
+		return this.rootResource.bindMethod(newBinding);
 	}
 	/**
 	 * @param existingBinding
@@ -147,7 +147,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean bindMethod(String existingBinding, String newBinding) throws HttpException, IOException {
-		return rootResource.bindMethod(existingBinding, newBinding);
+		return this.rootResource.bindMethod(existingBinding, newBinding);
 	}
 	/**
 	 * @return
@@ -155,7 +155,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean checkinMethod() throws HttpException, IOException {
-		return rootResource.checkinMethod();
+		return this.rootResource.checkinMethod();
 	}
 	/**
 	 * @param path
@@ -164,7 +164,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean checkinMethod(String path) throws HttpException, IOException {
-		return rootResource.checkinMethod(path);
+		return this.rootResource.checkinMethod(path);
 	}
 	/**
 	 * @return
@@ -172,7 +172,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean checkoutMethod() throws HttpException, IOException {
-		return rootResource.checkoutMethod();
+		return this.rootResource.checkoutMethod();
 	}
 	/**
 	 * @param path
@@ -181,46 +181,46 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean checkoutMethod(String path) throws HttpException, IOException {
-		return rootResource.checkoutMethod(path);
+		return this.rootResource.checkoutMethod(path);
 	}
 	/**
 	 * @throws java.io.IOException
 	 */
 	public void close() throws IOException {
-		rootResource.close();
-		isClosed = true;
+		this.rootResource.close();
+		this.isClosed = true;
 	}
 	/**
 	 * @throws java.io.IOException
 	 */
 	public void closeSession() throws IOException {
-		rootResource.closeSession();
-		isClosed = true;
+		this.rootResource.closeSession();
+		this.isClosed = true;
 	}
 	
 	public boolean isClosed(){
-		return isClosed;
+		return this.isClosed;
 	}
 	/**
 	 * @return
 	 * @throws java.io.IOException
 	 */
 	public boolean commitTransaction() throws IOException {
-		return rootResource.commitTransaction();
+		return this.rootResource.commitTransaction();
 	}
 	/**
 	 * @param another
 	 * @return
 	 */
 	public int compareTo(Object another) {
-		return rootResource.compareTo(another);
+		return this.rootResource.compareTo(another);
 	}
 	/**
 	 * @param another
 	 * @return
 	 */
 	public int compareToWebdavResource(WebdavResource another) {
-		return rootResource.compareToWebdavResource(another);
+		return this.rootResource.compareToWebdavResource(another);
 	}
 	/**
 	 * @param destination
@@ -229,7 +229,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean copyMethod(String destination) throws HttpException, IOException {
-		return rootResource.copyMethod(destination);
+		return this.rootResource.copyMethod(destination);
 	}
 	/**
 	 * @param source
@@ -239,7 +239,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean copyMethod(String source, String destination) throws HttpException, IOException {
-		return rootResource.copyMethod(source, destination);
+		return this.rootResource.copyMethod(source, destination);
 	}
 	/**
 	 * @return
@@ -247,7 +247,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean deleteMethod() throws HttpException, IOException {
-		return rootResource.deleteMethod();
+		return this.rootResource.deleteMethod();
 	}
 	/**
 	 * @param path
@@ -256,14 +256,14 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean deleteMethod(String path) throws HttpException, IOException {
-		return rootResource.deleteMethod(path);
+		return this.rootResource.deleteMethod(path);
 	}
 	/**
 	 * @throws org.apache.commons.httpclient.HttpException
 	 * @throws java.io.IOException
 	 */
 	public void discoverOwnLocks() throws HttpException, IOException {
-		rootResource.discoverOwnLocks();
+		this.rootResource.discoverOwnLocks();
 	}
 	/**
 	 * @param owner
@@ -271,13 +271,13 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public void discoverOwnLocks(String owner) throws HttpException, IOException {
-		rootResource.discoverOwnLocks(owner);
+		this.rootResource.discoverOwnLocks(owner);
 	}
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	public boolean equals(Object obj) {
-		return rootResource.equals(obj);
+		return this.rootResource.equals(obj);
 	}
 	/**
 	 * @param client
@@ -287,25 +287,25 @@ public class WebdavRootResource {
 	 * @throws org.apache.commons.httpclient.HttpException
 	 */
 	public int executeHttpRequestMethod(HttpClient client, HttpMethod method) throws IOException, HttpException {
-		return rootResource.executeHttpRequestMethod(client, method);
+		return this.rootResource.executeHttpRequestMethod(client, method);
 	}
 	/**
 	 * @return
 	 */
 	public boolean exists() {
-		return rootResource.exists();
+		return this.rootResource.exists();
 	}
 	/**
 	 * @return
 	 */
 	public Enumeration getActiveLockOwners() {
-		return rootResource.getActiveLockOwners();
+		return this.rootResource.getActiveLockOwners();
 	}
 	/**
 	 * @return
 	 */
 	public Enumeration getAllowedMethods() {
-		return rootResource.getAllowedMethods();
+		return this.rootResource.getAllowedMethods();
 	}
 	/**
 	 * @return
@@ -313,99 +313,99 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public WebdavResources getChildResources() throws HttpException, IOException {
-		return rootResource.getChildResources();
+		return this.rootResource.getChildResources();
 	}
 	/**
 	 * @return
 	 */
 	public long getCreationDate() {
-		return rootResource.getCreationDate();
+		return this.rootResource.getCreationDate();
 	}
 	/**
 	 * @return
 	 */
 	public Enumeration getDavCapabilities() {
-		return rootResource.getDavCapabilities();
+		return this.rootResource.getDavCapabilities();
 	}
 	/**
 	 * @return
 	 */
 	public String getDisplayName() {
-		return rootResource.getDisplayName();
+		return this.rootResource.getDisplayName();
 	}
 	/**
 	 * @return
 	 */
 	public boolean getExistence() {
-		return rootResource.getExistence();
+		return this.rootResource.getExistence();
 	}
 	/**
 	 * @return
 	 */
 	public boolean getFollowRedirects() {
-		return rootResource.getFollowRedirects();
+		return this.rootResource.getFollowRedirects();
 	}
 	/**
 	 * @return
 	 */
 	public long getGetContentLength() {
-		return rootResource.getGetContentLength();
+		return this.rootResource.getGetContentLength();
 	}
 	/**
 	 * @return
 	 */
 	public String getGetContentType() {
-		return rootResource.getGetContentType();
+		return this.rootResource.getGetContentType();
 	}
 	/**
 	 * @return
 	 */
 	public String getGetEtag() {
-		return rootResource.getGetEtag();
+		return this.rootResource.getGetEtag();
 	}
 	/**
 	 * @return
 	 */
 	public long getGetLastModified() {
-		return rootResource.getGetLastModified();
+		return this.rootResource.getGetLastModified();
 	}
 	/**
 	 * @return
 	 * @throws org.apache.commons.httpclient.URIException
 	 */
 	public String getHost() throws URIException {
-		return rootResource.getHost();
+		return this.rootResource.getHost();
 	}
 	/**
 	 * @return
 	 */
 	public HttpURL getHttpURL() {
-		return rootResource.getHttpURL();
+		return this.rootResource.getHttpURL();
 	}
 	/**
 	 * @return
 	 * @throws org.apache.commons.httpclient.URIException
 	 */
 	public HttpURL getHttpURLExceptForUserInfo() throws URIException {
-		return rootResource.getHttpURLExceptForUserInfo();
+		return this.rootResource.getHttpURLExceptForUserInfo();
 	}
 	/**
 	 * @return
 	 */
 	public boolean getIsCollection() {
-		return rootResource.getIsCollection();
+		return this.rootResource.getIsCollection();
 	}
 	/**
 	 * @return
 	 */
 	public boolean getIsHidden() {
-		return rootResource.getIsHidden();
+		return this.rootResource.getIsHidden();
 	}
 	/**
 	 * @return
 	 */
 	public LockDiscoveryProperty getLockDiscovery() {
-		return rootResource.getLockDiscovery();
+		return this.rootResource.getLockDiscovery();
 	}
 	/**
 	 * @param file
@@ -414,7 +414,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean getMethod(File file) throws HttpException, IOException {
-		return rootResource.getMethod(file);
+		return this.rootResource.getMethod(file);
 	}
 	/**
 	 * @param path
@@ -424,7 +424,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean getMethod(String path, File file) throws HttpException, IOException {
-		return rootResource.getMethod(path, file);
+		return this.rootResource.getMethod(path, file);
 	}
 	/**
 	 * @return
@@ -432,7 +432,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public InputStream getMethodData() throws HttpException, IOException {
-		return rootResource.getMethodData();
+		return this.rootResource.getMethodData();
 	}
 	/**
 	 * @param path
@@ -441,7 +441,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public InputStream getMethodData(String path) throws HttpException, IOException {
-		return rootResource.getMethodData(path);
+		return this.rootResource.getMethodData(path);
 	}
 	/**
 	 * @return
@@ -449,7 +449,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public String getMethodDataAsString() throws HttpException, IOException {
-		return rootResource.getMethodDataAsString();
+		return this.rootResource.getMethodDataAsString();
 	}
 	/**
 	 * @param path
@@ -458,37 +458,37 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public String getMethodDataAsString(String path) throws HttpException, IOException {
-		return rootResource.getMethodDataAsString(path);
+		return this.rootResource.getMethodDataAsString(path);
 	}
 	/**
 	 * @return
 	 */
 	public String getName() {
-		return rootResource.getName();
+		return this.rootResource.getName();
 	}
 	/**
 	 * @return
 	 */
 	public boolean getOverwrite() {
-		return rootResource.getOverwrite();
+		return this.rootResource.getOverwrite();
 	}
 	/**
 	 * @return
 	 */
 	public String getOwner() {
-		return rootResource.getOwner();
+		return this.rootResource.getOwner();
 	}
 	/**
 	 * @return
 	 */
 	public String getPath() {
-		return rootResource.getPath();
+		return this.rootResource.getPath();
 	}
 	/**
 	 * @return
 	 */
 	public ResourceTypeProperty getResourceType() {
-		return rootResource.getResourceType();
+		return this.rootResource.getResourceType();
 	}
 	/**
 	 * @param httpURL
@@ -496,7 +496,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public HttpClient getSessionInstance(HttpURL httpURL) throws IOException {
-		return rootResource.getSessionInstance(httpURL);
+		return this.rootResource.getSessionInstance(httpURL);
 	}
 	/**
 	 * @param httpURL
@@ -505,38 +505,38 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public HttpClient getSessionInstance(HttpURL httpURL, boolean reset) throws IOException {
-		return rootResource.getSessionInstance(httpURL, reset);
+		return this.rootResource.getSessionInstance(httpURL, reset);
 	}
 	/**
 	 * @return
 	 */
 	public int getStatusCode() {
-		return rootResource.getStatusCode();
+		return this.rootResource.getStatusCode();
 	}
 	/**
 	 * @return
 	 */
 	public String getStatusMessage() {
-		return rootResource.getStatusMessage();
+		return this.rootResource.getStatusMessage();
 	}
 	/**
 	 * @return
 	 */
 	public String getSupportedLock() {
-		return rootResource.getSupportedLock();
+		return this.rootResource.getSupportedLock();
 	}
 	/**
 	 * @return
 	 * @throws java.io.IOException
 	 */
 	public String getTransactionHandle() throws IOException {
-		return rootResource.getTransactionHandle();
+		return this.rootResource.getTransactionHandle();
 	}
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
 	public int hashCode() {
-		return rootResource.hashCode();
+		return this.rootResource.hashCode();
 	}
 	/**
 	 * @return
@@ -544,7 +544,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean headMethod() throws HttpException, IOException {
-		return rootResource.headMethod();
+		return this.rootResource.headMethod();
 	}
 	/**
 	 * @param path
@@ -553,19 +553,19 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean headMethod(String path) throws HttpException, IOException {
-		return rootResource.headMethod(path);
+		return this.rootResource.headMethod(path);
 	}
 	/**
 	 * @return
 	 */
 	public boolean isCollection() {
-		return rootResource.isCollection();
+		return this.rootResource.isCollection();
 	}
 	/**
 	 * @return
 	 */
 	public boolean isLocked() {
-		return rootResource.isLocked();
+		return this.rootResource.isLocked();
 	}
 	/**
 	 * @param labelname
@@ -575,7 +575,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean labelMethod(String labelname, int type) throws HttpException, IOException {
-		return rootResource.labelMethod(labelname, type);
+		return this.rootResource.labelMethod(labelname, type);
 	}
 	/**
 	 * @param path
@@ -586,13 +586,13 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean labelMethod(String path, String labelname, int type) throws HttpException, IOException {
-		return rootResource.labelMethod(path, labelname, type);
+		return this.rootResource.labelMethod(path, labelname, type);
 	}
 	/**
 	 * @return
 	 */
 	public String[] list() {
-		return rootResource.list();
+		return this.rootResource.list();
 	}
 	/**
 	 * @return
@@ -600,7 +600,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public Vector listBasic() throws HttpException, IOException {
-		return rootResource.listBasic();
+		return this.rootResource.listBasic();
 	}
 	/**
 	 * @return
@@ -608,7 +608,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public WebdavResource[] listWebdavResources() throws HttpException, IOException {
-		return rootResource.listWebdavResources();
+		return this.rootResource.listWebdavResources();
 	}
 	/**
 	 * @return
@@ -616,7 +616,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public LockDiscoveryProperty lockDiscoveryPropertyFindMethod() throws HttpException, IOException {
-		return rootResource.lockDiscoveryPropertyFindMethod();
+		return this.rootResource.lockDiscoveryPropertyFindMethod();
 	}
 	/**
 	 * @param path
@@ -625,7 +625,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public LockDiscoveryProperty lockDiscoveryPropertyFindMethod(String path) throws HttpException, IOException {
-		return rootResource.lockDiscoveryPropertyFindMethod(path);
+		return this.rootResource.lockDiscoveryPropertyFindMethod(path);
 	}
 	/**
 	 * @return
@@ -633,7 +633,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean lockMethod() throws HttpException, IOException {
-		return rootResource.lockMethod();
+		return this.rootResource.lockMethod();
 	}
 	/**
 	 * @param path
@@ -642,7 +642,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean lockMethod(String path) throws HttpException, IOException {
-		return rootResource.lockMethod(path);
+		return this.rootResource.lockMethod(path);
 	}
 	/**
 	 * @param owner
@@ -652,7 +652,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean lockMethod(String owner, int timeout) throws HttpException, IOException {
-		return rootResource.lockMethod(owner, timeout);
+		return this.rootResource.lockMethod(owner, timeout);
 	}
 	/**
 	 * @param path
@@ -663,7 +663,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean lockMethod(String path, String owner, int timeout) throws HttpException, IOException {
-		return rootResource.lockMethod(path, owner, timeout);
+		return this.rootResource.lockMethod(path, owner, timeout);
 	}
 	/**
 	 * @param path
@@ -675,7 +675,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean lockMethod(String path, String owner, int timeout, short lockType) throws HttpException, IOException {
-		return rootResource.lockMethod(path, owner, timeout, lockType);
+		return this.rootResource.lockMethod(path, owner, timeout, lockType);
 	}
 	/**
 	 * @param path
@@ -689,7 +689,7 @@ public class WebdavRootResource {
 	 */
 	public boolean lockMethod(String path, String owner, int timeout, short lockType, int depth) throws HttpException,
 			IOException {
-		return rootResource.lockMethod(path, owner, timeout, lockType, depth);
+		return this.rootResource.lockMethod(path, owner, timeout, lockType, depth);
 	}
 	/**
 	 * @param path
@@ -698,7 +698,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean mkcolMethod(String path) throws HttpException, IOException {
-		return rootResource.mkcolMethod(path);
+		return this.rootResource.mkcolMethod(path);
 	}
 	/**
 	 * @return
@@ -706,7 +706,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean mkWorkspaceMethod() throws HttpException, IOException {
-		return rootResource.mkWorkspaceMethod();
+		return this.rootResource.mkWorkspaceMethod();
 	}
 	/**
 	 * @param path
@@ -715,7 +715,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean mkWorkspaceMethod(String path) throws HttpException, IOException {
-		return rootResource.mkWorkspaceMethod(path);
+		return this.rootResource.mkWorkspaceMethod(path);
 	}
 	/**
 	 * @param source
@@ -725,7 +725,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean moveMethod(String source, String destination) throws HttpException, IOException {
-		return rootResource.moveMethod(source, destination);
+		return this.rootResource.moveMethod(source, destination);
 	}
 	/**
 	 * @return
@@ -733,7 +733,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean optionsMethod() throws HttpException, IOException {
-		return rootResource.optionsMethod();
+		return this.rootResource.optionsMethod();
 	}
 	/**
 	 * @param path
@@ -742,7 +742,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean optionsMethod(String path) throws HttpException, IOException {
-		return rootResource.optionsMethod(path);
+		return this.rootResource.optionsMethod(path);
 	}
 	/**
 	 * @param path
@@ -752,7 +752,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public Enumeration optionsMethod(String path, int type) throws HttpException, IOException {
-		return rootResource.optionsMethod(path, type);
+		return this.rootResource.optionsMethod(path, type);
 	}
 	/**
 	 * @param path
@@ -762,7 +762,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean optionsMethod(String path, String aMethod) throws HttpException, IOException {
-		return rootResource.optionsMethod(path, aMethod);
+		return this.rootResource.optionsMethod(path, aMethod);
 	}
 	/**
 	 * @param httpURL
@@ -771,7 +771,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public Enumeration optionsMethod(HttpURL httpURL) throws HttpException, IOException {
-		return rootResource.optionsMethod(httpURL);
+		return this.rootResource.optionsMethod(httpURL);
 	}
 	/**
 	 * @param httpURL
@@ -781,7 +781,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public Enumeration optionsMethod(HttpURL httpURL, int type) throws HttpException, IOException {
-		return rootResource.optionsMethod(httpURL, type);
+		return this.rootResource.optionsMethod(httpURL, type);
 	}
 	/**
 	 * @param contentLocation
@@ -791,7 +791,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean pollMethod(String contentLocation, int subscriptionId) throws HttpException, IOException {
-		return rootResource.pollMethod(contentLocation, subscriptionId);
+		return this.rootResource.pollMethod(contentLocation, subscriptionId);
 	}
 	/**
 	 * @param subscription
@@ -800,7 +800,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean pollMethod(Subscription subscription) throws HttpException, IOException {
-		return rootResource.pollMethod(subscription);
+		return this.rootResource.pollMethod(subscription);
 	}
 	/**
 	 * @return
@@ -808,7 +808,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public PrincipalCollectionSetProperty principalCollectionSetFindMethod() throws HttpException, IOException {
-		return rootResource.principalCollectionSetFindMethod();
+		return this.rootResource.principalCollectionSetFindMethod();
 	}
 	/**
 	 * @param path
@@ -818,7 +818,7 @@ public class WebdavRootResource {
 	 */
 	public PrincipalCollectionSetProperty principalCollectionSetFindMethod(String path) throws HttpException,
 			IOException {
-		return rootResource.principalCollectionSetFindMethod(path);
+		return this.rootResource.principalCollectionSetFindMethod(path);
 	}
 	/**
 	 * @param depth
@@ -827,7 +827,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public Enumeration propfindMethod(int depth) throws HttpException, IOException {
-		return rootResource.propfindMethod(depth);
+		return this.rootResource.propfindMethod(depth);
 	}
 	/**
 	 * @param depth
@@ -837,7 +837,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public Enumeration propfindMethod(int depth, Vector properties) throws HttpException, IOException {
-		return rootResource.propfindMethod(depth, properties);
+		return this.rootResource.propfindMethod(depth, properties);
 	}
 	/**
 	 * @param propertyName
@@ -846,7 +846,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public Enumeration propfindMethod(String propertyName) throws HttpException, IOException {
-		return rootResource.propfindMethod(propertyName);
+		return this.rootResource.propfindMethod(propertyName);
 	}
 	/**
 	 * @param path
@@ -856,7 +856,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public Enumeration propfindMethod(String path, int depth) throws HttpException, IOException {
-		return rootResource.propfindMethod(path, depth);
+		return this.rootResource.propfindMethod(path, depth);
 	}
 	/**
 	 * @param path
@@ -867,7 +867,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public Enumeration propfindMethod(String path, int depth, Vector properties) throws HttpException, IOException {
-		return rootResource.propfindMethod(path, depth, properties);
+		return this.rootResource.propfindMethod(path, depth, properties);
 	}
 	/**
 	 * @param path
@@ -877,7 +877,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public Enumeration propfindMethod(String path, String propertyName) throws HttpException, IOException {
-		return rootResource.propfindMethod(path, propertyName);
+		return this.rootResource.propfindMethod(path, propertyName);
 	}
 	/**
 	 * @param path
@@ -887,7 +887,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public Enumeration propfindMethod(String path, Vector properties) throws HttpException, IOException {
-		return rootResource.propfindMethod(path, properties);
+		return this.rootResource.propfindMethod(path, properties);
 	}
 	/**
 	 * @param properties
@@ -896,7 +896,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public Enumeration propfindMethod(Vector properties) throws HttpException, IOException {
-		return rootResource.propfindMethod(properties);
+		return this.rootResource.propfindMethod(properties);
 	}
 	/**
 	 * @param propertyName
@@ -908,7 +908,7 @@ public class WebdavRootResource {
 	 */
 	public boolean proppatchMethod(String propertyName, String propertyValue, boolean action) throws HttpException,
 			IOException {
-		return rootResource.proppatchMethod(propertyName, propertyValue, action);
+		return this.rootResource.proppatchMethod(propertyName, propertyValue, action);
 	}
 	/**
 	 * @param path
@@ -921,7 +921,7 @@ public class WebdavRootResource {
 	 */
 	public boolean proppatchMethod(String path, String propertyName, String propertyValue, boolean action)
 			throws HttpException, IOException {
-		return rootResource.proppatchMethod(path, propertyName, propertyValue, action);
+		return this.rootResource.proppatchMethod(path, propertyName, propertyValue, action);
 	}
 	/**
 	 * @param path
@@ -932,7 +932,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean proppatchMethod(String path, Hashtable properties, boolean action) throws HttpException, IOException {
-		return rootResource.proppatchMethod(path, properties, action);
+		return this.rootResource.proppatchMethod(path, properties, action);
 	}
 	/**
 	 * @param path
@@ -945,7 +945,7 @@ public class WebdavRootResource {
 	 */
 	public boolean proppatchMethod(String path, PropertyName propertyName, String propertyValue, boolean action)
 			throws HttpException, IOException {
-		return rootResource.proppatchMethod(path, propertyName, propertyValue, action);
+		return this.rootResource.proppatchMethod(path, propertyName, propertyValue, action);
 	}
 	/**
 	 * @param properties
@@ -955,7 +955,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean proppatchMethod(Hashtable properties, boolean action) throws HttpException, IOException {
-		return rootResource.proppatchMethod(properties, action);
+		return this.rootResource.proppatchMethod(properties, action);
 	}
 	/**
 	 * @param propertyName
@@ -967,7 +967,7 @@ public class WebdavRootResource {
 	 */
 	public boolean proppatchMethod(PropertyName propertyName, String propertyValue, boolean action)
 			throws HttpException, IOException {
-		return rootResource.proppatchMethod(propertyName, propertyValue, action);
+		return this.rootResource.proppatchMethod(propertyName, propertyValue, action);
 	}
 	/**
 	 * @param data
@@ -976,7 +976,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean putMethod(byte[] data) throws HttpException, IOException {
-		return rootResource.putMethod(data);
+		return this.rootResource.putMethod(data);
 	}
 	/**
 	 * @param file
@@ -985,7 +985,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean putMethod(File file) throws HttpException, IOException {
-		return rootResource.putMethod(file);
+		return this.rootResource.putMethod(file);
 	}
 	/**
 	 * @param is
@@ -994,7 +994,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean putMethod(InputStream is) throws HttpException, IOException {
-		return rootResource.putMethod(is);
+		return this.rootResource.putMethod(is);
 	}
 	/**
 	 * @param data
@@ -1003,7 +1003,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean putMethod(String data) throws HttpException, IOException {
-		return rootResource.putMethod(data);
+		return this.rootResource.putMethod(data);
 	}
 	/**
 	 * @param path
@@ -1013,7 +1013,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean putMethod(String path, byte[] data) throws HttpException, IOException {
-		return rootResource.putMethod(path, data);
+		return this.rootResource.putMethod(path, data);
 	}
 	/**
 	 * @param path
@@ -1023,7 +1023,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean putMethod(String path, File file) throws HttpException, IOException {
-		return rootResource.putMethod(path, file);
+		return this.rootResource.putMethod(path, file);
 	}
 	/**
 	 * @param path
@@ -1033,7 +1033,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean putMethod(String path, InputStream is) throws HttpException, IOException {
-		return rootResource.putMethod(path, is);
+		return this.rootResource.putMethod(path, is);
 	}
 	/**
 	 * @param path
@@ -1043,7 +1043,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean putMethod(String path, String data) throws HttpException, IOException {
-		return rootResource.putMethod(path, data);
+		return this.rootResource.putMethod(path, data);
 	}
 	/**
 	 * @param path
@@ -1053,7 +1053,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean putMethod(String path, URL url) throws HttpException, IOException {
-		return rootResource.putMethod(path, url);
+		return this.rootResource.putMethod(path, url);
 	}
 	/**
 	 * @param url
@@ -1062,7 +1062,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean putMethod(URL url) throws HttpException, IOException {
-		return rootResource.putMethod(url);
+		return this.rootResource.putMethod(url);
 	}
 	/**
 	 * @param newBinding
@@ -1071,7 +1071,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean rebindMethod(String newBinding) throws HttpException, IOException {
-		return rootResource.rebindMethod(newBinding);
+		return this.rootResource.rebindMethod(newBinding);
 	}
 	/**
 	 * @param existingBinding
@@ -1081,7 +1081,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean rebindMethod(String existingBinding, String newBinding) throws HttpException, IOException {
-		return rootResource.rebindMethod(existingBinding, newBinding);
+		return this.rootResource.rebindMethod(existingBinding, newBinding);
 	}
 	/**
 	 * @param httpURL
@@ -1091,7 +1091,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public Enumeration reportMethod(HttpURL httpURL, int depth) throws HttpException, IOException {
-		return rootResource.reportMethod(httpURL, depth);
+		return this.rootResource.reportMethod(httpURL, depth);
 	}
 	/**
 	 * @param httpURL
@@ -1102,7 +1102,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public Enumeration reportMethod(HttpURL httpURL, String sQuery, int depth) throws HttpException, IOException {
-		return rootResource.reportMethod(httpURL, sQuery, depth);
+		return this.rootResource.reportMethod(httpURL, sQuery, depth);
 	}
 	/**
 	 * @param httpURL
@@ -1112,7 +1112,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public Enumeration reportMethod(HttpURL httpURL, Vector properties) throws HttpException, IOException {
-		return rootResource.reportMethod(httpURL, properties);
+		return this.rootResource.reportMethod(httpURL, properties);
 	}
 	/**
 	 * @param httpURL
@@ -1123,7 +1123,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public Enumeration reportMethod(HttpURL httpURL, Vector properties, int depth) throws HttpException, IOException {
-		return rootResource.reportMethod(httpURL, properties, depth);
+		return this.rootResource.reportMethod(httpURL, properties, depth);
 	}
 	/**
 	 * @param httpURL
@@ -1136,7 +1136,7 @@ public class WebdavRootResource {
 	 */
 	public Enumeration reportMethod(HttpURL httpURL, Vector properties, Vector histUri, int depth)
 			throws HttpException, IOException {
-		return rootResource.reportMethod(httpURL, properties, histUri, depth);
+		return this.rootResource.reportMethod(httpURL, properties, histUri, depth);
 	}
 	/**
 	 * @param depth
@@ -1144,7 +1144,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public void setProperties(int depth) throws HttpException, IOException {
-		rootResource.setProperties(depth);
+		this.rootResource.setProperties(depth);
 	}
 	/**
 	 * @param action
@@ -1153,7 +1153,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public void setProperties(int action, int depth) throws HttpException, IOException {
-		rootResource.setProperties(action, depth);
+		this.rootResource.setProperties(action, depth);
 	}
 	/**
 	 * @param path
@@ -1163,7 +1163,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean subscribeMethod(String path, int subscriptionId) throws HttpException, IOException {
-		return rootResource.subscribeMethod(path, subscriptionId);
+		return this.rootResource.subscribeMethod(path, subscriptionId);
 	}
 	/**
 	 * @param path
@@ -1178,7 +1178,7 @@ public class WebdavRootResource {
 	 */
 	public Subscription subscribeMethod(String path, String notificationType, String callback, long notificationDelay,
 			int depth, long lifetime) throws HttpException, IOException {
-		return rootResource.subscribeMethod(path, notificationType, callback, notificationDelay, depth, lifetime);
+		return this.rootResource.subscribeMethod(path, notificationType, callback, notificationDelay, depth, lifetime);
 	}
 	/**
 	 * @param subscription
@@ -1187,13 +1187,13 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean subscribeMethod(Subscription subscription) throws HttpException, IOException {
-		return rootResource.subscribeMethod(subscription);
+		return this.rootResource.subscribeMethod(subscription);
 	}
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		return rootResource.toString();
+		return this.rootResource.toString();
 	}
 	/**
 	 * @return
@@ -1201,7 +1201,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean unbindMethod() throws HttpException, IOException {
-		return rootResource.unbindMethod();
+		return this.rootResource.unbindMethod();
 	}
 	/**
 	 * @param binding
@@ -1210,7 +1210,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean unbindMethod(String binding) throws HttpException, IOException {
-		return rootResource.unbindMethod(binding);
+		return this.rootResource.unbindMethod(binding);
 	}
 	/**
 	 * @return
@@ -1218,7 +1218,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean uncheckoutMethod() throws HttpException, IOException {
-		return rootResource.uncheckoutMethod();
+		return this.rootResource.uncheckoutMethod();
 	}
 	/**
 	 * @param path
@@ -1227,7 +1227,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean uncheckoutMethod(String path) throws HttpException, IOException {
-		return rootResource.uncheckoutMethod(path);
+		return this.rootResource.uncheckoutMethod(path);
 	}
 	/**
 	 * @return
@@ -1235,7 +1235,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean unlockMethod() throws HttpException, IOException {
-		return rootResource.unlockMethod();
+		return this.rootResource.unlockMethod();
 	}
 	/**
 	 * @param path
@@ -1244,7 +1244,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean unlockMethod(String path) throws HttpException, IOException {
-		return rootResource.unlockMethod(path);
+		return this.rootResource.unlockMethod(path);
 	}
 	/**
 	 * @param path
@@ -1254,7 +1254,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean unlockMethod(String path, String owner) throws HttpException, IOException {
-		return rootResource.unlockMethod(path, owner);
+		return this.rootResource.unlockMethod(path, owner);
 	}
 	/**
 	 * @param path
@@ -1264,7 +1264,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean unsubscribeMethod(String path, int subscriptionId) throws HttpException, IOException {
-		return rootResource.unsubscribeMethod(path, subscriptionId);
+		return this.rootResource.unsubscribeMethod(path, subscriptionId);
 	}
 	/**
 	 * @param subscription
@@ -1273,7 +1273,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean unsubscribeMethod(Subscription subscription) throws HttpException, IOException {
-		return rootResource.unsubscribeMethod(subscription);
+		return this.rootResource.unsubscribeMethod(subscription);
 	}
 	/**
 	 * @param target
@@ -1282,7 +1282,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean updateMethod(String target) throws HttpException, IOException {
-		return rootResource.updateMethod(target);
+		return this.rootResource.updateMethod(target);
 	}
 	/**
 	 * @param path
@@ -1292,7 +1292,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean updateMethod(String path, String target) throws HttpException, IOException {
-		return rootResource.updateMethod(path, target);
+		return this.rootResource.updateMethod(path, target);
 	}
 	/**
 	 * @param path
@@ -1301,7 +1301,7 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean versionControlMethod(String path) throws HttpException, IOException {
-		return rootResource.versionControlMethod(path);
+		return this.rootResource.versionControlMethod(path);
 	}
 	/**
 	 * @param path
@@ -1311,6 +1311,6 @@ public class WebdavRootResource {
 	 * @throws java.io.IOException
 	 */
 	public boolean versionControlMethod(String path, String target) throws HttpException, IOException {
-		return rootResource.versionControlMethod(path, target);
+		return this.rootResource.versionControlMethod(path, target);
 	}
 }

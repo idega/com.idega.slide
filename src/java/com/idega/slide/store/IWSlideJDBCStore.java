@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideJDBCStore.java,v 1.9 2005/06/28 14:15:28 tryggvil Exp $
+ * $Id: IWSlideJDBCStore.java,v 1.10 2006/04/09 11:44:15 laddi Exp $
  * Created on 19.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -28,10 +28,10 @@ import com.idega.util.dbschema.SQLSchemaAdapter;
 
 /**
  * 
- * Last modified: $Date: 2005/06/28 14:15:28 $ by $Author: tryggvil $
+ * Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
  * @deprecated This Class i now deprecated in favour of IWSlideStore
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  */
 public class IWSlideJDBCStore extends JDBCStore {	
 	
@@ -42,7 +42,7 @@ public class IWSlideJDBCStore extends JDBCStore {
         Connection conn = pManager.getConnection();
         String datastoreType = SQLSchemaAdapter.detectDataStoreType(conn);
         String adapter = "";
-        _parameters = new Hashtable();
+        this._parameters = new Hashtable();
         
         if(datastoreType.equals(SQLSchemaAdapter.DBTYPE_ORACLE)){
         		adapter = OracleRDBMSAdapter.class.getName();
@@ -54,10 +54,10 @@ public class IWSlideJDBCStore extends JDBCStore {
     			adapter = DB2RDBMSAdapter.class.getName();
         } else if(datastoreType.equals(SQLSchemaAdapter.DBTYPE_HSQL)){
         		adapter = HsqlRDBMSAdapter.class.getName();
-        		_parameters.put("dbcpPooling","false");
+        		this._parameters.put("dbcpPooling","false");
         }else if(datastoreType.equals(SQLSchemaAdapter.DBTYPE_DERBY)){
 			adapter = DerbyRDBMSAdapter.class.getName();
-			_parameters.put("dbcpPooling","false");
+			this._parameters.put("dbcpPooling","false");
 		} 		
         
 //        else if(datastorType == DatastoreInterface.DBTYPE_POSTGRES){
@@ -80,12 +80,12 @@ public class IWSlideJDBCStore extends JDBCStore {
 //	    <parameter name="compress">false</parameter> // still handled in Domain.xml
         
         
-        _parameters.put("adapter",adapter);
-        _parameters.put("driver",pManager.getDriverClassForPool());
-        _parameters.put("url",pManager.getURLForPool());
-        _parameters.put("user",pManager.getUserNameForPool());
-        _parameters.put("password",pManager.getPasswordForPool());
-        _parameters.put("maxPooledConnections",String.valueOf(pManager.getMaximumConnectionCount()));
+        this._parameters.put("adapter",adapter);
+        this._parameters.put("driver",pManager.getDriverClassForPool());
+        this._parameters.put("url",pManager.getURLForPool());
+        this._parameters.put("user",pManager.getUserNameForPool());
+        this._parameters.put("password",pManager.getPasswordForPool());
+        this._parameters.put("maxPooledConnections",String.valueOf(pManager.getMaximumConnectionCount()));
     		
     }
 
@@ -104,7 +104,7 @@ public class IWSlideJDBCStore extends JDBCStore {
      * @see org.apache.slide.store.impl.rdbms.JDBCStore#setParameters();
      */
     public void setParameters(Hashtable parameters) throws ServiceParameterErrorException, ServiceParameterMissingException {
-    		parameters.putAll(_parameters);
+    		parameters.putAll(this._parameters);
     		
 		super.setParameters(parameters);
     }

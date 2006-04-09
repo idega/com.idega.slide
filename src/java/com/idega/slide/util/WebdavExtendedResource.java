@@ -52,19 +52,19 @@ public class WebdavExtendedResource extends WebdavResource {
 	}
 
 	public String getParentPath() {
-		if (parentPath == null) {
-			if (path != null) {
-				int index = path.lastIndexOf("/");
+		if (this.parentPath == null) {
+			if (this.path != null) {
+				int index = this.path.lastIndexOf("/");
 				if (index == 0) {
-					parentPath = "";
+					this.parentPath = "";
 				} else {
-					parentPath = path.substring(0, index);
+					this.parentPath = this.path.substring(0, index);
 				}
 			} else {
 				return null;
 			}
 		}
-		return parentPath;
+		return this.parentPath;
 	}
 	
 	/**
@@ -76,7 +76,7 @@ public class WebdavExtendedResource extends WebdavResource {
 	 */
 	protected WebdavResource createWebdavResource(HttpClient client) {
 		WebdavResource resource = new WebdavExtendedResource(client);
-		resource.setCredentials(hostCredentials);
+		resource.setCredentials(this.hostCredentials);
 		//        resource.setProxy(proxyHost, proxyPort);
 		//        resource.setProxyCredentials(proxyCredentials);
 		return resource;
@@ -86,7 +86,7 @@ public class WebdavExtendedResource extends WebdavResource {
 	 * Create an updated version of itself
 	 */
 	public WebdavExtendedResource createUpdatedResource() {
-		WebdavExtendedResource resource = (WebdavExtendedResource) createWebdavResource(client);
+		WebdavExtendedResource resource = (WebdavExtendedResource) createWebdavResource(this.client);
 		try {
 			resource.setFinalHttpURL(getHttpURL());
 		}
@@ -117,16 +117,16 @@ public class WebdavExtendedResource extends WebdavResource {
 	 *  
 	 */
 	public String getName() {
-		return path;
+		return this.path;
 	}
 
 	public void setFinalHttpURL(HttpURL url) throws IOException {
 		//eiki not sure this is needed String scheme = url.getScheme();
 		if (url instanceof HttpsURL) {
-			httpURL = new HttpsURL((HttpsURL) url, path);
+			this.httpURL = new HttpsURL((HttpsURL) url, this.path);
 		}
 		else {
-			httpURL = new HttpURL(url, getPath());
+			this.httpURL = new HttpURL(url, getPath());
 		}
 	}
 
@@ -158,10 +158,10 @@ public class WebdavExtendedResource extends WebdavResource {
 		String strVal = property.getPropertyAsString();
 		// Take the first property we get to
 		// properly set the path.
-		if (path == null) {
+		if (this.path == null) {
 			// we'll have to use this when our
 			// setFinalHttpURL is called.
-			path = property.getOwningURL();
+			this.path = property.getOwningURL();
 		}
 		if (propName.equals(VersionHelper.PROPERTY_CHECKED_IN)) {
 			setCheckedIn(strVal);
@@ -193,35 +193,35 @@ public class WebdavExtendedResource extends WebdavResource {
 	}
 	
 	protected void setCreationDateString(String value) {
-		creationDate = value;
+		this.creationDate = value;
 	}
 	
 	public String getCreationDateString() {
-		return creationDate;
+		return this.creationDate;
 	}
 
 	protected void setCheckedIn(String value) {
-		checkedIn = value;
+		this.checkedIn = value;
 	}
 
 	public String getCheckedIn() {
-		return checkedIn;
+		return this.checkedIn;
 	}
 
 	protected void setCheckedOut(String value) {
-		checkedOut = value;
+		this.checkedOut = value;
 	}
 
 	public String getCheckedOut() {
-		return checkedOut;
+		return this.checkedOut;
 	}
 
 	protected void setVersionName(String value) {
-		versionName = value;
+		this.versionName = value;
 	}
 
 	public String getVersionName() {
-		return versionName;
+		return this.versionName;
 	}
 
 	/**
@@ -271,7 +271,7 @@ public class WebdavExtendedResource extends WebdavResource {
 		// call before returning childResources, which we
 		// don't really want to do, since we've
 		// already called a setNamedProp above.
-		return childResources;
+		return this.childResources;
 	}
 	
 	/**
@@ -341,7 +341,7 @@ public class WebdavExtendedResource extends WebdavResource {
 	 * @return Returns the comment.
 	 */
 	public String getComment() {
-		return comment;
+		return this.comment;
 	}
 	/**
 	 * @param comment The comment to set.

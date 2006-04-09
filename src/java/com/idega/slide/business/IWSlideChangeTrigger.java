@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideChangeTrigger.java,v 1.1 2006/03/24 16:44:09 eiki Exp $ Created on Mar 24,
+ * $Id: IWSlideChangeTrigger.java,v 1.2 2006/04/09 11:44:15 laddi Exp $ Created on Mar 24,
  * 2006
  * 
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -25,10 +25,10 @@ import com.idega.idegaweb.IWMainApplication;
  * Listens for any change to the slide filesystem and notifies
  * IWSlideChangeListener classes. Useful for decaching stuff and more...
  * 
- * Last modified: $Date: 2006/03/24 16:44:09 $ by $Author: eiki $
+ * Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
  * 
  * @author <a href="mailto:eiki@idega.com">eiki</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class IWSlideChangeTrigger implements EventCollectionListener {
 
@@ -59,9 +59,9 @@ public class IWSlideChangeTrigger implements EventCollectionListener {
 	}
 
 	public void collected(EventCollection events) {
-		service = getIWSlideService();
+		this.service = getIWSlideService();
 		try {
-			IWSlideChangeListener[] listeners = service.getIWSlideChangeListeners();
+			IWSlideChangeListener[] listeners = this.service.getIWSlideChangeListeners();
 			if (listeners != null && listeners.length>0) {
 				// notify on any type of content change
 				List collectedEvents = events.getCollection();
@@ -104,14 +104,14 @@ public class IWSlideChangeTrigger implements EventCollectionListener {
 
 	protected IWSlideService getIWSlideService() {
 		try {
-			if (service == null) {
-				service = (IWSlideService) IBOLookup.getServiceInstance(
+			if (this.service == null) {
+				this.service = (IWSlideService) IBOLookup.getServiceInstance(
 						IWMainApplication.getDefaultIWApplicationContext(), IWSlideService.class);
 			}
 		}
 		catch (IBOLookupException e) {
 			e.printStackTrace();
 		}
-		return service;
+		return this.service;
 	}
 }

@@ -13,10 +13,10 @@ import com.idega.util.dbschema.SchemaColumn;
 /**
  * 
  * 
- *  Last modified: $Date: 2006/02/22 22:07:52 $ by $Author: laddi $
+ *  Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class SlideSchemaColumn implements SchemaColumn {
 	
@@ -37,7 +37,7 @@ public class SlideSchemaColumn implements SchemaColumn {
 	 * @see com.idega.data.store.EntityField#getDeclaredEntity()
 	 */
 	public Schema getSchema() {
-		return declaredEntity;
+		return this.declaredEntity;
 	}
 
 	/* (non-Javadoc)
@@ -51,56 +51,56 @@ public class SlideSchemaColumn implements SchemaColumn {
 	 * @see com.idega.data.store.EntityField#getSQLFieldName()
 	 */
 	public String getSQLName() {
-		return SQLName;
+		return this.SQLName;
 	}
 
 	/* (non-Javadoc)
 	 * @see com.idega.data.store.EntityField#getDataTypeClass()
 	 */
 	public Class getDataTypeClass() {
-		return dataTypeClass;
+		return this.dataTypeClass;
 	}
 
 	/* (non-Javadoc)
 	 * @see com.idega.data.store.EntityField#isNullAllowed()
 	 */
 	public boolean isNullAllowed() {
-		return nullAllowed;
+		return this.nullAllowed;
 	}
 
 	/* (non-Javadoc)
 	 * @see com.idega.data.store.EntityField#isPartOfPrimaryKey()
 	 */
 	public boolean isPartOfPrimaryKey() {
-		return partOfPrimaryKey;
+		return this.partOfPrimaryKey;
 	}
 
 	/* (non-Javadoc)
 	 * @see com.idega.data.store.EntityField#isUnique()
 	 */
 	public boolean isUnique() {
-		return unique;
+		return this.unique;
 	}
 
 	/* (non-Javadoc)
 	 * @see com.idega.data.store.EntityField#getMaxLength()
 	 */
 	public int getMaxLength() {
-		return maxLength;
+		return this.maxLength;
 	}
 
 	/* (non-Javadoc)
 	 * @see com.idega.data.store.EntityField#isPartOfManyToOneRelationship()
 	 */
 	public boolean isPartOfManyToOneRelationship() {
-		return oneToManyEntity!=null;
+		return this.oneToManyEntity!=null;
 	}
 
 	/* (non-Javadoc)
 	 * @see com.idega.data.store.EntityField#getManyToOneRelated()
 	 */
 	public Schema getManyToOneRelated() {
-		return oneToManyEntity;
+		return this.oneToManyEntity;
 	}
 
 	/**
@@ -137,7 +137,7 @@ public class SlideSchemaColumn implements SchemaColumn {
 	 * @param fieldName The sQLFieldName to set.
 	 */
 	public void setSQLFieldName(String fieldName) {
-		SQLName = fieldName;
+		this.SQLName = fieldName;
 	}
 	/**
 	 * @param unique The unique to set.

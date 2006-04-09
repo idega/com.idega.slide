@@ -1,5 +1,5 @@
 /*
- * $Id: AuthenticationBusinessBean.java,v 1.11 2006/03/24 16:44:09 eiki Exp $
+ * $Id: AuthenticationBusinessBean.java,v 1.12 2006/04/09 11:44:15 laddi Exp $
  * Created on 9.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -33,10 +33,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2006/03/24 16:44:09 $ by $Author: eiki $
+ *  Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.12 $
  */
 public class AuthenticationBusinessBean extends IBOServiceBean  implements AuthenticationBusiness{
 	//TODO extend Authenticationbusiness from core
@@ -216,17 +216,17 @@ public class AuthenticationBusinessBean extends IBOServiceBean  implements Authe
 
 	
 	protected IWSlideService getSlideServiceInstance() throws IBOLookupException{
-		if(slideService == null){
-			slideService = (IWSlideService)IBOLookup.getServiceInstance(getIWApplicationContext(),IWSlideService.class);
+		if(this.slideService == null){
+			this.slideService = (IWSlideService)IBOLookup.getServiceInstance(getIWApplicationContext(),IWSlideService.class);
 		}
-		return slideService;
+		return this.slideService;
 	}
 	
 	public UsernamePasswordCredentials getRootUserCredentials(){
-		if(NO_PASSWORD.equals(rootCredential.getPassword())){
-			rootCredential.setPassword(StringHandler.getRandomString(20));
+		if(NO_PASSWORD.equals(this.rootCredential.getPassword())){
+			this.rootCredential.setPassword(StringHandler.getRandomString(20));
 		}
-		return rootCredential;
+		return this.rootCredential;
 	}
 	
 	public boolean isRootUser(HttpServletRequest request){

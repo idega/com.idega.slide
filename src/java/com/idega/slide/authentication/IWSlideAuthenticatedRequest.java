@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticatedRequest.java,v 1.1 2004/12/13 13:12:32 gummi Exp $
+ * $Id: IWSlideAuthenticatedRequest.java,v 1.2 2006/04/09 11:44:15 laddi Exp $
  * Created on 11.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -18,10 +18,10 @@ import com.idega.core.accesscontrol.jaas.IWUserPrincipal;
 
 /**
  * 
- *  Last modified: $Date: 2004/12/13 13:12:32 $ by $Author: gummi $
+ *  Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class IWSlideAuthenticatedRequest extends HttpServletRequestWrapper {
 
@@ -30,20 +30,20 @@ public class IWSlideAuthenticatedRequest extends HttpServletRequestWrapper {
 	
 	public IWSlideAuthenticatedRequest(HttpServletRequest request, String loginName, Set roles) {
 		super(request);
-		userPrincipal = new IWUserPrincipal(loginName);
-		userRoles = roles;
+		this.userPrincipal = new IWUserPrincipal(loginName);
+		this.userRoles = roles;
 	}
 	
 	public Principal getUserPrincipal(){
-		return userPrincipal;
+		return this.userPrincipal;
 	}
 	
 	public String getRemoteUser(){
-		return userPrincipal.getName();
+		return this.userPrincipal.getName();
 	}
 	
 	public boolean isUserInRole(String role){
-		return userRoles.contains(role);
+		return this.userRoles.contains(role);
 	}
 	
 }

@@ -1,5 +1,5 @@
 /*
- * $Id: WebdavLocalResource.java,v 1.3 2006/03/23 11:45:45 laddi Exp $
+ * $Id: WebdavLocalResource.java,v 1.4 2006/04/09 11:44:15 laddi Exp $
  * Created on 11.10.2005 in project com.idega.slide
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -64,10 +64,10 @@ import org.w3c.dom.Node;
  * operations locally (in the jvm) instead of going through http when communicating with
  * the built in WebDav server. This class is experimental only.
  * </p>
- *  Last modified: $Date: 2006/03/23 11:45:45 $ by $Author: laddi $
+ *  Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class WebdavLocalResource extends WebdavExtendedResource {
 
@@ -117,7 +117,7 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 	 */
 	protected WebdavResource createWebdavResource(HttpClient client) {
 		WebdavResource resource = new WebdavLocalResource(client);
-		resource.setCredentials(hostCredentials);
+		resource.setCredentials(this.hostCredentials);
 		//        resource.setProxy(proxyHost, proxyPort);
 		//        resource.setProxyCredentials(proxyCredentials);
 		return resource;

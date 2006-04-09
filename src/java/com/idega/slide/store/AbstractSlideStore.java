@@ -1,5 +1,5 @@
 /*
- * $Id: AbstractSlideStore.java,v 1.2 2005/06/28 12:09:52 tryggvil Exp $
+ * $Id: AbstractSlideStore.java,v 1.3 2006/04/09 11:44:15 laddi Exp $
  * Created on Jun 27, 2005 in project com.idega.slide
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -56,10 +56,10 @@ import org.apache.slide.util.logger.Logger;
  * <p>
  * Simple wrapper class around the standard Slide Store interfaces
  * </p>
- *  Last modified: $Date: 2005/06/28 12:09:52 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class AbstractSlideStore 
 	implements Service,NodeStore,ContentStore,LockStore,RevisionDescriptorsStore,RevisionDescriptorStore,
@@ -87,10 +87,10 @@ public class AbstractSlideStore
 	 * @return Returns the contentStore.
 	 */
 	protected ContentStore getContentStore() {
-		if(contentStore==null){
+		if(this.contentStore==null){
 			throw new RuntimeException(this.getClass().getName()+": ContentStore instance it not set");
 		}
-		return contentStore;
+		return this.contentStore;
 	}
 
 	
@@ -106,10 +106,10 @@ public class AbstractSlideStore
 	 * @return Returns the lockStore.
 	 */
 	protected LockStore getLockStore() {
-		if(lockStore==null){
+		if(this.lockStore==null){
 			throw new RuntimeException(this.getClass().getName()+": LockStore instance it not set");
 		}
-		return lockStore;
+		return this.lockStore;
 	}
 
 	
@@ -125,10 +125,10 @@ public class AbstractSlideStore
 	 * @return Returns the nodeStore.
 	 */
 	protected NodeStore getNodeStore() {
-		if(nodeStore==null){
+		if(this.nodeStore==null){
 			throw new RuntimeException(this.getClass().getName()+": NodeStore instance it not set");
 		}
-		return nodeStore;
+		return this.nodeStore;
 	}
 
 	
@@ -144,10 +144,10 @@ public class AbstractSlideStore
 	 * @return Returns the revisionDescriptorsStore.
 	 */
 	protected RevisionDescriptorsStore getRevisionDescriptorsStore() {
-		if(revisionDescriptorsStore==null){
+		if(this.revisionDescriptorsStore==null){
 			throw new RuntimeException(this.getClass().getName()+": RevisionDescriptorsStore instance it not set");
 		}
-		return revisionDescriptorsStore;
+		return this.revisionDescriptorsStore;
 	}
 
 	
@@ -163,10 +163,10 @@ public class AbstractSlideStore
 	 * @return Returns the revisionDescriptorStore.
 	 */
 	protected RevisionDescriptorStore getRevisionDescriptorStore() {
-		if(revisionDescriptorStore==null){
+		if(this.revisionDescriptorStore==null){
 			throw new RuntimeException(this.getClass().getName()+": RevisionDescriptorStore instance it not set");
 		}
-		return revisionDescriptorStore;
+		return this.revisionDescriptorStore;
 	}
 
 	
@@ -182,10 +182,10 @@ public class AbstractSlideStore
 	 * @return Returns the service.
 	 */
 	protected Service getService() {
-		if(service==null){
+		if(this.service==null){
 			throw new RuntimeException(this.getClass().getName()+": Service instance it not set");
 		}
-		return service;
+		return this.service;
 	}
 
 	
@@ -201,10 +201,10 @@ public class AbstractSlideStore
 	 * @return Returns the ibasicExpressionFactoryProvider.
 	 */
 	protected IBasicExpressionFactoryProvider getIbasicExpressionFactoryProvider() {
-		if(ibasicExpressionFactoryProvider==null){
+		if(this.ibasicExpressionFactoryProvider==null){
 			throw new RuntimeException(this.getClass().getName()+": IBasicExpressionFactoryProvider instance it not set");
 		}
-		return ibasicExpressionFactoryProvider;
+		return this.ibasicExpressionFactoryProvider;
 	}
 
 
@@ -222,10 +222,10 @@ public class AbstractSlideStore
 	 * @return Returns the securityStore.
 	 */
 	protected SecurityStore getSecurityStore() {
-		if(securityStore==null){
+		if(this.securityStore==null){
 			throw new RuntimeException(this.getClass().getName()+": SecurityStore instance it not set");
 		}
-		return securityStore;
+		return this.securityStore;
 	}
 
 
@@ -243,10 +243,10 @@ public class AbstractSlideStore
 	 * @return Returns the sequenceStore.
 	 */
 	protected SequenceStore getSequenceStore() {
-		if(sequenceStore==null){
+		if(this.sequenceStore==null){
 			throw new RuntimeException(this.getClass().getName()+": SequenceyStore instance it not set");
 		}
-		return sequenceStore;
+		return this.sequenceStore;
 	}
 
 
@@ -263,7 +263,7 @@ public class AbstractSlideStore
 	 * @see org.apache.slide.store.ContentStore#createRevisionContent(org.apache.slide.common.Uri, org.apache.slide.content.NodeRevisionDescriptor, org.apache.slide.content.NodeRevisionContent)
 	 */
 	public void createRevisionContent(Uri uri, NodeRevisionDescriptor revisionDescriptor, NodeRevisionContent revisionContent) throws ServiceAccessException, RevisionAlreadyExistException {
-		contentStore.createRevisionContent(uri, revisionDescriptor, revisionContent);
+		this.contentStore.createRevisionContent(uri, revisionDescriptor, revisionContent);
 	}
 
 
@@ -271,7 +271,7 @@ public class AbstractSlideStore
 	 * @see org.apache.slide.store.ContentStore#removeRevisionContent(org.apache.slide.common.Uri, org.apache.slide.content.NodeRevisionDescriptor)
 	 */
 	public void removeRevisionContent(Uri uri, NodeRevisionDescriptor revisionDescriptor) throws ServiceAccessException {
-		contentStore.removeRevisionContent(uri, revisionDescriptor);
+		this.contentStore.removeRevisionContent(uri, revisionDescriptor);
 	}
 
 
@@ -279,7 +279,7 @@ public class AbstractSlideStore
 	 * @see org.apache.slide.store.ContentStore#retrieveRevisionContent(org.apache.slide.common.Uri, org.apache.slide.content.NodeRevisionDescriptor)
 	 */
 	public NodeRevisionContent retrieveRevisionContent(Uri uri, NodeRevisionDescriptor revisionDescriptor) throws ServiceAccessException, RevisionNotFoundException {
-		return contentStore.retrieveRevisionContent(uri, revisionDescriptor);
+		return this.contentStore.retrieveRevisionContent(uri, revisionDescriptor);
 	}
 
 
@@ -287,7 +287,7 @@ public class AbstractSlideStore
 	 * @see org.apache.slide.store.ContentStore#storeRevisionContent(org.apache.slide.common.Uri, org.apache.slide.content.NodeRevisionDescriptor, org.apache.slide.content.NodeRevisionContent)
 	 */
 	public void storeRevisionContent(Uri uri, NodeRevisionDescriptor revisionDescriptor, NodeRevisionContent revisionContent) throws ServiceAccessException, RevisionNotFoundException {
-		contentStore.storeRevisionContent(uri, revisionDescriptor, revisionContent);
+		this.contentStore.storeRevisionContent(uri, revisionDescriptor, revisionContent);
 	}
 
 
@@ -295,7 +295,7 @@ public class AbstractSlideStore
 	 * @see org.apache.slide.store.LockStore#enumerateLocks(org.apache.slide.common.Uri)
 	 */
 	public Enumeration enumerateLocks(Uri uri) throws ServiceAccessException {
-		return lockStore.enumerateLocks(uri);
+		return this.lockStore.enumerateLocks(uri);
 	}
 
 
@@ -303,7 +303,7 @@ public class AbstractSlideStore
 	 * @see org.apache.slide.store.LockStore#killLock(org.apache.slide.common.Uri, org.apache.slide.lock.NodeLock)
 	 */
 	public void killLock(Uri uri, NodeLock lock) throws ServiceAccessException, LockTokenNotFoundException {
-		lockStore.killLock(uri, lock);
+		this.lockStore.killLock(uri, lock);
 	}
 
 
@@ -311,7 +311,7 @@ public class AbstractSlideStore
 	 * @see org.apache.slide.store.LockStore#putLock(org.apache.slide.common.Uri, org.apache.slide.lock.NodeLock)
 	 */
 	public void putLock(Uri uri, NodeLock lock) throws ServiceAccessException {
-		lockStore.putLock(uri, lock);
+		this.lockStore.putLock(uri, lock);
 	}
 
 
@@ -319,7 +319,7 @@ public class AbstractSlideStore
 	 * @see org.apache.slide.store.LockStore#removeLock(org.apache.slide.common.Uri, org.apache.slide.lock.NodeLock)
 	 */
 	public void removeLock(Uri uri, NodeLock lock) throws ServiceAccessException, LockTokenNotFoundException {
-		lockStore.removeLock(uri, lock);
+		this.lockStore.removeLock(uri, lock);
 	}
 
 
@@ -327,7 +327,7 @@ public class AbstractSlideStore
 	 * @see org.apache.slide.store.LockStore#renewLock(org.apache.slide.common.Uri, org.apache.slide.lock.NodeLock)
 	 */
 	public void renewLock(Uri uri, NodeLock lock) throws ServiceAccessException, LockTokenNotFoundException {
-		lockStore.renewLock(uri, lock);
+		this.lockStore.renewLock(uri, lock);
 	}
 
 

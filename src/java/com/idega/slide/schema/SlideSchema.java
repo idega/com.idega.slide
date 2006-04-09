@@ -12,10 +12,10 @@ import com.idega.util.dbschema.UniqueKey;
 /**
  * 
  * 
- *  Last modified: $Date: 2006/02/22 22:07:52 $ by $Author: laddi $
+ *  Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public abstract class SlideSchema implements Schema {
 	
@@ -37,7 +37,7 @@ public abstract class SlideSchema implements Schema {
 	 * @see com.idega.data.store.EntityDefinition#getSQLTableName()
 	 */
 	public String getSQLName() {
-		return SQLTableName;
+		return this.SQLTableName;
 	}
 
 
@@ -45,14 +45,14 @@ public abstract class SlideSchema implements Schema {
 	 * @see com.idega.data.store.EntityDefinition#getFields()
 	 */
 	public SchemaColumn[] getColumns() {
-		return (SchemaColumn[]) columns.toArray(new SlideSchemaColumn[0]);
+		return (SchemaColumn[]) this.columns.toArray(new SlideSchemaColumn[0]);
 	}
 
 	/* (non-Javadoc)
 	 * @see com.idega.data.store.EntityDefinition#getPrimaryKeyDefinition()
 	 */
 	public PrimaryKey getPrimaryKey() {
-		return primaryKey;
+		return this.primaryKey;
 	}
 
 	/* (non-Javadoc)
@@ -67,14 +67,14 @@ public abstract class SlideSchema implements Schema {
 	 * @see com.idega.data.store.EntityDefinition#getIndexes()
 	 */
 	public Index[] getIndexes()  {
-		return (Index[])indexes.toArray(new Index[0]);
+		return (Index[])this.indexes.toArray(new Index[0]);
 	}
 
 	/* (non-Javadoc)
 	 * @see com.idega.data.IDOEntityDefinition#hasAutoIncrementColumn()
 	 */
 	public boolean hasAutoIncrementColumn() {
-		return autoIncrementColumn;
+		return this.autoIncrementColumn;
 	}
 
 	/* (non-Javadoc)
@@ -90,21 +90,21 @@ public abstract class SlideSchema implements Schema {
 	 * @see com.idega.data.store.EntityDefinition#getUniqueKeys()
 	 */
 	public UniqueKey[] getUniqueKeys() {
-		return (UniqueKey[])uniqueKeys.toArray(new UniqueKey[0]);
+		return (UniqueKey[])this.uniqueKeys.toArray(new UniqueKey[0]);
 	}
 	
 	public void addUniqueKey(SlideUniqueKey key){
-		uniqueKeys.add(key);
+		this.uniqueKeys.add(key);
 	}
 	
 	protected void addColumn(SlideSchemaColumn column){
-		columns.add(column);
+		this.columns.add(column);
 	}
 	
 	protected void addColumn(SlideSchemaColumn column, boolean partOfPrimaryKey){
-		columns.add(column);
+		this.columns.add(column);
 		column.setPartOfPrimaryKey(true);
-		primaryKey.addField(column);
+		this.primaryKey.addField(column);
 		
 	}
 	

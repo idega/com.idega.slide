@@ -46,7 +46,7 @@ public class ConstantExtractor extends AbstractPropertyExtractor implements Conf
 
     public Map extract(InputStream content) throws ExtractorException
 	{
-		return properties;
+		return this.properties;
 	}
     
     public void configure(Configuration configuration) throws ConfigurationException {
@@ -61,7 +61,7 @@ public class ConstantExtractor extends AbstractPropertyExtractor implements Conf
             
             String value = instruction.getAttribute("value","");
             
-            properties.put(propertyName,value);
+            this.properties.put(propertyName,value);
         }
 	}
 }

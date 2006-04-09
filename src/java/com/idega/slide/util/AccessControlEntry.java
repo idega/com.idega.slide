@@ -1,5 +1,5 @@
 /*
- * $Id: AccessControlEntry.java,v 1.2 2005/04/08 17:10:39 gummi Exp $
+ * $Id: AccessControlEntry.java,v 1.3 2006/04/09 11:44:15 laddi Exp $
  * Created on 28.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -17,10 +17,10 @@ import org.apache.webdav.lib.PropertyName;
 
 /**
  * 
- *  Last modified: $Date: 2005/04/08 17:10:39 $ by $Author: gummi $
+ *  Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class AccessControlEntry extends Ace {
 
@@ -62,7 +62,7 @@ public class AccessControlEntry extends Ace {
 	}
 	
 	public int getPrincipalType(){
-		return principalType;
+		return this.principalType;
 	}
 	
 	public boolean principalIsRole(){
@@ -93,116 +93,116 @@ public class AccessControlEntry extends Ace {
 	 * @see org.apache.webdav.lib.Ace#addPrivilege(org.apache.webdav.lib.Privilege)
 	 */
 	public void addPrivilege(Privilege privilege) {
-		ace.addPrivilege(privilege);
+		this.ace.addPrivilege(privilege);
 	}
 	/* (non-Javadoc)
 	 * @see org.apache.webdav.lib.Ace#clearPrivileges()
 	 */
 	public void clearPrivileges() {
-		ace.clearPrivileges();
+		this.ace.clearPrivileges();
 	}
 	/* (non-Javadoc)
 	 * @see org.apache.webdav.lib.Ace#enumeratePrivileges()
 	 */
 	public Enumeration enumeratePrivileges() {
-		return ace.enumeratePrivileges();
+		return this.ace.enumeratePrivileges();
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.apache.webdav.lib.Ace#equals(java.lang.Object)
 	 */
 	public boolean equals(Object obj) {
-		return ace.equals(obj);
+		return this.ace.equals(obj);
 	}
 	/* (non-Javadoc)
 	 * @see org.apache.webdav.lib.Ace#getInheritedFrom()
 	 */
 	public String getInheritedFrom() {
-		return ace.getInheritedFrom();
+		return this.ace.getInheritedFrom();
 	}
 	/* (non-Javadoc)
 	 * @see org.apache.webdav.lib.Ace#getPrincipal()
 	 */
 	public String getPrincipal() {
-		return ace.getPrincipal();
+		return this.ace.getPrincipal();
 	}
 	/* (non-Javadoc)
 	 * @see org.apache.webdav.lib.Ace#getProperty()
 	 */
 	public PropertyName getProperty() {
-		return ace.getProperty();
+		return this.ace.getProperty();
 	}
 	/* (non-Javadoc)
 	 * @see org.apache.webdav.lib.Ace#hashCode()
 	 */
 	public int hashCode() {
-		return ace.hashCode();
+		return this.ace.hashCode();
 	}
 	/* (non-Javadoc)
 	 * @see org.apache.webdav.lib.Ace#isInherited()
 	 */
 	public boolean isInherited() {
-		return ace.isInherited();
+		return this.ace.isInherited();
 	}
 	/* (non-Javadoc)
 	 * @see org.apache.webdav.lib.Ace#isNegative()
 	 */
 	public boolean isNegative() {
-		return ace.isNegative();
+		return this.ace.isNegative();
 	}
 	/* (non-Javadoc)
 	 * @see org.apache.webdav.lib.Ace#isProtected()
 	 */
 	public boolean isProtected() {
-		return ace.isProtected();
+		return this.ace.isProtected();
 	}
 	/* (non-Javadoc)
 	 * @see org.apache.webdav.lib.Ace#removePrivilege(org.apache.webdav.lib.Privilege)
 	 */
 	public boolean removePrivilege(Privilege privilege) {
-		return ace.removePrivilege(privilege);
+		return this.ace.removePrivilege(privilege);
 	}
 	/* (non-Javadoc)
 	 * @see org.apache.webdav.lib.Ace#setInherited(boolean)
 	 */
 	public void setInherited(boolean inherited) {
-		ace.setInherited(inherited);
+		this.ace.setInherited(inherited);
 	}
 	/* (non-Javadoc)
 	 * @see org.apache.webdav.lib.Ace#setInheritedFrom(java.lang.String)
 	 */
 	public void setInheritedFrom(String inheritedFrom) {
-		ace.setInheritedFrom(inheritedFrom);
+		this.ace.setInheritedFrom(inheritedFrom);
 	}
 	/* (non-Javadoc)
 	 * @see org.apache.webdav.lib.Ace#setNegative(boolean)
 	 */
 	public void setNegative(boolean negative) {
-		ace.setNegative(negative);
+		this.ace.setNegative(negative);
 	}
 	/* (non-Javadoc)
 	 * @see org.apache.webdav.lib.Ace#setPrincipal(java.lang.String)
 	 */
 	public void setPrincipal(String principal) {
-		ace.setPrincipal(principal);
+		this.ace.setPrincipal(principal);
 	}
 	/* (non-Javadoc)
 	 * @see org.apache.webdav.lib.Ace#setProperty(org.apache.webdav.lib.PropertyName)
 	 */
 	public void setProperty(PropertyName property) {
-		ace.setProperty(property);
+		this.ace.setProperty(property);
 	}
 	/* (non-Javadoc)
 	 * @see org.apache.webdav.lib.Ace#setProtected(boolean)
 	 */
 	public void setProtected(boolean protectedAce) {
-		ace.setProtected(protectedAce);
+		this.ace.setProtected(protectedAce);
 	}
 	/* (non-Javadoc)
 	 * @see org.apache.webdav.lib.Ace#toString()
 	 */
 	public String toString() {
-		return ace.toString();
+		return this.ace.toString();
 	}
 	
 	public boolean hasPrivileges(){
@@ -210,6 +210,6 @@ public class AccessControlEntry extends Ace {
 	}
 	
 	public Ace getWrappedAce(){
-		return ace;
+		return this.ace;
 	}
 }

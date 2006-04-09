@@ -1,5 +1,5 @@
 /*
- * $Id: ResourceHelper.java,v 1.1 2004/11/22 09:58:36 aron Exp $
+ * $Id: ResourceHelper.java,v 1.2 2006/04/09 11:44:15 laddi Exp $
  * Created on 22.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -13,10 +13,10 @@ package com.idega.slide.business;
 /**
  *  ResourceHelper provides file urls for user's home folders and the system's basic folder structure
  * 
- *  Last modified: $Date: 2004/11/22 09:58:36 $ by $Author: aron $
+ *  Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class ResourceHelper {
     
@@ -67,7 +67,7 @@ public class ResourceHelper {
     }
     
     private String createURL(String folder){
-       return SLASH+rootFileFolder+SLASH+(userName!=null?rootUserFolder+SLASH+userName+SLASH:"")+folder+(folder.length()>0?SLASH:"");
+       return SLASH+rootFileFolder+SLASH+(this.userName!=null?rootUserFolder+SLASH+this.userName+SLASH:"")+folder+(folder.length()>0?SLASH:"");
     }
     
     /**

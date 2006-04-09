@@ -1,5 +1,5 @@
 /*
- * $Id: LocalResponse.java,v 1.1 2006/03/22 15:52:16 tryggvil Exp $
+ * $Id: LocalResponse.java,v 1.2 2006/04/09 11:44:15 laddi Exp $
  * Created on 21.1.2006 in project com.idega.slide
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -25,7 +25,7 @@ public class LocalResponse implements ResponseEntity{
 	 * @return Returns the histories.
 	 */
 	public Enumeration getHistories() {
-		return histories.elements();
+		return this.histories.elements();
 	}
 	
 	/**
@@ -39,7 +39,7 @@ public class LocalResponse implements ResponseEntity{
 	 * @return Returns the href.
 	 */
 	public String getHref() {
-		return href;
+		return this.href;
 	}
 	
 	/**
@@ -53,7 +53,7 @@ public class LocalResponse implements ResponseEntity{
 	 * @return Returns the properties.
 	 */
 	public Enumeration getProperties() {
-		return properties.elements();
+		return this.properties.elements();
 	}
 	
 	/**
@@ -67,7 +67,7 @@ public class LocalResponse implements ResponseEntity{
 	 * @return Returns the statusCode.
 	 */
 	public int getStatusCode() {
-		return statusCode;
+		return this.statusCode;
 	}
 	
 	/**
@@ -81,7 +81,7 @@ public class LocalResponse implements ResponseEntity{
 	 * @return Returns the workspaces.
 	 */
 	public Enumeration getWorkspaces() {
-		return workspaces.elements();
+		return this.workspaces.elements();
 	}
 	
 	/**

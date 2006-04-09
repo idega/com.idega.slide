@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideStore.java,v 1.1 2005/06/28 11:34:14 tryggvil Exp $
+ * $Id: IWSlideStore.java,v 1.2 2006/04/09 11:44:15 laddi Exp $
  * Created on Jun 24, 2005 in project com.idega.slide
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -40,10 +40,10 @@ import com.idega.util.dbschema.SQLSchemaAdapter;
  * Store implementation for idegaWeb for Slide that intercepts the regular store mechanism by Slide,
  * auto-detects the right store implementation to use (JDBCStore,J2EEStore)
  * </p>
- * Last modified: $Date: 2005/06/28 11:34:14 $ by $Author: tryggvil $
+ * Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class IWSlideStore extends AbstractSlideStore{
 	
@@ -118,12 +118,12 @@ public class IWSlideStore extends AbstractSlideStore{
 //		    <parameter name="isolation">SERIALIZABLE</parameter> // still handled in Domain.xml
 //		    <parameter name="compress">false</parameter> // still handled in Domain.xml
 	        
-	        _parameters.put("adapter",adapter);
-	        _parameters.put("driver",pManager.getDriverClassForPool());
-	        _parameters.put("url",pManager.getURLForPool());
-	        _parameters.put("user",pManager.getUserNameForPool());
-	        _parameters.put("password",pManager.getPasswordForPool());
-	        _parameters.put("maxPooledConnections",String.valueOf(pManager.getMaximumConnectionCount()));
+	        this._parameters.put("adapter",adapter);
+	        this._parameters.put("driver",pManager.getDriverClassForPool());
+	        this._parameters.put("url",pManager.getURLForPool());
+	        this._parameters.put("user",pManager.getUserNameForPool());
+	        this._parameters.put("password",pManager.getPasswordForPool());
+	        this._parameters.put("maxPooledConnections",String.valueOf(pManager.getMaximumConnectionCount()));
 	        
 	        JDBCStore store = new JDBCStore();
 	        return store;
@@ -136,8 +136,8 @@ public class IWSlideStore extends AbstractSlideStore{
 	        String adapter = getRDBMSAdapterClassName(conn);
 	        ConnectionBroker.freeConnection(conn);
 			
-	        _parameters.put("adapter",adapter);
-	        _parameters.put("datasource",ConnectionBroker.getDefaultJNDIUrl());
+	        this._parameters.put("adapter",adapter);
+	        this._parameters.put("datasource",ConnectionBroker.getDefaultJNDIUrl());
 	        
 	        J2EEStore store = new J2EEStore();
 	        return store;
@@ -160,10 +160,10 @@ public class IWSlideStore extends AbstractSlideStore{
 				adapter = DB2RDBMSAdapter.class.getName();
 	    } else if(datastoreType.equals(SQLSchemaAdapter.DBTYPE_HSQL)){
 	    		adapter = HsqlRDBMSAdapter.class.getName();
-	    		_parameters.put("dbcpPooling","false");
+	    		this._parameters.put("dbcpPooling","false");
 	    }else if(datastoreType.equals(SQLSchemaAdapter.DBTYPE_DERBY)){
 			adapter = DerbyRDBMSAdapter.class.getName();
-			_parameters.put("dbcpPooling","false");
+			this._parameters.put("dbcpPooling","false");
 		}
         else {
     			throw new RuntimeException("Datastore of type "+datastoreType+" is not supported by Slide");
@@ -175,7 +175,7 @@ public class IWSlideStore extends AbstractSlideStore{
 	 * @see org.apache.slide.store.AbstractStore#setParameters(java.util.Hashtable)
 	 */
 	public void setParameters(Hashtable inParams) throws ServiceParameterErrorException, ServiceParameterMissingException {
-		inParams.putAll(_parameters);
+		inParams.putAll(this._parameters);
 		super.setParameters(inParams);
 	}
 	

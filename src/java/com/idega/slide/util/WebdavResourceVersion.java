@@ -1,5 +1,5 @@
 /*
- * $Id: WebdavResourceVersion.java,v 1.7 2006/03/29 13:11:46 laddi Exp $ Created on Dec
+ * $Id: WebdavResourceVersion.java,v 1.8 2006/04/09 11:44:15 laddi Exp $ Created on Dec
  * 19, 2004
  * 
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -21,12 +21,12 @@ import com.idega.user.data.User;
 
 /**
  * 
- * Last modified: $Date: 2006/03/29 13:11:46 $ by $Author: laddi $
+ * Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
  * 
  * A little wrapper for version information
  * 
  * @author <a href="mailto:eiki@idega.com">Eirikur S. Hrafnsson </a>
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public class WebdavResourceVersion implements Comparable,Serializable{
 
@@ -54,20 +54,20 @@ public class WebdavResourceVersion implements Comparable,Serializable{
 	private BaseProperty creationDate;
 	
 	protected WebdavResourceVersion(Map propTable) {
-		versionName = (BaseProperty) propTable.get(VersionHelper.PROPERTY_VERSION_NAME);
-		creatorDisplayName = (BaseProperty) propTable.get(VersionHelper.PROPERTY_CREATOR_DISPLAY_NAME);
-		lastModified = (BaseProperty) propTable.get(VersionHelper.PROPERTY_LAST_MODIFIED);
-		contentLength = (BaseProperty) propTable.get(VersionHelper.PROPERTY_CONTENT_LENGTH);
+		this.versionName = (BaseProperty) propTable.get(VersionHelper.PROPERTY_VERSION_NAME);
+		this.creatorDisplayName = (BaseProperty) propTable.get(VersionHelper.PROPERTY_CREATOR_DISPLAY_NAME);
+		this.lastModified = (BaseProperty) propTable.get(VersionHelper.PROPERTY_LAST_MODIFIED);
+		this.contentLength = (BaseProperty) propTable.get(VersionHelper.PROPERTY_CONTENT_LENGTH);
 		//successorSet = (BaseProperty) propTable.get(VersionHelper.PROPERTY_SUCCESSOR_SET);
-		checkedIn = (CheckedinProperty) propTable.get(VersionHelper.PROPERTY_CHECKED_IN);
-		checkedOut = (CheckedoutProperty) propTable.get(VersionHelper.PROPERTY_CHECKED_OUT);
-		comment = (BaseProperty) propTable.get(VersionHelper.PROPERTY_COMMENT);
-		creationDate = (BaseProperty) propTable.get(VersionHelper.PROPERTY_CREATION_DATE);
+		this.checkedIn = (CheckedinProperty) propTable.get(VersionHelper.PROPERTY_CHECKED_IN);
+		this.checkedOut = (CheckedoutProperty) propTable.get(VersionHelper.PROPERTY_CHECKED_OUT);
+		this.comment = (BaseProperty) propTable.get(VersionHelper.PROPERTY_COMMENT);
+		this.creationDate = (BaseProperty) propTable.get(VersionHelper.PROPERTY_CREATION_DATE);
 	}
 
 	public String toString() {
-		if (versionName != null) {
-			return versionName.getPropertyAsString();
+		if (this.versionName != null) {
+			return this.versionName.getPropertyAsString();
 		}
 		return null;
 	}
@@ -76,35 +76,35 @@ public class WebdavResourceVersion implements Comparable,Serializable{
 	 * @return Returns the checkedIn.
 	 */
 	public String getCheckedIn() {
-		return checkedIn.getPropertyAsString();
+		return this.checkedIn.getPropertyAsString();
 	}
 
 	/**
 	 * @return Returns the checkedOut.
 	 */
 	public String getCheckedOut() {
-		return checkedOut.getPropertyAsString();
+		return this.checkedOut.getPropertyAsString();
 	}
 
 	/**
 	 * @return Returns the comment.
 	 */
 	public String getComment() {
-		return comment.getPropertyAsString();
+		return this.comment.getPropertyAsString();
 	}
 
 	/**
 	 * @return Returns the contentLength.
 	 */
 	public String getContentLength() {
-		return contentLength.getPropertyAsString();
+		return this.contentLength.getPropertyAsString();
 	}
 
 	/**
 	 * @return Returns the creatorDisplayName.
 	 */
 	public String getCreatorDisplayName() {
-		String userName = creatorDisplayName.getPropertyAsString();
+		String userName = this.creatorDisplayName.getPropertyAsString();
 		String name = null;
 		
 		LoginTable login =  LoginDBHandler.getUserLoginByUserName(userName);
@@ -125,7 +125,7 @@ public class WebdavResourceVersion implements Comparable,Serializable{
 	 * @return Returns the lastModified.
 	 */
 	public String getLastModified() {
-		return lastModified.getPropertyAsString();
+		return this.lastModified.getPropertyAsString();
 	}
 
 	/**
@@ -146,7 +146,7 @@ public class WebdavResourceVersion implements Comparable,Serializable{
 	 * @return Returns the versionName.
 	 */
 	public String getURL() {
-		return versionName.getOwningURL();
+		return this.versionName.getOwningURL();
 	}
 
 	/* (non-Javadoc)
@@ -202,7 +202,7 @@ public class WebdavResourceVersion implements Comparable,Serializable{
 	}
 	
 	public String getCreationDate() {
-		return creationDate.getPropertyAsString();
+		return this.creationDate.getPropertyAsString();
 	}
 	
 }

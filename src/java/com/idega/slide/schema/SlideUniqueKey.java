@@ -26,11 +26,11 @@ public class SlideUniqueKey implements UniqueKey {
 	 * @see com.idega.data.store.UniqueKey#getFields()
 	 */
 	public SchemaColumn[] getFields() {
-		return (SchemaColumn[]) fields.toArray(new SchemaColumn[0]);
+		return (SchemaColumn[]) this.fields.toArray(new SchemaColumn[0]);
 	}
 	
 	public void addField(SlideSchemaColumn field){
-		fields.add(field);
+		this.fields.add(field);
 	}
 
 }

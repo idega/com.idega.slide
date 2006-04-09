@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticator.java,v 1.19 2006/02/23 09:38:34 laddi Exp $
+ * $Id: IWSlideAuthenticator.java,v 1.20 2006/04/09 11:44:15 laddi Exp $
  * Created on 8.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -40,10 +40,10 @@ import com.idega.slide.business.IWSlideSession;
  * This filter is mapped before any request to the Slide WebdavServlet to make sure
  * a logged in user from idegaWeb is logged also into the Slide authentication system.
  * </p>
- *  Last modified: $Date: 2006/02/23 09:38:34 $ by $Author: laddi $
+ *  Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.19 $
+ * @version $Revision: 1.20 $
  */
 public class IWSlideAuthenticator extends BaseFilter{
 
@@ -257,7 +257,7 @@ public class IWSlideAuthenticator extends BaseFilter{
 	}
 
 	protected LoginBusinessBean getLoginBusiness(IWContext iwc){
-		return loginBusiness;
+		return this.loginBusiness;
 	}
 	
 	protected AuthenticationBusiness getAuthenticationBusiness(HttpServletRequest request) throws IBOLookupException {

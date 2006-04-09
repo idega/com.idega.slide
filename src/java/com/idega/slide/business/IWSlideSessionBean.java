@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.31 2006/02/23 18:40:30 eiki Exp $
+ * $Id: IWSlideSessionBean.java,v 1.32 2006/04/09 11:44:15 laddi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -38,10 +38,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2006/02/23 18:40:30 $ by $Author: eiki $
+ *  Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.31 $
+ * @version $Revision: 1.32 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -93,15 +93,15 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	}
 	
 	public IWSlideService getIWSlideService(){
-		if(service == null){
+		if(this.service == null){
 			try {
-				service = (IWSlideService)this.getServiceInstance(IWSlideService.class);
+				this.service = (IWSlideService)this.getServiceInstance(IWSlideService.class);
 			}
 			catch (IBOLookupException e) {
 				e.printStackTrace();
 			}
 		}
-		return service;
+		return this.service;
 	}
 	
 	/**
@@ -119,15 +119,15 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	}
 		
 	public String getWebdavServerURI(){
-		if(servletPath == null){
+		if(this.servletPath == null){
 			try {
-				servletPath = getIWSlideService().getWebdavServerURI();
+				this.servletPath = getIWSlideService().getWebdavServerURI();
 			}
 			catch (RemoteException e) {
 				e.printStackTrace();
 			}
 		}
-		return servletPath;
+		return this.servletPath;
 	}
 	
 	public UsernamePasswordCredentials getUserCredentials() throws RemoteException{
@@ -155,37 +155,37 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	public WebdavRootResource getWebdavRootResource() throws HttpException, IOException{
 		boolean tmpIsLoggedOn = getUserContext().isLoggedOn();
 		//if("resource is null" && ("has logged on/off" || ("is logged on" && "has some usersCredentials" && "the credential does not match his current login, that is he has logged in as some other user")))
-		if(webdavRootResource != null && (isLoggedOn != tmpIsLoggedOn || (tmpIsLoggedOn && usersCredentials != null && !(usersCredentials).getUserName().equals(getUserContext().getRemoteUser())))){
-			String userName = (usersCredentials).getUserName();
+		if(this.webdavRootResource != null && (this.isLoggedOn != tmpIsLoggedOn || (tmpIsLoggedOn && this.usersCredentials != null && !(this.usersCredentials).getUserName().equals(getUserContext().getRemoteUser())))){
+			String userName = (this.usersCredentials).getUserName();
 			//extra check because "Administrator" is "root"
 			if(!(userName.equals("root") && getUserContext().isSuperAdmin())){
-				webdavRootResource.close();
-				webdavRootResource = null;
-				usersCredentials = null;
-				isLoggedOn = !isLoggedOn;
+				this.webdavRootResource.close();
+				this.webdavRootResource = null;
+				this.usersCredentials = null;
+				this.isLoggedOn = !this.isLoggedOn;
 			}
 		}
 		
-		if(webdavRootResource == null || webdavRootResource.isClosed()){
-			webdavRootResource=null;
-			if(usersCredentials == null){
+		if(this.webdavRootResource == null || this.webdavRootResource.isClosed()){
+			this.webdavRootResource=null;
+			if(this.usersCredentials == null){
 				if(tmpIsLoggedOn){
-					usersCredentials = getUserCredentials();
-					isLoggedOn=true;
+					this.usersCredentials = getUserCredentials();
+					this.isLoggedOn=true;
 				}
 			}
 			WebdavResource resource;
-			if(usersCredentials!=null){
-				resource = new WebdavResource(getIWSlideService().getWebdavServerURL(usersCredentials));
+			if(this.usersCredentials!=null){
+				resource = new WebdavResource(getIWSlideService().getWebdavServerURL(this.usersCredentials));
 			} else {
 				resource = new WebdavResource(getIWSlideService().getWebdavServerURL());
 			}
 			resource.setFollowRedirects(true);
 			
-			webdavRootResource = new WebdavRootResource(resource);
+			this.webdavRootResource = new WebdavRootResource(resource);
 		}
 		
-		return webdavRootResource;
+		return this.webdavRootResource;
 	}
 
 
@@ -235,10 +235,10 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 
 	
 	public void close(){
-		if(webdavRootResource != null){
+		if(this.webdavRootResource != null){
 			try {
-				webdavRootResource.close();
-				webdavRootResource = null;
+				this.webdavRootResource.close();
+				this.webdavRootResource = null;
 			}
 			catch (IOException e) {
 				e.printStackTrace();
@@ -272,7 +272,7 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
      * @return a new SlideToken instance
      **/
     public SlideToken getSlideToken() {
-    		if(_slideToken == null){
+    		if(this._slideToken == null){
     			throw new RuntimeException("["+this.getClass().getName()+"]: Requesting SlideToken but token has not been set.  Check if IWSlideAuthenticator filter is mapped right (/*) in web.xml");
 //    			// This code is borrowed from org.apache.slide.webdav.util.WebdavUtils#getSlideToken(HttpServletRequest)
 //    			// and altered since we just have session and not requst object.
@@ -304,7 +304,7 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 //            }
 //            return _slideToken;
     		}
-    		return _slideToken;
+    		return this._slideToken;
 
     }
 
@@ -312,7 +312,7 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	 * @see com.idega.slide.business.IWSlideSession#setSlideToken(org.apache.slide.common.SlideToken)
 	 */
 	public void setSlideToken(SlideToken slideToken) {
-		_slideToken = slideToken;
+		this._slideToken = slideToken;
 	}
 	
 	

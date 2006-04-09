@@ -18,10 +18,10 @@ import org.apache.slide.util.logger.Logger;
 
 /**
  * TODO change delete x from X to delete from X where in (...)
- * Last modified: $Date: 2006/03/24 16:44:09 $ by $Author: eiki $
+ * Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
  * 
  * @author <a href="mailto:aron@idega.com">aron </a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class HsqlRDBMSAdapter extends StandardRDBMSAdapter {
 //	CommonRDBMSAdapter {
@@ -274,8 +274,9 @@ public class HsqlRDBMSAdapter extends StandardRDBMSAdapter {
         ResultSet res = null;
         try {
             int isVersioned = 0;
-            if (revisionDescriptors.isVersioned())
-                isVersioned = 1;
+            if (revisionDescriptors.isVersioned()) {
+							isVersioned = 1;
+						}
             boolean revisionExists;
             try {
                 statement = connection
@@ -424,8 +425,9 @@ public class HsqlRDBMSAdapter extends StandardRDBMSAdapter {
 
 			 statement.setString(1,uriString);
 			 rs = statement.executeQuery();
-			 if(rs.next())
-				 uriID= rs.getLong(1);
+			 if(rs.next()) {
+				uriID= rs.getLong(1);
+			}
 		 }
 		 finally
 		 {

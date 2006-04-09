@@ -1,5 +1,5 @@
 /*
- * $Id: FileSystemCopyServiceBean.java,v 1.8 2006/02/22 22:07:52 laddi Exp $
+ * $Id: FileSystemCopyServiceBean.java,v 1.9 2006/04/09 11:44:15 laddi Exp $
  * Created on 2.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -38,10 +38,10 @@ import com.idega.util.database.ConnectionBroker;
 
 /**
  * 
- *  Last modified: $Date: 2006/02/22 22:07:52 $ by $Author: laddi $
+ *  Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSystemCopyService{
     
@@ -61,9 +61,10 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
     
     private SlideFileHome getFileHome(){
         try {
-            if(fileHome==null)
-                fileHome = (SlideFileHome)IDOLookup.getHome(SlideFile.class);
-            return fileHome;
+            if(this.fileHome==null) {
+							this.fileHome = (SlideFileHome)IDOLookup.getHome(SlideFile.class);
+						}
+            return this.fileHome;
         } catch (IDOLookupException e) {
             throw new IBORuntimeException(e);
         }
@@ -71,19 +72,20 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
     
     private ICFileHome getICFileHome(){
         try {
-            if(icFileHome==null)
-                icFileHome = (ICFileHome)IDOLookup.getHome(ICFile.class);
-            return icFileHome;
+            if(this.icFileHome==null) {
+							this.icFileHome = (ICFileHome)IDOLookup.getHome(ICFile.class);
+						}
+            return this.icFileHome;
         } catch (IDOLookupException e) {
             throw new IBORuntimeException(e);
         }
     }
     
     public void run() throws Exception{
-        httpURL = getService().getWebdavServerURL();
+        this.httpURL = getService().getWebdavServerURL();
        
-        if(httpURL!=null){
-            httpURL.getEscapedURI();
+        if(this.httpURL!=null){
+            this.httpURL.getEscapedURI();
             connect();
 	        copyPageFiles();
 	        copyGroupFiles();
@@ -100,24 +102,26 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
     private void copyPageFiles(){
         try {
             ICPage startPage = getIWApplicationContext().getDomain().getStartPage();
-            String folder = pageFolderName;
+            String folder = this.pageFolderName;
             checkAndCreateFolder(folder);
             copy2(folder,startPage.getFile(),"ibxml");
             Collection childs = startPage.getChildren();
             String subFolder = folder+"/"+startPage.getName();
             checkAndCreateFolder(subFolder);
-            if(childs!=null)
-                copyPages(subFolder,childs);
+            if(childs!=null) {
+							copyPages(subFolder,childs);
+						}
             
             ICPage templatePage = getIWApplicationContext().getDomain().getStartTemplate();
-            folder = templateFolderName;
+            folder = this.templateFolderName;
             checkAndCreateFolder(folder);
             copy2(folder,templatePage.getFile(),"ibxml");
             childs = templatePage.getChildren();
             subFolder = folder+"/"+templatePage.getName();
             checkAndCreateFolder(subFolder);
-            if(childs!=null)
-                copyPages(subFolder,childs);
+            if(childs!=null) {
+							copyPages(subFolder,childs);
+						}
             
         } catch (IDOLookupException e) {
             throw new IBORuntimeException(e);
@@ -131,8 +135,9 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
         for (Iterator iter = pages.iterator(); iter.hasNext();) {
             ICPage element = (ICPage) iter.next();
             ICFile file = element.getFile();
-            if(file.getName()==null)
-                file.setName(element.getName());
+            if(file.getName()==null) {
+							file.setName(element.getName());
+						}
             copy2(folder,file,"ibxml");
             if(element.getChildCount()>0){
                 Collection childs = element.getChildren();
@@ -164,10 +169,10 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
                 ICFile root = getICFileHome().findByPrimaryKey(fileID);
                 if(root.isFolder()){
                     Collection children = getICFileHome().findChildren(root,null,null,null);
-                    copy(userFolderName+"/"+username,children);
+                    copy(this.userFolderName+"/"+username,children);
                 }
                 else{
-                    copy(userFolderName+"/"+username,root);
+                    copy(this.userFolderName+"/"+username,root);
                 }
             }
         } catch (SQLException e) {
@@ -209,7 +214,7 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
         try {
             ICFile root = getICFileHome().findRootFolder();
             Collection children = getICFileHome().findChildren(root,null,null,null);
-            copy(publicFolderName,children);
+            copy(this.publicFolderName,children);
             
         } catch (IDOLookupException e) {
             throw new IBORuntimeException(e);
@@ -241,7 +246,7 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
                     copy(publicFolderName+"/attic",children);
                 }
                 else*/{
-                    copy(userFolderName+"/attic",root);
+                    copy(this.userFolderName+"/attic",root);
                 }
             }
         } catch (SQLException e) {
@@ -289,23 +294,23 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
         try {
           //httpURL = uriToHttpURL(uri);
 //          httpURL.setUserinfo("root","root");
-        if (webdavResource == null) {
-            webdavResource = getService().getWebdavResourceAuthenticatedAsRoot();
+        if (this.webdavResource == null) {
+            this.webdavResource = getService().getWebdavResourceAuthenticatedAsRoot();
             //webdavResource.setDebug(Integer.MAX_VALUE);
             
             // is not a collection?
-            if (!webdavResource.getResourceType().isCollection()) {
-                webdavResource = null;
-                httpURL = null;
+            if (!this.webdavResource.getResourceType().isCollection()) {
+                this.webdavResource = null;
+                this.httpURL = null;
                 //System.out.println("Error: " + uri + " is not a collection! Use open/connect only for collections!");
             }
             
         } else {
-            webdavResource.close();
+            this.webdavResource.close();
 //            webdavResource.setHttpURL(httpURL);
-            webdavResource = getService().getWebdavResourceAuthenticatedAsRoot();
+            this.webdavResource = getService().getWebdavResourceAuthenticatedAsRoot();
         }
-        setPath(webdavResource.getPath()+"/files");
+        setPath(this.webdavResource.getPath()+"/files");
         }
         catch (HttpException we) {
             System.out.print("HttpException.getReasonCode(): "+ we.getReasonCode());
@@ -319,46 +324,48 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
                     }
                     userName = userName.trim();
                     String password = "root";
-                    if (password != null)
-                        password= password.trim();
+                    if (password != null) {
+											password= password.trim();
+										}
                     try {
-                        if (webdavResource != null)
-                            webdavResource.close();
+                        if (this.webdavResource != null) {
+													this.webdavResource.close();
+												}
                     } catch (IOException e) {
                     } finally {
-                        httpURL = null;
-                        webdavResource = null;
+                        this.httpURL = null;
+                        this.webdavResource = null;
                     }
                     //httpURL = uriToHttpURL(uri);
                     // It should be used like this way.
-                    httpURL.setUserinfo(userName, password);
-                    webdavResource = new WebdavResource(httpURL);
+                    this.httpURL.setUserinfo(userName, password);
+                    this.webdavResource = new WebdavResource(this.httpURL);
                     //webdavResource.setDebug(Integer.MAX_VALUE);
-                    setPath(webdavResource.getPath());
+                    setPath(this.webdavResource.getPath());
 
 
-                    if (!webdavResource.getResourceType().isCollection()) {
-                        webdavResource = null;
-                        httpURL = null;
-                        System.out.println("Error: " + httpURL.getURI() + " is not a collection! Use open/connect only for collections!");
+                    if (!this.webdavResource.getResourceType().isCollection()) {
+                        this.webdavResource = null;
+                        this.httpURL = null;
+                        System.out.println("Error: " + this.httpURL.getURI() + " is not a collection! Use open/connect only for collections!");
                     }
                 }
                 catch (Exception ex) {
                     handleException(ex);
-                    httpURL = null;
-                    webdavResource = null;
+                    this.httpURL = null;
+                    this.webdavResource = null;
                 }
             }
             else  {
                 handleException(we);
-                httpURL = null;
-                webdavResource = null;
+                this.httpURL = null;
+                this.webdavResource = null;
             }
         }
         catch (Exception ex) {
             handleException(ex);
-            webdavResource = null;
-            httpURL = null;
+            this.webdavResource = null;
+            this.httpURL = null;
         }
         
     }
@@ -367,12 +374,12 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
     {
         System.out.println("disconnect");
         try {
-            webdavResource.close();
+            this.webdavResource.close();
         } catch (IOException e) {
         } finally {
             // Make sure the connection closed.
-            httpURL = null;
-            webdavResource = null;
+            this.httpURL = null;
+            this.webdavResource = null;
         }
         
     }
@@ -419,9 +426,10 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
     
     public void checkAndCreateFolder(String folder){
         try {
-            webdavResource.setPath(folder);
-            if(!webdavResource.exists())
-                mkcol(folder);
+            this.webdavResource.setPath(folder);
+            if(!this.webdavResource.exists()) {
+							mkcol(folder);
+						}
         } catch (HttpException e) {
            mkcol(folder);
            createFolderIfNotExists(folder);
@@ -448,26 +456,26 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
         try {
             String dest = getRemoteTargetFileName( file.getName(),  path);
             
-            String currentPath = webdavResource.getPath();
+            String currentPath = this.webdavResource.getPath();
             
             try {
-                webdavResource.setPath(dest);
+                this.webdavResource.setPath(dest);
                 
-                if (webdavResource.exists()) {
+                if (this.webdavResource.exists()) {
                     System.out.print("Aleady exists. ");
                 }
-                webdavResource.setPath(currentPath);
+                this.webdavResource.setPath(currentPath);
             } catch (Exception ex) {
             } 
-            		if(overwrite){
+            		if(this.overwrite){
                     System.out.print("Uploading  '" + file.getName() + "' to '" + dest + "' ");
-                    if (webdavResource.putMethod(dest, file.getFileValue())) {
+                    if (this.webdavResource.putMethod(dest, file.getFileValue())) {
                         updateFile(file, dest);
                         System.out.println("succeeded.");
                     }
                     else {
                         System.out.println("failed.");
-                        System.out.println(webdavResource.getStatusMessage());
+                        System.out.println(this.webdavResource.getStatusMessage());
                     }
             		}
                
@@ -501,11 +509,11 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
         try {
             path = checkUri(path);
             System.out.print("Making '" + path + "' collection: ");
-            if (webdavResource.mkcolMethod(path)) {
+            if (this.webdavResource.mkcolMethod(path)) {
                 System.out.println("succeeded.");
             } else {
                 System.out.println("failed.");
-                System.out.println(webdavResource.getStatusMessage());
+                System.out.println(this.webdavResource.getStatusMessage());
             }
         }
         catch (Exception ex) {
@@ -518,11 +526,11 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
         try {
             path = checkUri(path);
             System.out.print("Deleting '" + path + "': ");
-            if (webdavResource.deleteMethod(path)) {
+            if (this.webdavResource.deleteMethod(path)) {
                 System.out.println("succeeded.");
             } else {
                 System.out.println("failed.");
-                System.out.println(webdavResource.getStatusMessage());
+                System.out.println(this.webdavResource.getStatusMessage());
             }
         }
         catch (Exception ex) {
@@ -600,17 +608,17 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
                 target = checkUri(path);
                 
                 // check is path a collection ?
-                String currentPath = webdavResource.getPath();
+                String currentPath = this.webdavResource.getPath();
                 
-                webdavResource.setPath(target);
+                this.webdavResource.setPath(target);
                 
-                if (webdavResource.exists()) {
-                    if (webdavResource.isCollection()) {
+                if (this.webdavResource.exists()) {
+                    if (this.webdavResource.isCollection()) {
                         target += "/" + srcPathName;
                     } 
                 } 
                 
-                webdavResource.setPath(currentPath);
+                this.webdavResource.setPath(currentPath);
                 
             } else {
                 target = checkUri(getPath() + "/" + srcPathName);
@@ -628,12 +636,12 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
     private String checkUri(String uri) throws IOException
     {
 
-        if (webdavResource == null) {
+        if (this.webdavResource == null) {
             throw new IOException("Not connected yet.");
         }
 
         if (uri==null) {
-            uri=webdavResource.getPath();
+            uri=this.webdavResource.getPath();
         }
 
         if (!uri.startsWith("/")) {
@@ -650,7 +658,7 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
      */
     private String getPath()
     {
-        return path;
+        return this.path;
     }
     
     
@@ -666,22 +674,26 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
      */
     private String normalize(String path)
     {
-        if (path == null)
-            return null;
+        if (path == null) {
+					return null;
+				}
 
         String normalized = path;
 
         // Normalize the slashes and add leading slash if necessary
-        if (normalized.indexOf('\\') >= 0)
-            normalized = normalized.replace('\\', '/');
-        if (!normalized.startsWith("/"))
-            normalized = "/" + normalized;
+        if (normalized.indexOf('\\') >= 0) {
+					normalized = normalized.replace('\\', '/');
+				}
+        if (!normalized.startsWith("/")) {
+					normalized = "/" + normalized;
+				}
 
         // Resolve occurrences of "/./" in the normalized path
         while (true) {
             int index = normalized.indexOf("/./");
-            if (index < 0)
-            break;
+            if (index < 0) {
+							break;
+						}
             normalized = normalized.substring(0, index) +
             normalized.substring(index + 2);
         }
@@ -689,10 +701,12 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
         // Resolve occurrences of "/../" in the normalized path
         while (true) {
             int index = normalized.indexOf("/../");
-            if (index < 0)
-            break;
-            if (index == 0)
-            return ("/");  // The only left path is the root.
+            if (index < 0) {
+							break;
+						}
+            if (index == 0) {
+							return ("/");  // The only left path is the root.
+						}
             int index2 = normalized.lastIndexOf('/', index - 1);
             normalized = normalized.substring(0, index2) +
             normalized.substring(index + 3);
@@ -701,8 +715,9 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
         // Resolve occurrences of "//" in the normalized path
         while (true) {
             int index = normalized.indexOf("//");
-            if (index < 0)
-            break;
+            if (index < 0) {
+							break;
+						}
             normalized = normalized.substring(0, index) +
             normalized.substring(index + 1);
         }

@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.39 2006/03/24 18:15:03 gimmi Exp $
+ * $Id: IWSlideServiceBean.java,v 1.40 2006/04/09 11:44:15 laddi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -52,10 +52,10 @@ import com.idega.util.IWTimestamp;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2006/03/24 18:15:03 $ by $Author: gimmi $
+ *  Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.39 $
+ * @version $Revision: 1.40 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService,IWSlideChangeListener {
 	
@@ -145,10 +145,12 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	    		if(server!=null){
 	       		int port = 80;
 	       		boolean https = false;
-		       if(server.endsWith("/"))
-		           server = server.substring(0,server.lastIndexOf("/"));
-		       if(server.startsWith("http://"))
-		       		server = server.substring(7,server.length());
+		       if(server.endsWith("/")) {
+						server = server.substring(0,server.lastIndexOf("/"));
+					}
+		       if(server.startsWith("http://")) {
+						server = server.substring(7,server.length());
+					}
 		       if(server.startsWith("https://")) {
 		    	   https = true;
 		       		server = server.substring(8,server.length());
@@ -702,9 +704,9 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		String name = timestamp.getDateString(minuteString);
 		String lastName = null;
 		if(scope != null && !"".equals(scope)){
-			lastName = (String)lastUniqueFileNameScopeMap.get(scope);
+			lastName = (String)this.lastUniqueFileNameScopeMap.get(scope);
 		} else {
-			lastName = lastGlobalUniqueFileName;
+			lastName = this.lastGlobalUniqueFileName;
 		}
 		
 		if(!(lastName==null || !lastName.startsWith(name))){
@@ -717,19 +719,19 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		}
 		
 		if(scope!=null){
-			lastUniqueFileNameScopeMap.put(scope,name);
+			this.lastUniqueFileNameScopeMap.put(scope,name);
 		}
-		lastGlobalUniqueFileName = name;
+		this.lastGlobalUniqueFileName = name;
 		return name;
 	}
 	
 	
 	public Security getSecurityHelper(){
-		if(security == null){
+		if(this.security == null){
 			NamespaceAccessToken token = (NamespaceAccessToken)getIWApplicationContext().getApplicationAttribute(WebdavServlet.ATTRIBUTE_NAME);
-			security = token.getSecurityHelper();
+			this.security = token.getSecurityHelper();
 		}
-		return security;
+		return this.security;
 	}
 	
 	
@@ -836,7 +838,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @return Returns the array of IWSlideChangeListeners.
 	 */
 	public IWSlideChangeListener[] getIWSlideChangeListeners() {
-		return iwSlideChangeListenersArray;
+		return this.iwSlideChangeListenersArray;
 	}
 
 	
@@ -845,7 +847,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 */
 	public void setIWSlideChangeListeners(List iwSlideChangeListeners) {
 		this.iwSlideChangeListeners = iwSlideChangeListeners;
-		iwSlideChangeListenersArray = (IWSlideChangeListener[]) iwSlideChangeListeners.toArray(new IWSlideChangeListener[0]);
+		this.iwSlideChangeListenersArray = (IWSlideChangeListener[]) iwSlideChangeListeners.toArray(new IWSlideChangeListener[0]);
 	}
 	
 	/**
@@ -853,14 +855,14 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @param iwSlideChangeListener
 	 */
 	public void addIWSlideChangeListeners(IWSlideChangeListener iwSlideChangeListener) {
-		if(iwSlideChangeListeners==null){
-			iwSlideChangeListeners = new ArrayList();
+		if(this.iwSlideChangeListeners==null){
+			this.iwSlideChangeListeners = new ArrayList();
 		}
 		
-		if(!iwSlideChangeListeners.contains(iwSlideChangeListener)){
-			iwSlideChangeListeners.add(iwSlideChangeListener);
+		if(!this.iwSlideChangeListeners.contains(iwSlideChangeListener)){
+			this.iwSlideChangeListeners.add(iwSlideChangeListener);
 			//update the array, for speed optimization
-			iwSlideChangeListenersArray = (IWSlideChangeListener[]) iwSlideChangeListeners.toArray(new IWSlideChangeListener[0]);
+			this.iwSlideChangeListenersArray = (IWSlideChangeListener[]) this.iwSlideChangeListeners.toArray(new IWSlideChangeListener[0]);
 		}
 		
 	}
@@ -1080,7 +1082,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @return Returns the childFolderPathsCacheMap.
 	 */
 	public Map getChildFolderPathsCacheMap() {
-		return childFolderPathsCacheMap;
+		return this.childFolderPathsCacheMap;
 	}
 
 	
@@ -1096,7 +1098,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @return Returns the childPathsCacheMap.
 	 */
 	public Map getChildPathsCacheMap() {
-		return childPathsCacheMap;
+		return this.childPathsCacheMap;
 	}
 
 	
@@ -1112,7 +1114,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @return Returns the childPathsExcludingFolderAndHiddenFilesCacheMap.
 	 */
 	public Map getChildPathsExcludingFolderAndHiddenFilesCacheMap() {
-		return childPathsExcludingFolderAndHiddenFilesCacheMap;
+		return this.childPathsExcludingFolderAndHiddenFilesCacheMap;
 	}
 
 	

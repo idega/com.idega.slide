@@ -1,5 +1,5 @@
 /*
- * $Id: LocalProperty.java,v 1.1 2006/03/22 15:52:16 tryggvil Exp $
+ * $Id: LocalProperty.java,v 1.2 2006/04/09 11:44:15 laddi Exp $
  * Created on 21.1.2006 in project com.idega.slide
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -32,10 +32,10 @@ public class LocalProperty implements Property{
 		 * @return Returns the element.
 		 */
 		public Element getElement() {
-			if(element==null){
+			if(this.element==null){
 				throw new UnsupportedOperationException("Method getElement() not implemented");
 			}
-			return element;
+			return this.element;
 		}
 		
 		/**
@@ -50,7 +50,7 @@ public class LocalProperty implements Property{
 		 * @return Returns the localName.
 		 */
 		public String getLocalName() {
-			return localName;
+			return this.localName;
 		}
 		
 		/**
@@ -79,7 +79,7 @@ public class LocalProperty implements Property{
 		 * @return Returns the namespaceURI.
 		 */
 		public String getNamespaceURI() {
-			return namespaceURI;
+			return this.namespaceURI;
 		}
 		
 		/**
@@ -93,7 +93,7 @@ public class LocalProperty implements Property{
 		 * @return Returns the response.
 		 */
 		public ResponseEntity getResponse() {
-			return response;
+			return this.response;
 		}
 		
 		/**
@@ -107,11 +107,11 @@ public class LocalProperty implements Property{
 		 * @see org.apache.webdav.lib.Property#getPropertyAsString()
 		 */
 		public String getPropertyAsString() {
-			return propertyAsString;
+			return this.propertyAsString;
 		}
 		
 		public void setPropertyAsString(String value){
-			propertyAsString=value;
+			this.propertyAsString=value;
 		}
 
 		/* (non-Javadoc)

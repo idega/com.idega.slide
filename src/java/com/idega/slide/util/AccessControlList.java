@@ -1,5 +1,5 @@
 /*
- * $Id: AccessControlList.java,v 1.4 2005/04/08 17:10:39 gummi Exp $
+ * $Id: AccessControlList.java,v 1.5 2006/04/09 11:44:15 laddi Exp $
  * Created on 28.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -19,10 +19,10 @@ import org.apache.webdav.lib.Ace;
 
 /**
  * 
- *  Last modified: $Date: 2005/04/08 17:10:39 $ by $Author: gummi $
+ *  Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class AccessControlList {
 	
@@ -51,12 +51,12 @@ public class AccessControlList {
 	}
 	
 	private void clearLists(){
-		aceList = new ArrayList();
-		acesForStandardPrincipals = new ArrayList();
-		acesForRoles = new ArrayList();
-		acesForUsers = new ArrayList();
-		acesForGroups = new ArrayList();
-		acesForOthers = new ArrayList();
+		this.aceList = new ArrayList();
+		this.acesForStandardPrincipals = new ArrayList();
+		this.acesForRoles = new ArrayList();
+		this.acesForUsers = new ArrayList();
+		this.acesForGroups = new ArrayList();
+		this.acesForOthers = new ArrayList();
 	}
 	
 	public void setAces(Ace[] aces){
@@ -73,25 +73,25 @@ public class AccessControlList {
 	
 	public void add(AccessControlEntry entry){
 //		tmp=true;
-		addAceToList(aceList,entry);
+		addAceToList(this.aceList,entry);
 //		tmp=false;
 		
 		switch (entry.getPrincipalType()) {
 			case AccessControlEntry.PRINCIPAL_TYPE_ROLE:
-				addAceToList(acesForRoles,entry);
+				addAceToList(this.acesForRoles,entry);
 				break;
 			case AccessControlEntry.PRINCIPAL_TYPE_STANDARD:
-				addAceToList(acesForStandardPrincipals,entry);
+				addAceToList(this.acesForStandardPrincipals,entry);
 				break;
 			case AccessControlEntry.PRINCIPAL_TYPE_GROUP:
-				addAceToList(acesForUsers,entry);
+				addAceToList(this.acesForUsers,entry);
 				break;
 			case AccessControlEntry.PRINCIPAL_TYPE_USER:
-				addAceToList(acesForUsers,entry);
+				addAceToList(this.acesForUsers,entry);
 				break;
 			case AccessControlEntry.PRINCIPAL_TYPE_OTHER:
 			default:
-				addAceToList(acesForOthers,entry);
+				addAceToList(this.acesForOthers,entry);
 				break;
 		}
 	}
@@ -148,9 +148,9 @@ public class AccessControlList {
 			type = AccessControlEntry.PRINCIPAL_TYPE_STANDARD;
 			acentry = new AccessControlEntry(ace,type);
 		} else {
-			int index = principal.indexOf(serverURI);
+			int index = principal.indexOf(this.serverURI);
 			if(index > -1){
-				principal = principal.substring(index+serverURI.length());
+				principal = principal.substring(index+this.serverURI.length());
 				if(principal.startsWith(IWSlideConstants.PATH_ROLES)){
 					type = AccessControlEntry.PRINCIPAL_TYPE_ROLE;
 					acentry = new AccessControlEntry(ace,type);
@@ -175,7 +175,7 @@ public class AccessControlList {
 	}
 	
 	public String getResourcePath(){
-		return resourcePath;
+		return this.resourcePath;
 	}
 
 	public Ace[] getAces(){
@@ -183,9 +183,9 @@ public class AccessControlList {
 		String rootRoleSuffix = "/".concat(IWSlideConstants.ROLENAME_ROOT);
 		boolean containsPositiveRootACE = false;
 		
-		Collections.sort(aceList, new AcessControlEntryComparator());  // Groups roles, groups, users and standard principals together 
+		Collections.sort(this.aceList, new AcessControlEntryComparator());  // Groups roles, groups, users and standard principals together 
 		
-		for (Iterator iter = aceList.iterator(); iter.hasNext();) {
+		for (Iterator iter = this.aceList.iterator(); iter.hasNext();) {
 			AccessControlEntry entry = (AccessControlEntry) iter.next();
 			if(entry.hasPrivileges()){
 				if(isGuaranteedThatRootHasAllPrivileges() && entry.getPrincipalType() == AccessControlEntry.PRINCIPAL_TYPE_ROLE && entry.getPrincipal().endsWith(rootRoleSuffix)){
@@ -210,27 +210,27 @@ public class AccessControlList {
 	}
 	
 	public List getAccessControlEntries(){
-		return aceList;
+		return this.aceList;
 	}
 	
 	public List getAccessControlEntriesForStandardPrincipals(){
-		return acesForStandardPrincipals;
+		return this.acesForStandardPrincipals;
 	}
 	
 	public List getAccessControlEntriesForRoles(){
-		return acesForRoles;
+		return this.acesForRoles;
 	}
 	
 	public List getAccessControlEntriesForUsers(){
-		return acesForUsers;
+		return this.acesForUsers;
 	}
 	
 	public List getAccessControlEntriesForGroups(){
-		return acesForGroups;
+		return this.acesForGroups;
 	}
 	
 	public List getAccessControlEntriesForOthers(){
-		return acesForOthers;
+		return this.acesForOthers;
 	}
 	
 	
@@ -238,7 +238,7 @@ public class AccessControlList {
 	 * @return Returns the guaranteeThatRootHasAllPrivileges. Default is true.
 	 */
 	public boolean isGuaranteedThatRootHasAllPrivileges() {
-		return guaranteeThatRootHasAllPrivileges;
+		return this.guaranteeThatRootHasAllPrivileges;
 	}
 	/**
 	 * 
