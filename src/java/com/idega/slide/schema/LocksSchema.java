@@ -1,12 +1,14 @@
 package com.idega.slide.schema;
 
+import com.idega.util.dbschema.IndexImpl;
+
 /**
  * 
  * 
- *  Last modified: $Date: 2005/01/20 14:09:44 $ by $Author: eiki $
+ *  Last modified: $Date: 2006/04/11 15:12:46 $ by $Author: eiki $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class LocksSchema extends SlideSchema {
 	
@@ -96,6 +98,14 @@ public class LocksSchema extends SlideSchema {
 		addColumn(isInheritable);
 		addColumn(isExlusive);
 		addColumn(owner);
+		
+//		CREATE INDEX locks_idx1 ON locks(object_id,lock_id,subject_id,type_id);
+		IndexImpl index1 = new IndexImpl("locks_idx1", getSQLName());
+		index1.addField("OBJECT_ID");
+		index1.addField("LOCK_ID");
+		index1.addField("SUBJECT_ID");
+		index1.addField("TYPE_ID");
+		addIndex(index1);
 		
 		
 	}

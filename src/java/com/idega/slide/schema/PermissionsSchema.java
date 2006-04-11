@@ -1,12 +1,14 @@
 package com.idega.slide.schema;
 
+import com.idega.util.dbschema.IndexImpl;
+
 /**
  * 
  * 
- *  Last modified: $Date: 2004/11/05 08:44:59 $ by $Author: aron $
+ *  Last modified: $Date: 2006/04/11 15:12:46 $ by $Author: eiki $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class PermissionsSchema extends SlideSchema {
 	/*
@@ -93,6 +95,24 @@ public class PermissionsSchema extends SlideSchema {
 		addColumn(isInheritable);
 		addColumn(isNegative);
 		addColumn(succession);
+		
+//		CREATE INDEX permissions_idx1 ON permissions(object_id,subject_id,action_id);
+//		CREATE INDEX permissions_idx2 ON permissions(succession);
+//		CREATE INDEX permissions_idx3 ON permissions(object_id);
+		IndexImpl index1 = new IndexImpl("permissions_idx1",getSQLName());
+		index1.addField("OBJECT_ID");
+		index1.addField("SUBJECT_ID");
+		index1.addField("ACTION_ID");
+		addIndex(index1);
+
+		IndexImpl index2 = new IndexImpl("permissions_idx2", getSQLName());
+		index2.addField("SUCCESSION");
+		addIndex(index2);
+
+		IndexImpl index3 = new IndexImpl("permissions_idx3", getSQLName());
+		index3.addField("OBJECT_ID");
+		addIndex(index3);
+		
 		
 	}
 	

@@ -1,12 +1,14 @@
 package com.idega.slide.schema;
 
+import com.idega.util.dbschema.IndexImpl;
+
 /**
  * 
  * 
- *  Last modified: $Date: 2005/01/20 14:09:44 $ by $Author: eiki $
+ *  Last modified: $Date: 2006/04/11 15:12:46 $ by $Author: eiki $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class PropertiesSchema extends SlideSchema {
 	
@@ -78,6 +80,20 @@ public class PropertiesSchema extends SlideSchema {
 		addColumn(isProtected);
 		
 		addUniqueKey(uniqueKey);
+		
+//		CREATE INDEX properties_idx1 ON properties(version_id,property_name);
+//		CREATE INDEX property_name_idx2 ON properties(version_id,property_namespace,property_name);
+		
+		IndexImpl index1 = new IndexImpl("properties_idx1",getSQLName());
+		index1.addField("VERSION_ID");
+		index1.addField("PROPERTY_NAME");
+		addIndex(index1);
+		
+		IndexImpl index2 = new IndexImpl("properties_idx2", getSQLName());
+		index2.addField("VERSION_ID");
+		index2.addField("PROPERTY_NAMESPACE");
+		index2.addField("PROPERTY_NAME");
+		addIndex(index2);
 		
 	}
 	

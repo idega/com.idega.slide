@@ -1,12 +1,14 @@
 package com.idega.slide.schema;
 
+import com.idega.util.dbschema.IndexImpl;
+
 /**
  * 
  * 
- *  Last modified: $Date: 2005/01/20 14:09:44 $ by $Author: eiki $
+ *  Last modified: $Date: 2006/04/11 15:12:46 $ by $Author: eiki $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class BindingSchema extends SlideSchema {
 	/*
@@ -48,6 +50,19 @@ public class BindingSchema extends SlideSchema {
 		addColumn(uriID,true);
 		addColumn(name,true);
 		addColumn(childUriID,true);
+		
+//		CREATE INDEX binding_idx1 ON binding(name);
+//		CREATE INDEX binding_idx2 ON binding(uri_id,child_uuri_id);
+		
+		IndexImpl index1 = new IndexImpl("binding_idx1",getSQLName());
+		index1.addField("NAME");
+		addIndex(index1);
+		
+		IndexImpl index2 = new IndexImpl("binding_idx2", getSQLName());
+		index2.addField("URI_ID");
+		index2.addField("CHILD_UURI_ID");
+		addIndex(index2);
+		
 		
 		
 	}

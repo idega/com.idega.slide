@@ -6,6 +6,8 @@
  */
 package com.idega.slide.schema;
 
+import com.idega.util.dbschema.IndexImpl;
+
 
 /**
  * @author aron
@@ -40,9 +42,21 @@ public class UriSchema extends SlideSchema {
 		uriString.setNullAllowed(false);
 		uriString.setSQLFieldName("URI_STRING");
 		uriString.setMaxLength(4000);
-		
+				
 		addColumn(uriID,true);
 		addColumn(uriString);
+		
+//		CREATE INDEX uri_idx1 ON uri(uri_string);
+//		CREATE INDEX uri_idx2 ON uri(uri_id,uri_string);
+
+		IndexImpl index1 = new IndexImpl("uri_idx1",getSQLName());
+		index1.addField("URI_STRING");
+		addIndex(index1);
+		
+		IndexImpl index2 = new IndexImpl("uri_idx2", getSQLName());
+		index2.addField("URI_ID");
+		index2.addField("URI_STRING");
+		addIndex(index2);
 		
 		setHasAutoIncrementColumn(true);
 		
