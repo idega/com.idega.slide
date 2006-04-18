@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.40 2006/04/09 11:44:15 laddi Exp $
+ * $Id: IWSlideServiceBean.java,v 1.41 2006/04/18 13:02:40 eiki Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -52,10 +52,10 @@ import com.idega.util.IWTimestamp;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
+ *  Last modified: $Date: 2006/04/18 13:02:40 $ by $Author: eiki $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.40 $
+ * @version $Revision: 1.41 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService,IWSlideChangeListener {
 	
@@ -1142,6 +1142,10 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 */
 	public String getParentPath(WebdavResource resource) {
 		String path = resource.getPath();
+		return getParentPath(path);
+	}
+	
+	public String getParentPath(String path){
 		String parentPath = null;
 		if (path != null) {
 			int index = path.lastIndexOf("/");
@@ -1157,6 +1161,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		}
 		return parentPath;
 	}
+	
 
 	
 }

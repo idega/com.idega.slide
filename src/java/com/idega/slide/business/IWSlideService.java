@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideService.java,v 1.23 2006/03/24 18:15:03 gimmi Exp $
+ * $Id: IWSlideService.java,v 1.24 2006/04/18 13:02:40 eiki Exp $
  * Created on Mar 24, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -30,10 +30,10 @@ import com.idega.slide.util.WebdavRootResource;
 
 /**
  * 
- *  Last modified: $Date: 2006/03/24 18:15:03 $ by $Author: gimmi $
+ *  Last modified: $Date: 2006/04/18 13:02:40 $ by $Author: eiki $
  * 
  * @author <a href="mailto:eiki@idega.com">eiki</a>
- * @version $Revision: 1.23 $
+ * @version $Revision: 1.24 $
  */
 public interface IWSlideService extends IBOService, IWSlideChangeListener {
 
@@ -301,6 +301,11 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 	 * @see com.idega.slide.business.IWSlideServiceBean#getParentPath
 	 */
 	public String getParentPath(WebdavResource resource);
+	
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#getParentPath
+	 */
+	public String getParentPath(String resourcePath);
 	
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#isHiddenFile
