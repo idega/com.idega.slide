@@ -12,10 +12,10 @@ import com.idega.util.dbschema.UniqueKey;
 /**
  * 
  * 
- *  Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
+ *  Last modified: $Date: 2006/04/26 12:19:36 $ by $Author: thomas $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public abstract class SlideSchema implements Schema {
 	
@@ -113,7 +113,7 @@ public abstract class SlideSchema implements Schema {
 	}
 	
 	protected void addIndex(Index index) {
-		addIndex(index);
+		indexes.add(index);
 	}
 	
 
