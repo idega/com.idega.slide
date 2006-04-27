@@ -10,12 +10,10 @@ import com.idega.util.dbschema.SchemaColumn;
 import com.idega.util.dbschema.UniqueKey;
 
 /**
- * 
- * 
- *  Last modified: $Date: 2006/04/26 12:19:36 $ by $Author: thomas $
+ * Last modified: $Date: 2006/04/27 11:03:11 $ by $Author: laddi $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public abstract class SlideSchema implements Schema {
 	
@@ -84,7 +82,6 @@ public abstract class SlideSchema implements Schema {
 		this.autoIncrementColumn = autoIncrementColumn;
 
 	}
-
 	
 	/* (non-Javadoc)
 	 * @see com.idega.data.store.EntityDefinition#getUniqueKeys()
@@ -113,8 +110,6 @@ public abstract class SlideSchema implements Schema {
 	}
 	
 	protected void addIndex(Index index) {
-		indexes.add(index);
+		this.indexes.add(index);
 	}
-	
-
 }
