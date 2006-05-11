@@ -8,6 +8,7 @@
     <project>com.idega.core</project>
     <project>com.idega.block.login</project>
     <project>org.apache.slide</project>
+    <project>com.idega.block.web2.0</project>
   </projects>
   <buildSpec>
     <buildCommand>
