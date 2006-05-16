@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticator.java,v 1.20 2006/04/09 11:44:15 laddi Exp $
+ * $Id: IWSlideAuthenticator.java,v 1.21 2006/05/16 17:02:20 tryggvil Exp $
  * Created on 8.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -40,16 +40,17 @@ import com.idega.slide.business.IWSlideSession;
  * This filter is mapped before any request to the Slide WebdavServlet to make sure
  * a logged in user from idegaWeb is logged also into the Slide authentication system.
  * </p>
- *  Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
+ *  Last modified: $Date: 2006/05/16 17:02:20 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.20 $
+ * @version $Revision: 1.21 $
  */
 public class IWSlideAuthenticator extends BaseFilter{
 
 	private static final String SLIDE_USER_PRINCIPAL_ATTRIBUTE_NAME = "org.apache.slide.webdav.method.principal";
 
 	private static final String PROPERTY_ENABLED = "slide.authenticator.enable";
+	private static final String PROPERTY_UPDATE_ROLES = "slide.updateroles.enable";
 	
 	private LoginBusinessBean loginBusiness = new LoginBusinessBean();
 	
@@ -222,12 +223,20 @@ public class IWSlideAuthenticator extends BaseFilter{
 	 * @throws HttpException
 	 */
 	private void updateRolesForUser(HttpServletRequest request, LoggedOnInfo lInfo) throws HttpException, RemoteException, IOException {
-		if(lInfo != null){
-			if(lInfo.getAttribute("iw_slide_roles_updated")==null){
-				AuthenticationBusiness business = getAuthenticationBusiness(request);
-				business.updateRoleMembershipForUser(lInfo.getLogin(),lInfo.getUserRoles(),null);
-				generateUserFolders(request);
-				lInfo.setAttribute("iw_slide_roles_updated",Boolean.TRUE);
+		boolean doUpdateRoles = true;
+		IWMainApplication iwma = getIWMainApplication(request);
+		String prop = iwma.getSettings().getProperty(PROPERTY_UPDATE_ROLES);
+		if(prop!=null){
+			doUpdateRoles=Boolean.valueOf(prop).booleanValue();
+		}
+		if(doUpdateRoles){
+			if(lInfo != null){
+				if(lInfo.getAttribute("iw_slide_roles_updated")==null){
+					AuthenticationBusiness business = getAuthenticationBusiness(request);
+					business.updateRoleMembershipForUser(lInfo.getLogin(),lInfo.getUserRoles(),null);
+					generateUserFolders(request);
+					lInfo.setAttribute("iw_slide_roles_updated",Boolean.TRUE);
+				}
 			}
 		}
 	}
