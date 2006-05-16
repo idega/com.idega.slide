@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.41 2006/04/18 13:02:40 eiki Exp $
+ * $Id: IWSlideServiceBean.java,v 1.42 2006/05/16 17:03:31 tryggvil Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -52,10 +52,10 @@ import com.idega.util.IWTimestamp;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2006/04/18 13:02:40 $ by $Author: eiki $
+ *  Last modified: $Date: 2006/05/16 17:03:31 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.41 $
+ * @version $Revision: 1.42 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService,IWSlideChangeListener {
 	
@@ -152,8 +152,11 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 						server = server.substring(7,server.length());
 					}
 		       if(server.startsWith("https://")) {
-		    	   https = true;
-		       		server = server.substring(8,server.length());
+		    	   if(getIWMainApplication().getSettings().getBoolean("slide.allow.local.https")){
+		    		   //https protocol when to slide is only enabled when this property is set
+		    		   https = true;
+		       		}
+		    	   server = server.substring(8,server.length());
 		       }
 		       if(server.indexOf(":")!=-1){
 		       		String sPort = server.substring(server.indexOf(":")+1,server.length());
