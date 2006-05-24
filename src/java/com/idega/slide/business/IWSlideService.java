@@ -1,6 +1,6 @@
 /*
- * $Id: IWSlideService.java,v 1.24 2006/04/18 13:02:40 eiki Exp $
- * Created on Mar 24, 2006
+ * $Id: IWSlideService.java,v 1.25 2006/05/24 16:52:33 thomas Exp $
+ * Created on May 24, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
  *
@@ -30,10 +30,10 @@ import com.idega.slide.util.WebdavRootResource;
 
 /**
  * 
- *  Last modified: $Date: 2006/04/18 13:02:40 $ by $Author: eiki $
+ *  Last modified: $Date: 2006/05/24 16:52:33 $ by $Author: thomas $
  * 
- * @author <a href="mailto:eiki@idega.com">eiki</a>
- * @version $Revision: 1.24 $
+ * @author <a href="mailto:thomas@idega.com">thomas</a>
+ * @version $Revision: 1.25 $
  */
 public interface IWSlideService extends IBOService, IWSlideChangeListener {
 
@@ -206,10 +206,22 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 			String fileContentString, String contentType) throws java.rmi.RemoteException;
 
 	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#uploadFileAndCreateFoldersFromStringAsRoot
+	 */
+	public boolean uploadFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName,
+			String fileContentString, String contentType, boolean deletePredecessor) throws java.rmi.RemoteException;
+
+	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#uploadXMLFileAndCreateFoldersFromStringAsRoot
 	 */
 	public boolean uploadXMLFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName,
 			String fileContentString) throws java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#uploadXMLFileAndCreateFoldersFromStringAsRoot
+	 */
+	public boolean uploadXMLFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName,
+			String fileContentString, boolean deletePredecessor) throws java.rmi.RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getIWSlideChangeListeners
@@ -240,6 +252,11 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 	 * @see com.idega.slide.business.IWSlideServiceBean#getChildCount
 	 */
 	public int getChildCount(String folderURI) throws java.rmi.RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#isHiddenFile
+	 */
+	public boolean isHiddenFile(String fileName);
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getChildPathsExcludingFoldersAndHiddenFiles
@@ -295,20 +312,15 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#onSlideChange
 	 */
-	public void onSlideChange(ContentEvent contentEvent);
-	
+	public void onSlideChange(ContentEvent contentEvent); 
+
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getParentPath
 	 */
 	public String getParentPath(WebdavResource resource);
-	
+
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getParentPath
 	 */
 	public String getParentPath(String resourcePath);
-	
-	/**
-	 * @see com.idega.slide.business.IWSlideServiceBean#isHiddenFile
-	 */
-	public boolean isHiddenFile(String fileName);
 }

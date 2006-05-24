@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.42 2006/05/16 17:03:31 tryggvil Exp $
+ * $Id: IWSlideServiceBean.java,v 1.43 2006/05/24 16:52:33 thomas Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -29,6 +29,7 @@ import org.apache.slide.event.ContentEvent;
 import org.apache.slide.security.Security;
 import org.apache.slide.webdav.WebdavServlet;
 import org.apache.webdav.lib.Ace;
+import org.apache.webdav.lib.PropertyName;
 import org.apache.webdav.lib.WebdavFile;
 import org.apache.webdav.lib.WebdavResource;
 import org.apache.webdav.lib.WebdavResources;
@@ -52,10 +53,10 @@ import com.idega.util.IWTimestamp;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2006/05/16 17:03:31 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2006/05/24 16:52:33 $ by $Author: thomas $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.42 $
+ * @version $Revision: 1.43 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService,IWSlideChangeListener {
 	
@@ -264,14 +265,18 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	}
 	
 	public WebdavExtendedResource getWebdavExtendedResource(String path,UsernamePasswordCredentials credentials) throws HttpException, IOException, RemoteException {
-		WebdavExtendedResource resource;
+		HttpURL url =  getWebdavServerURL(credentials,getPath(path));
+		if (url == null) {
+			throw new IOException("[IWSlideService] WebdavServerURL could not be retrieved");
+		}
+		return new WebdavExtendedResource(url);
+		//WebdavExtendedResource resource;
 //		if(getUserContext().isLoggedOn()){
-			resource = new WebdavExtendedResource(getWebdavServerURL(credentials,getPath(path)));
 			//resource = new WebdavLocalResource(getWebdavServerURL(credentials,getPath(path)));
 //		} else {
 //			resource = new WebdavExtendedResource(getIWSlideService().getWebdavServerURL(path));
 //		}
-		return resource;
+//		return resource;
 	}
 	
 	/**
@@ -784,12 +789,29 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * 
 	 */
 	public boolean uploadFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName, String fileContentString, String contentType){
+		return uploadFileAndCreateFoldersFromStringAsRoot(parentPath, fileName, fileContentString, contentType, false);
+	}
+		
+	/**
+	 * Creates the parent folder if needed and uploads the content of the string as a utf8 encoded file of the contenttype/mimetype you specify
+	 * 
+	 */
+	public boolean uploadFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName, String fileContentString, String contentType, boolean deletePredecessor){
 		boolean returnValue = false;
 		try {
 			createAllFoldersInPathAsRoot(parentPath);
 			
 			String filePath = parentPath+fileName;
 			WebdavResource rootResource = getWebdavResourceAuthenticatedAsRoot();
+
+			String fixedURL = getURI(filePath);
+
+			// delete previous versions
+			if (deletePredecessor) {
+				if (! rootResource.deleteMethod(fixedURL)) {
+					rootResource.deleteMethod(filePath);
+				}
+			}
 			ByteArrayInputStream utf8stream = new ByteArrayInputStream(fileContentString.getBytes("UTF-8"));
 			
 			//Conflict fix: uri for creating but path for updating
@@ -797,21 +819,22 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 			//Apparently in verion below works in some cases and the other in other cases.
 			//Seems to be connected to creating files in folders created in same tomcat session or similar
 			//not quite clear...
-			
-			if(rootResource.putMethod(filePath,utf8stream)){
-				if(contentType!=null){
-					rootResource.proppatchMethod(filePath,WebdavResource.GETCONTENTTYPE,contentType,true);
+
+			// update or create 
+			if(! rootResource.putMethod(fixedURL,utf8stream)){
+				rootResource.putMethod(filePath,utf8stream);
+			}
+			if(contentType!=null){
+				// use the object PropertyName, do not use proppatchMethod(String, String, String, boolean) 
+				// where only the property name is set but not the namespace "DAV:"
+				// The namespace is needed later in the method 
+				// StandardRDBMSAdapter#createRevisionDescriptor(Connection connection, Uri uri, NodeRevisionDescriptor revisionDescriptor)
+				// first parameter is the namespace, second parameter is the name of the property (e.g. "getcontenttype")
+				PropertyName propertyName = new PropertyName("DAV:", WebdavResource.GETCONTENTTYPE );
+				if (! rootResource.proppatchMethod(fixedURL, propertyName, contentType, true)) {
+					rootResource.proppatchMethod(filePath, propertyName, contentType, true);
 				}
 			}
-			else{
-				utf8stream = new ByteArrayInputStream(fileContentString.getBytes("UTF-8"));
-				String fixedURL = getURI(filePath);
-				rootResource.putMethod(fixedURL,utf8stream);
-				if(contentType!=null){
-					rootResource.proppatchMethod(fixedURL,WebdavResource.GETCONTENTTYPE,contentType,true);
-				}
-			}
-			
 			rootResource.close();
 			//log(rootResource.getStatusMessage());
 			
@@ -833,9 +856,21 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @return
 	 */
 	public boolean uploadXMLFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName, String fileContentString){
-		return uploadFileAndCreateFoldersFromStringAsRoot(parentPath, fileName, fileContentString,"text/xml");
+		return uploadFileAndCreateFoldersFromStringAsRoot(parentPath, fileName, fileContentString,"text/xml", false);
 	}
 
+	/**
+	 * Uploads the supplied string as a file with the content type "text/xml"
+	 * @param parentPath
+	 * @param fileName
+	 * @param fileContentString
+	 * @param contentType
+	 * @param deletePredecessor
+	 * @return
+	 */
+	public boolean uploadXMLFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName, String fileContentString, boolean deletePredecessor){
+		return uploadFileAndCreateFoldersFromStringAsRoot(parentPath, fileName, fileContentString,"text/xml", deletePredecessor);
+	}
 	
 	/**
 	 * @return Returns the array of IWSlideChangeListeners.
