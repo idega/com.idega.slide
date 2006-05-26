@@ -6,6 +6,7 @@
  */
 package com.idega.slide.schema;
 
+import com.idega.data.EntityAttribute;
 import com.idega.util.dbschema.Schema;
 import com.idega.util.dbschema.SchemaColumn;
 
@@ -13,10 +14,10 @@ import com.idega.util.dbschema.SchemaColumn;
 /**
  * 
  * 
- *  Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
+ *  Last modified: $Date: 2006/05/26 16:52:55 $ by $Author: thomas $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class SlideSchemaColumn implements SchemaColumn {
 	
@@ -121,6 +122,11 @@ public class SlideSchemaColumn implements SchemaColumn {
 	public void setMaxLength(int maxLength) {
 		this.maxLength = maxLength;
 	}
+	
+	public void setUnlimitedLength() {
+		setMaxLength(EntityAttribute.UNLIMITED_LENGTH);
+	}
+	
 	/**
 	 * @param nullAllowed The nullAllowed to set.
 	 */
