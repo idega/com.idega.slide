@@ -5,10 +5,10 @@ import com.idega.util.dbschema.IndexImpl;
 /**
  * 
  * 
- *  Last modified: $Date: 2006/04/11 15:12:46 $ by $Author: eiki $
+ *  Last modified: $Date: 2006/05/26 17:11:18 $ by $Author: thomas $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class PropertiesSchema extends SlideSchema {
 	
@@ -51,7 +51,7 @@ public class PropertiesSchema extends SlideSchema {
 		
 		SlideSchemaColumn value = new SlideSchemaColumn(this);
 		value.setDataTypeClass(String.class);
-		value.setMaxLength(4000);
+		value.setUnlimitedLength();
 		value.setSQLFieldName("PROPERTY_VALUE");
 		value.setNullAllowed(true);
 		
