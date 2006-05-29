@@ -35,6 +35,8 @@
   </classpathentry>
   <classpathentry kind="var" path="MAVEN_REPO/geronimo-spec/jars/geronimo-spec-jta-1.0-M1.jar">
   </classpathentry>
+  <classpathentry kind="var" path="MAVEN_REPO/jcr/jars/jcr-1.0.jar">
+  </classpathentry>
   <classpathentry kind="var" path="MAVEN_REPO/jdom/jars/jdom-1.0.jar">
   </classpathentry>
   <classpathentry kind="var" path="MAVEN_REPO/jai/jars/jai-1.0.jar">

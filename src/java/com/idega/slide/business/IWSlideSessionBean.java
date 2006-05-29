@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.32 2006/04/09 11:44:15 laddi Exp $
+ * $Id: IWSlideSessionBean.java,v 1.33 2006/05/29 18:23:18 tryggvil Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -9,11 +9,16 @@
  */
 package com.idega.slide.business;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.rmi.RemoteException;
 import java.util.Enumeration;
 import javax.servlet.http.HttpSessionBindingEvent;
 import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpURL;
+import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.slide.common.ServiceAccessException;
 import org.apache.slide.common.SlideToken;
@@ -22,6 +27,7 @@ import org.apache.slide.structure.ActionNode;
 import org.apache.slide.structure.LinkNode;
 import org.apache.slide.structure.ObjectNotFoundException;
 import org.apache.webdav.lib.Privilege;
+import org.apache.webdav.lib.WebdavFile;
 import org.apache.webdav.lib.WebdavResource;
 import org.apache.webdav.lib.util.WebdavStatus;
 import com.idega.business.IBOLookupException;
@@ -32,16 +38,17 @@ import com.idega.core.accesscontrol.business.NotLoggedOnException;
 import com.idega.slide.util.AccessControlList;
 import com.idega.slide.util.IWSlideConstants;
 import com.idega.slide.util.WebdavExtendedResource;
+import com.idega.slide.util.WebdavOutputStream;
 import com.idega.slide.util.WebdavRootResource;
 import com.idega.util.StringHandler;
 
 
 /**
  * 
- *  Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
+ *  Last modified: $Date: 2006/05/29 18:23:18 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.32 $
+ * @version $Revision: 1.33 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -202,6 +209,57 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		return resource;
 	}
 	
+	/**
+	 * <p>
+	 * Gets an URL to the WebdavServer with set credentials
+	 * </p>
+	 * @param path
+	 * @return
+	 */
+	public HttpURL getURL(String path){
+		IWSlideService service = getIWSlideService();
+		try {
+			return service.getWebdavServerURL(getUserCredentials(), path);
+		}
+		catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
+	 * Gets a file representation for the given path
+	 */
+	public File getFile(String path)throws URIException{
+		WebdavFile file = null;
+		file = new WebdavFile(getURL(path));
+		return file;
+	}
+	
+	/**
+	 * Gets an inputstream for reading the file on the given path
+	 * @throws IOException 
+	 * @throws  
+	 */
+	public InputStream getInputStream(String path)throws IOException{
+		WebdavResource resource = getWebdavResource(path);
+		return resource.getMethodData();
+	}
+
+	public OutputStream getOutputStream(File file)throws IOException{
+		return getOutputStream(file.getAbsolutePath());
+	}
+	
+	/**
+	 * Gets an inputstream for reading the file on the given path
+	 * @throws IOException
+	 * @throws  
+	 */
+	public OutputStream getOutputStream(String path)throws IOException{
+		WebdavResource resource = getWebdavResource(path);
+		return new WebdavOutputStream(resource);
+	}
+
+	
 	public String getURI(String path) throws RemoteException{
 		return getWebdavServerURI()+((path.startsWith("/"))?"":"/")+path;
 	}
@@ -271,7 +329,7 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
      *
      * @return a new SlideToken instance
      **/
-    public SlideToken getSlideToken() {
+    private SlideToken getSlideToken() {
     		if(this._slideToken == null){
     			throw new RuntimeException("["+this.getClass().getName()+"]: Requesting SlideToken but token has not been set.  Check if IWSlideAuthenticator filter is mapped right (/*) in web.xml");
 //    			// This code is borrowed from org.apache.slide.webdav.util.WebdavUtils#getSlideToken(HttpServletRequest)
@@ -311,7 +369,14 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	/* (non-Javadoc)
 	 * @see com.idega.slide.business.IWSlideSession#setSlideToken(org.apache.slide.common.SlideToken)
 	 */
-	public void setSlideToken(SlideToken slideToken) {
+	public void setSlideToken(Object slideToken) {
+		setSlideToken((SlideToken)slideToken);
+	}
+    
+	/* (non-Javadoc)
+	 * @see com.idega.slide.business.IWSlideSession#setSlideToken(org.apache.slide.common.SlideToken)
+	 */
+	private void setSlideToken(SlideToken slideToken) {
 		this._slideToken = slideToken;
 	}
 	
