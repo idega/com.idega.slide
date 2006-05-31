@@ -1,5 +1,5 @@
 /*
- * $Id: WebdavOutputStream.java,v 1.1 2006/05/29 18:23:18 tryggvil Exp $
+ * $Id: WebdavOutputStream.java,v 1.2 2006/05/31 11:12:10 laddi Exp $
  * Created on 24.5.2006 in project com.idega.slide
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -10,8 +10,9 @@
 package com.idega.slide.util;
 
 import java.io.IOException;
-import org.apache.commons.httpclient.HttpException;
+
 import org.apache.webdav.lib.WebdavResource;
+
 import com.idega.io.MemoryFileBuffer;
 import com.idega.io.MemoryInputStream;
 import com.idega.io.MemoryOutputStream;
@@ -21,10 +22,10 @@ import com.idega.io.MemoryOutputStream;
  * <p>
  * TODO tryggvil Describe Type WebdavOutputStream
  * </p>
- *  Last modified: $Date: 2006/05/29 18:23:18 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2006/05/31 11:12:10 $ by $Author: laddi $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class WebdavOutputStream extends MemoryOutputStream {
 
@@ -41,9 +42,9 @@ public class WebdavOutputStream extends MemoryOutputStream {
 	}
 
 	public void commit() throws IOException {
-		if(!committed){
+		if(!this.committed){
 			getWebdavResource().putMethod(new MemoryInputStream(getBuffer()));
-			committed=true;
+			this.committed=true;
 		}
 	}
 	
@@ -62,7 +63,7 @@ public class WebdavOutputStream extends MemoryOutputStream {
 	 * @return the webdavResource
 	 */
 	public WebdavResource getWebdavResource() {
-		return webdavResource;
+		return this.webdavResource;
 	}
 
 	
