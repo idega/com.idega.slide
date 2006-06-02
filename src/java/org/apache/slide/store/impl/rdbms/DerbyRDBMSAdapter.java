@@ -1,5 +1,5 @@
 /*
- * $Id: DerbyRDBMSAdapter.java,v 1.1 2005/04/12 20:29:33 tryggvil Exp $
+ * $Id: DerbyRDBMSAdapter.java,v 1.2 2006/06/02 10:21:21 tryggvil Exp $
  * Created on 12.4.2005 in project com.idega.slide
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -17,10 +17,10 @@ import org.apache.slide.util.logger.Logger;
  * <p>
  * This is the Apache Derby database adapter for Slide
  * </p>
- *  Last modified: $Date: 2005/04/12 20:29:33 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2006/06/02 10:21:21 $ by $Author: tryggvil $
  * 
- * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.1 $
+ * @author <a href="mailto:tryggvil@idega.com">Tryggvi Larusson</a>
+ * @version $Revision: 1.2 $
  */
 public class DerbyRDBMSAdapter extends StandardRDBMSAdapter {
 
