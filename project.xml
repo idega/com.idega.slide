@@ -7,7 +7,6 @@
   <name>idegaWeb Slide</name>
   <groupId>bundles</groupId>
   <currentVersion>3.1.0</currentVersion>
-
   <organization>
     <name>Idega Software</name>
     <url>www.idega.com</url>
@@ -46,6 +45,11 @@
       <id>1.0</id>
       <name>1.0</name>
       <tag>SLIDE_1_0</tag>
+    </version>
+    <version>
+      <id>3.1.0</id>
+      <name>3.1.0</name>
+      <tag>SLIDE_3_1_0</tag>
     </version>
   </versions>
   <developers>
