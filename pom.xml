@@ -63,7 +63,7 @@
     </dependency>
  
     <dependency>
-      <groupId>jcr</groupId>
+      <groupId>jsr170</groupId>
       <artifactId>jcr</artifactId>
       <version>1.0</version>
       <type>jar</type>
