@@ -1,5 +1,5 @@
 /*
- * $Id: WebdavExtendedServlet.java,v 1.1 2006/06/02 10:21:21 tryggvil Exp $
+ * $Id: WebdavExtendedServlet.java,v 1.2 2006/06/21 18:05:46 tryggvil Exp $
  * Created on 31.5.2006 in project com.idega.slide
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -16,6 +16,7 @@ import org.apache.slide.webdav.WebdavServlet;
 import com.idega.idegaweb.IWMainApplication;
 import com.idega.servlet.ServletConfigWrapper;
 import com.idega.servlet.ServletWrapper;
+import com.idega.servlet.filter.IWBundleResourceFilter;
 import com.idega.util.database.ConnectionBroker;
 import com.idega.util.dbschema.SQLSchemaAdapter;
 
@@ -24,10 +25,10 @@ import com.idega.util.dbschema.SQLSchemaAdapter;
  * <p>
  * TODO tryggvil Describe Type WebavExtendedServlet
  * </p>
- *  Last modified: $Date: 2006/06/02 10:21:21 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2006/06/21 18:05:46 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class WebdavExtendedServlet extends ServletWrapper {
 	
@@ -61,6 +62,11 @@ public class WebdavExtendedServlet extends ServletWrapper {
 
 			domainparam = getDomainPath(newConfig);
 			newConfig.setInitParameter("domain", domainparam);
+			
+			//Temporary workaround to copy config file to webapp
+			IWMainApplication iwma = IWMainApplication.getIWMainApplication(config.getServletContext());
+			IWBundleResourceFilter.copyResourceFromJarToWebapp(iwma, domainparam);
+			
 			setDefaultConfig(newConfig);
 		}
 		//setServletConfig(newConfig);*/
