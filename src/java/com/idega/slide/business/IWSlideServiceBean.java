@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.43 2006/05/24 16:52:33 thomas Exp $
+ * $Id: IWSlideServiceBean.java,v 1.44 2006/08/30 16:55:37 valdas Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -11,6 +11,8 @@ package com.idega.slide.business;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -19,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.HttpsURL;
@@ -35,6 +38,7 @@ import org.apache.webdav.lib.WebdavResource;
 import org.apache.webdav.lib.WebdavResources;
 import org.apache.webdav.lib.properties.AclProperty;
 import org.apache.webdav.lib.util.WebdavStatus;
+
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBORuntimeException;
 import com.idega.business.IBOServiceBean;
@@ -53,10 +57,10 @@ import com.idega.util.IWTimestamp;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2006/05/24 16:52:33 $ by $Author: thomas $
+ *  Last modified: $Date: 2006/08/30 16:55:37 $ by $Author: valdas $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.43 $
+ * @version $Revision: 1.44 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService,IWSlideChangeListener {
 	
@@ -797,7 +801,22 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * 
 	 */
 	public boolean uploadFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName, String fileContentString, String contentType, boolean deletePredecessor){
-		boolean returnValue = false;
+		ByteArrayInputStream utf8stream;
+		try {
+			utf8stream = new ByteArrayInputStream(fileContentString.getBytes("UTF-8"));
+			return	uploadFileAndCreateFoldersFromStringAsRoot(parentPath,fileName,utf8stream,contentType, deletePredecessor);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}	
+		return false;
+	}
+	
+	/**
+	 *
+	 * Creates the parent folder if needed and uploads the content of the file to Slide and sets the contenttype/mimetype you specify
+	 */
+	public boolean uploadFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName, InputStream fileInputStream, String contentType, boolean deletePredecessor){
+		boolean returnValue = true;
 		try {
 			createAllFoldersInPathAsRoot(parentPath);
 			
@@ -808,11 +827,11 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 
 			// delete previous versions
 			if (deletePredecessor) {
-				if (! rootResource.deleteMethod(fixedURL)) {
+				if (!rootResource.deleteMethod(fixedURL)) {
 					rootResource.deleteMethod(filePath);
 				}
 			}
-			ByteArrayInputStream utf8stream = new ByteArrayInputStream(fileContentString.getBytes("UTF-8"));
+			
 			
 			//Conflict fix: uri for creating but path for updating
 			//Note! This is a patch to what seems to be a bug in WebDav
@@ -821,17 +840,17 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 			//not quite clear...
 
 			// update or create 
-			if(! rootResource.putMethod(fixedURL,utf8stream)){
-				rootResource.putMethod(filePath,utf8stream);
+			if (!rootResource.putMethod(fixedURL,fileInputStream)) {
+				rootResource.putMethod(filePath, fileInputStream);
 			}
-			if(contentType!=null){
+			if (contentType != null) {
 				// use the object PropertyName, do not use proppatchMethod(String, String, String, boolean) 
 				// where only the property name is set but not the namespace "DAV:"
 				// The namespace is needed later in the method 
 				// StandardRDBMSAdapter#createRevisionDescriptor(Connection connection, Uri uri, NodeRevisionDescriptor revisionDescriptor)
 				// first parameter is the namespace, second parameter is the name of the property (e.g. "getcontenttype")
-				PropertyName propertyName = new PropertyName("DAV:", WebdavResource.GETCONTENTTYPE );
-				if (! rootResource.proppatchMethod(fixedURL, propertyName, contentType, true)) {
+				PropertyName propertyName = new PropertyName("DAV:", WebdavResource.GETCONTENTTYPE);
+				if (!rootResource.proppatchMethod(fixedURL, propertyName, contentType, true)) {
 					rootResource.proppatchMethod(filePath, propertyName, contentType, true);
 				}
 			}
@@ -841,6 +860,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		}
 		catch (Exception e) {
 			e.printStackTrace();
+			returnValue = false;
 		}
 	
 		
