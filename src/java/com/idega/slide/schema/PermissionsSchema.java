@@ -1,14 +1,14 @@
-package com.idega.slide.schema;
+	package com.idega.slide.schema;
 
 import com.idega.util.dbschema.IndexImpl;
 
 /**
  * 
  * 
- *  Last modified: $Date: 2006/04/11 15:12:46 $ by $Author: eiki $
+ *  Last modified: $Date: 2006/09/15 15:44:14 $ by $Author: eiki $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.2.2.1 $
  */
 public class PermissionsSchema extends SlideSchema {
 	/*

@@ -5,6 +5,15 @@
   </properties>
   <body>
   
+    <release version="3.1.1" date="2006-08-31">
+      <action dev="eiki" type="update">
+      	Merging small change from HEAD, IWSlideService now supports inputstream uploading.
+		Also added isFolder method that is currently not in head
+      	Updating org.apache.slide to v.2.2b8
+      	Updating com.idega.core to v.3.1.8
+      </action>
+    </release>
+  
 	<release version="3.1.0" date="2005-06-19">
       <action dev="tryggvil" type="update">
       	Declaration of version for including in ePlatform release 3.1

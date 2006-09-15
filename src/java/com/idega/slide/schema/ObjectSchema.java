@@ -5,10 +5,10 @@ import com.idega.util.dbschema.IndexImpl;
 /**
  * 
  * 
- *  Last modified: $Date: 2006/04/11 15:12:46 $ by $Author: eiki $
+ *  Last modified: $Date: 2006/09/15 15:44:14 $ by $Author: eiki $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.2.2.1 $
  */
 public class ObjectSchema extends SlideSchema {
 	
@@ -42,7 +42,7 @@ public class ObjectSchema extends SlideSchema {
 		addColumn(uriID,true);
 		addColumn(className);
 		
-		//CREATE INDEX object_idx ON object(class_name,uri_id);
+		//CREATE INDEX object_idx1 ON object(class_name,uri_id);
 		IndexImpl index1 = new IndexImpl("object_idx1",getSQLName());
 		index1.addField("CLASS_NAME");
 		index1.addField("URI_ID");
