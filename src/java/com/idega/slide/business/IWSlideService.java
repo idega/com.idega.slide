@@ -15,6 +15,8 @@ import java.io.InputStream;
 import java.io.IOException;
 import com.idega.business.IBOService;
 import java.util.List;
+import java.util.zip.ZipInputStream;
+
 import org.apache.slide.security.Security;
 import org.apache.commons.httpclient.HttpURL;
 import com.idega.business.IBOLookupException;
@@ -295,4 +297,9 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 	 * @see com.idega.slide.business.IWSlideServiceBean#getParentPath
 	 */
 	public String getParentPath(String path) throws RemoteException;
+	
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#uploadZipFileContents
+	 */
+	public boolean uploadZipFileContents(ZipInputStream zipInputStream, String uploadPath) throws RemoteException;
 }

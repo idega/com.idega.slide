@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.44 2006/08/30 16:55:37 valdas Exp $
+ * $Id: IWSlideServiceBean.java,v 1.45 2006/09/20 10:31:58 valdas Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -10,6 +10,7 @@
 package com.idega.slide.business;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -21,12 +22,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.HttpsURL;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.slide.common.NamespaceAccessToken;
 import org.apache.slide.event.ContentEvent;
 import org.apache.slide.security.Security;
@@ -42,6 +47,7 @@ import org.apache.webdav.lib.util.WebdavStatus;
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBORuntimeException;
 import com.idega.business.IBOServiceBean;
+import com.idega.io.ZipInstaller;
 import com.idega.slide.authentication.AuthenticationBusiness;
 import com.idega.slide.schema.SlideSchemaCreator;
 import com.idega.slide.util.AccessControlEntry;
@@ -57,12 +63,12 @@ import com.idega.util.IWTimestamp;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2006/08/30 16:55:37 $ by $Author: valdas $
+ *  Last modified: $Date: 2006/09/20 10:31:58 $ by $Author: valdas $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.44 $
+ * @version $Revision: 1.45 $
  */
-public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService,IWSlideChangeListener {
+public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService, IWSlideChangeListener {
 	
 	//listeners and caching
 	private List iwSlideChangeListeners = null;
@@ -91,6 +97,8 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	protected String lastGlobalUniqueFileName = null;
 	
 	private Security security = null;
+	
+	private static final Log log = LogFactory.getLog(IWSlideServiceBean.class);
 		
 	public IWSlideServiceBean() {
 		super();
@@ -1220,6 +1228,50 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		return parentPath;
 	}
 	
-
-	
+	/**
+	 * Uploads zip file's contents to slide. Note: only *.zip file allowed!
+	 * @param zipInputStream: a stream to read the file and its content from
+	 * @param uploadPath: a path in slide where to store files (for example: "/files/public/")
+	 * @return result: success (true) or failure (false) while uploading file
+	 */
+	public boolean uploadZipFileContents(ZipInputStream zipInputStream, String uploadPath) {
+		// Checking if parameters are valid
+		boolean result = (uploadPath == null || "".equals(uploadPath)) ? false : true;
+		if (!result) {
+			log.error("Invalid upload path!");
+			return result;
+		}
+		result = zipInputStream == null ? false : true;
+		if (!result) {
+			log.error("ZipInputStream is closed!");
+			return result;
+		}
+		ZipEntry entry = null;
+		ZipInstaller zip = new ZipInstaller();
+		ByteArrayOutputStream memory = null;
+		InputStream is = null;
+		try {
+			while ((entry = zipInputStream.getNextEntry()) != null && result) {
+				if (entry.isDirectory()) {
+					createAllFoldersInPathAsRoot(uploadPath + entry.getName());
+				}
+				else {
+					memory = new ByteArrayOutputStream();
+					zip.writeFromStreamToStream(zipInputStream, memory);
+					is = new ByteArrayInputStream(memory.toByteArray());
+					result = uploadFileAndCreateFoldersFromStringAsRoot(uploadPath, entry.getName(), is, null, true);
+					memory.close();
+					is.close();
+				}
+				zip.closeEntry(zipInputStream);
+			}
+		} catch (IOException e) {
+			log.error(e);
+			return false;
+		}
+		finally {
+			zip.closeEntry(zipInputStream);
+		}
+		return result;
+	}
 }
