@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.45 2006/09/20 10:31:58 valdas Exp $
+ * $Id: IWSlideServiceBean.java,v 1.46 2006/09/20 11:58:10 valdas Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -63,10 +63,10 @@ import com.idega.util.IWTimestamp;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2006/09/20 10:31:58 $ by $Author: valdas $
+ *  Last modified: $Date: 2006/09/20 11:58:10 $ by $Author: valdas $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.45 $
+ * @version $Revision: 1.46 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService, IWSlideChangeListener {
 	
@@ -1250,16 +1250,22 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		ZipInstaller zip = new ZipInstaller();
 		ByteArrayOutputStream memory = null;
 		InputStream is = null;
+		String pathToFile = null;
+		String fileName = null;
 		try {
 			while ((entry = zipInputStream.getNextEntry()) != null && result) {
-				if (entry.isDirectory()) {
-					createAllFoldersInPathAsRoot(uploadPath + entry.getName());
-				}
-				else {
+				if (!entry.isDirectory()) {
+					pathToFile = "";
+					fileName = entry.getName();
+					int lastSlash = fileName.lastIndexOf(SLASH);
+					if (lastSlash != -1) {
+						pathToFile = fileName.substring(0, lastSlash + 1);
+						fileName = fileName.substring(lastSlash + 1, fileName.length());
+					}
 					memory = new ByteArrayOutputStream();
 					zip.writeFromStreamToStream(zipInputStream, memory);
 					is = new ByteArrayInputStream(memory.toByteArray());
-					result = uploadFileAndCreateFoldersFromStringAsRoot(uploadPath, entry.getName(), is, null, true);
+					result = uploadFileAndCreateFoldersFromStringAsRoot(uploadPath + pathToFile, fileName, is, null, true);
 					memory.close();
 					is.close();
 				}
