@@ -251,6 +251,7 @@ public class WebdavExtendedResource extends WebdavResource {
 		properties.addElement(GETCONTENTTYPE);
 		properties.addElement(RESOURCETYPE);
 		properties.addElement(GETLASTMODIFIED);
+		properties.addElement(CREATIONDATE);
 		properties.addElement(LOCKDISCOVERY);
 		// DeltaV support
 		properties.addElement(VersionHelper.PROPERTY_CHECKED_IN);

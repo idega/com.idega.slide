@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.33 2006/05/29 18:23:18 tryggvil Exp $
+ * $Id: IWSlideSessionBean.java,v 1.33.2.1 2006/09/28 18:07:11 eiki Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -15,7 +15,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.rmi.RemoteException;
 import java.util.Enumeration;
+
 import javax.servlet.http.HttpSessionBindingEvent;
+
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.URIException;
@@ -30,6 +32,7 @@ import org.apache.webdav.lib.Privilege;
 import org.apache.webdav.lib.WebdavFile;
 import org.apache.webdav.lib.WebdavResource;
 import org.apache.webdav.lib.util.WebdavStatus;
+
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBOSessionBean;
 import com.idega.core.accesscontrol.business.LoggedOnInfo;
@@ -45,10 +48,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2006/05/29 18:23:18 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2006/09/28 18:07:11 $ by $Author: eiki $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.33 $
+ * @version $Revision: 1.33.2.1 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -445,5 +448,25 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		IWSlideService slideService = getIWSlideService();
 		return slideService.createAllFoldersInPath(path,getUserCredentials());
 		
+	}
+	
+	/**
+	 * 
+	 * @param folderURI the path to the folder
+	 * @return true if the path refers to a folder, checks as the current user, false if he doesn't have the priviledges to the folder
+	 */
+	public boolean isFolder(String folderURI) {
+		
+		WebdavResource resource;
+		try {
+			resource = getWebdavResource(folderURI);
+			return resource.isCollection();
+		} catch (HttpException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return false;	
 	}
 }

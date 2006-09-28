@@ -5,6 +5,12 @@
   </properties>
   <body>
   
+   <release version="3.1.2" date="2006-09-28">
+      <action dev="eiki" type="update">
+      	Added isFolder method to IWSlideSessionBean
+      </action>
+    </release>
+	
     <release version="3.1.1" date="2006-08-31">
       <action dev="eiki" type="update">
       	Merging small change from HEAD, IWSlideService now supports inputstream uploading.
