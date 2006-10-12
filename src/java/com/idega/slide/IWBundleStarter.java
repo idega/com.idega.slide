@@ -1,5 +1,5 @@
 /*
- * $Id: IWBundleStarter.java,v 1.8 2006/03/24 16:44:09 eiki Exp $
+ * $Id: IWBundleStarter.java,v 1.9 2006/10/12 17:49:18 valdas Exp $
  * Created on 15.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -10,6 +10,7 @@
 package com.idega.slide;
 
 import java.rmi.RemoteException;
+
 import com.idega.business.IBOLookup;
 import com.idega.business.IBOLookupException;
 import com.idega.idegaweb.IWApplicationContext;
@@ -20,10 +21,10 @@ import com.idega.slide.util.DirtyUnloader;
 
 /**
  * 
- *  Last modified: $Date: 2006/03/24 16:44:09 $ by $Author: eiki $
+ *  Last modified: $Date: 2006/10/12 17:49:18 $ by $Author: valdas $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public class IWBundleStarter implements IWBundleStartable {
 
@@ -46,6 +47,7 @@ public class IWBundleStarter implements IWBundleStartable {
             //add it as a slide change listener for caching purposes
             service.addIWSlideChangeListeners(service);
             
+   
         } catch (IBOLookupException e) {
             e.printStackTrace();
         } catch (RemoteException e) {

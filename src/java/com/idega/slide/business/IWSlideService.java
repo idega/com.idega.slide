@@ -286,7 +286,7 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#onSlideChange
 	 */
-	public void onSlideChange(ContentEvent contentEvent);
+	public void onSlideChange(IWContentEvent contentEvent);
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getParentPath

@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.46 2006/09/20 11:58:10 valdas Exp $
+ * $Id: IWSlideServiceBean.java,v 1.47 2006/10/12 17:49:18 valdas Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -33,7 +33,6 @@ import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.slide.common.NamespaceAccessToken;
-import org.apache.slide.event.ContentEvent;
 import org.apache.slide.security.Security;
 import org.apache.slide.webdav.WebdavServlet;
 import org.apache.webdav.lib.Ace;
@@ -63,15 +62,15 @@ import com.idega.util.IWTimestamp;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2006/09/20 11:58:10 $ by $Author: valdas $
+ *  Last modified: $Date: 2006/10/12 17:49:18 $ by $Author: valdas $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.46 $
+ * @version $Revision: 1.47 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService, IWSlideChangeListener {
 	
 	//listeners and caching
-	private List iwSlideChangeListeners = null;
+	private List <IWSlideChangeListener> iwSlideChangeListeners = null;
 	private IWSlideChangeListener[] iwSlideChangeListenersArray = null;
 	private Map childPathsCacheMap = new HashMap();
 	private Map childPathsExcludingFolderAndHiddenFilesCacheMap = new HashMap();
@@ -93,7 +92,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	protected static final String FOLDER_NAME_SHARED = "/shared";
 	protected static final String FOLDER_NAME_DROPBOX = "/dropbox";
 	
-	protected Map lastUniqueFileNameScopeMap = new HashMap();
+	protected Map <String, String> lastUniqueFileNameScopeMap = new HashMap<String, String>();
 	protected String lastGlobalUniqueFileName = null;
 	
 	private Security security = null;
@@ -922,7 +921,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 */
 	public void addIWSlideChangeListeners(IWSlideChangeListener iwSlideChangeListener) {
 		if(this.iwSlideChangeListeners==null){
-			this.iwSlideChangeListeners = new ArrayList();
+			this.iwSlideChangeListeners = new ArrayList<IWSlideChangeListener>();
 		}
 		
 		if(!this.iwSlideChangeListeners.contains(iwSlideChangeListener)){
@@ -1036,8 +1035,8 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 */
 	public List getChildFolderPaths(String folderURI) {
 		
-		Map cache = getChildFolderPathsCacheMap();
-		List paths = (List) cache.get(folderURI);
+		Map <String, List> cache = getChildFolderPathsCacheMap();
+		List <String> paths = (List) cache.get(folderURI);
 		
 		if(paths==null){
 			try {
@@ -1049,7 +1048,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 					WebdavResource[] resources = children.listResources();
 					
 					if(resources.length>0){
-						paths = new ArrayList();
+						paths = new ArrayList<String>();
 						for (int i = 0; i < resources.length; i++) {
 							WebdavResource wResource = resources[i];
 							if (resources[i].isCollection()) {
@@ -1079,8 +1078,8 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 */
 	public List getChildPaths(String folderURI) {
 		
-		Map cache = getChildPathsCacheMap();
-		List paths = (List) cache.get(folderURI);
+		Map <String, List> cache = getChildPathsCacheMap();
+		List <String> paths = (List) cache.get(folderURI);
 		
 		if(paths==null){
 			try {
@@ -1092,7 +1091,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 					WebdavResource[] resources = children.listResources();
 					
 					if(resources.length>0){
-						paths = new ArrayList();
+						paths = new ArrayList<String>();
 						for (int i = 0; i < resources.length; i++) {
 							WebdavResource wResource = resources[i];
 							paths.add(wResource.getPath());
@@ -1194,9 +1193,9 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	/* (non-Javadoc)
 	 * @see com.idega.slide.business.IWSlideChangeListener#onSlideChange(org.apache.slide.event.ContentEvent)
 	 */
-	public void onSlideChange(ContentEvent contentEvent) {
+	public void onSlideChange(IWContentEvent contentEvent) {
 		//get the url changing and invalidate
-		String URI = contentEvent.getUri();
+		String URI = contentEvent.getContentEvent().getUri();
 		invalidateCacheForAllFoldersInURIPath(URI);
 	}
 	
@@ -1280,4 +1279,5 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		}
 		return result;
 	}
+
 }
