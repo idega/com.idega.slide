@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.47 2006/10/12 17:49:18 valdas Exp $
+ * $Id: IWSlideServiceBean.java,v 1.48 2006/11/24 16:51:05 valdas Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -62,10 +62,10 @@ import com.idega.util.IWTimestamp;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2006/10/12 17:49:18 $ by $Author: valdas $
+ *  Last modified: $Date: 2006/11/24 16:51:05 $ by $Author: valdas $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.47 $
+ * @version $Revision: 1.48 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService, IWSlideChangeListener {
 	
@@ -78,6 +78,9 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	//
 
 	protected static final String SLASH = "/";
+	private static final String SPACE = " ";
+	private static final String UNDER = "_";
+	private static final String EMPTY = "";
 	
 	protected static final String WEBDAV_SERVLET_URI = "/content";
 	protected static final String FILE_SERVER_URI = WEBDAV_SERVLET_URI+"/files";
@@ -1254,8 +1257,8 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		try {
 			while ((entry = zipInputStream.getNextEntry()) != null && result) {
 				if (!entry.isDirectory()) {
-					pathToFile = "";
-					fileName = entry.getName();
+					pathToFile = EMPTY;
+					fileName = removeSpaces(entry.getName());
 					int lastSlash = fileName.lastIndexOf(SLASH);
 					if (lastSlash != -1) {
 						pathToFile = fileName.substring(0, lastSlash + 1);
@@ -1278,6 +1281,17 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 			zip.closeEntry(zipInputStream);
 		}
 		return result;
+	}
+	
+	private String removeSpaces(String value) {
+		if (value == null) {
+			return null;
+		}
+		value = value.trim();
+		while (value.indexOf(SPACE) != -1) {
+			value = value.replace(SPACE, UNDER);
+		}
+		return value;
 	}
 
 }
