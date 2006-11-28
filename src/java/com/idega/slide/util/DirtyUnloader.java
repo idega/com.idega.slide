@@ -135,7 +135,7 @@ public class DirtyUnloader {
 			Constructor[] constructors = clazz.getDeclaredConstructors();
 			Constructor constructor = constructors[0];
 			constructor.setAccessible(true);
-			NotificationTrigger trigger = (NotificationTrigger) constructor.newInstance(null);
+			NotificationTrigger trigger = (NotificationTrigger) constructor.newInstance((Object[]) null);
 			Field instanceField = NotificationTrigger.class.getDeclaredField("notificationTrigger");
 			instanceField.setAccessible(true);
 			instanceField.set(null, trigger);

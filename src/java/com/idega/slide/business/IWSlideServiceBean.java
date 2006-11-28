@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.48 2006/11/24 16:51:05 valdas Exp $
+ * $Id: IWSlideServiceBean.java,v 1.49 2006/11/28 18:46:57 laddi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -62,10 +62,10 @@ import com.idega.util.IWTimestamp;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2006/11/24 16:51:05 $ by $Author: valdas $
+ *  Last modified: $Date: 2006/11/28 18:46:57 $ by $Author: laddi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.48 $
+ * @version $Revision: 1.49 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService, IWSlideChangeListener {
 	
@@ -726,7 +726,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		String name = timestamp.getDateString(minuteString);
 		String lastName = null;
 		if(scope != null && !"".equals(scope)){
-			lastName = (String)this.lastUniqueFileNameScopeMap.get(scope);
+			lastName = this.lastUniqueFileNameScopeMap.get(scope);
 		} else {
 			lastName = this.lastGlobalUniqueFileName;
 		}
@@ -930,7 +930,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		if(!this.iwSlideChangeListeners.contains(iwSlideChangeListener)){
 			this.iwSlideChangeListeners.add(iwSlideChangeListener);
 			//update the array, for speed optimization
-			this.iwSlideChangeListenersArray = (IWSlideChangeListener[]) this.iwSlideChangeListeners.toArray(new IWSlideChangeListener[0]);
+			this.iwSlideChangeListenersArray = this.iwSlideChangeListeners.toArray(new IWSlideChangeListener[0]);
 		}
 		
 	}
@@ -1039,7 +1039,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	public List getChildFolderPaths(String folderURI) {
 		
 		Map <String, List> cache = getChildFolderPathsCacheMap();
-		List <String> paths = (List) cache.get(folderURI);
+		List <String> paths = cache.get(folderURI);
 		
 		if(paths==null){
 			try {
@@ -1082,7 +1082,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	public List getChildPaths(String folderURI) {
 		
 		Map <String, List> cache = getChildPathsCacheMap();
-		List <String> paths = (List) cache.get(folderURI);
+		List <String> paths = cache.get(folderURI);
 		
 		if(paths==null){
 			try {

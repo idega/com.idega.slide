@@ -1,26 +1,26 @@
 package com.idega.slide.business;
 
 
-import org.apache.webdav.lib.WebdavFile;
-import com.idega.slide.util.WebdavExtendedResource;
-import java.util.Map;
-import org.apache.webdav.lib.WebdavResource;
-import com.idega.slide.authentication.AuthenticationBusiness;
-import com.idega.slide.util.AccessControlList;
-import java.rmi.RemoteException;
-import com.idega.slide.util.WebdavRootResource;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.HttpException;
-import java.io.InputStream;
 import java.io.IOException;
-import com.idega.business.IBOService;
+import java.io.InputStream;
+import java.rmi.RemoteException;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipInputStream;
 
-import org.apache.slide.security.Security;
+import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.slide.security.Security;
+import org.apache.webdav.lib.WebdavFile;
+import org.apache.webdav.lib.WebdavResource;
+
 import com.idega.business.IBOLookupException;
-import org.apache.slide.event.ContentEvent;
+import com.idega.business.IBOService;
+import com.idega.slide.authentication.AuthenticationBusiness;
+import com.idega.slide.util.AccessControlList;
+import com.idega.slide.util.WebdavExtendedResource;
+import com.idega.slide.util.WebdavRootResource;
 
 public interface IWSlideService extends IBOService, IWSlideChangeListener {
 	/**
