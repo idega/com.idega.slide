@@ -5,10 +5,10 @@ import com.idega.util.dbschema.IndexImpl;
 /**
  * 
  * 
- *  Last modified: $Date: 2006/04/11 15:12:46 $ by $Author: eiki $
+ *  Last modified: $Date: 2007/02/04 20:42:22 $ by $Author: valdas $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class PermissionsSchema extends SlideSchema {
 	/*

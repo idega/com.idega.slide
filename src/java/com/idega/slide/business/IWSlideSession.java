@@ -1,24 +1,26 @@
 package com.idega.slide.business;
 
 
-import org.apache.webdav.lib.Privilege;
-import com.idega.slide.util.WebdavExtendedResource;
-import javax.servlet.http.HttpSessionBindingEvent;
-import com.idega.slide.util.AccessControlList;
-import java.rmi.RemoteException;
-import org.apache.commons.httpclient.URIException;
-import com.idega.slide.util.WebdavRootResource;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.HttpException;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import com.idega.business.IBOService;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.rmi.RemoteException;
+
+import javax.servlet.http.HttpSessionBindingEvent;
+
+import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
+import org.apache.commons.httpclient.URIException;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.webdav.lib.Privilege;
+
+import com.idega.business.IBOService;
+import com.idega.slide.util.AccessControlList;
+import com.idega.slide.util.WebdavExtendedResource;
+import com.idega.slide.util.WebdavRootResource;
 
 public interface IWSlideSession extends IBOService {
-
 	/**
 	 * @see com.idega.slide.business.IWSlideSessionBean#valueBound
 	 */
@@ -133,4 +135,9 @@ public interface IWSlideSession extends IBOService {
 	 * @see com.idega.slide.business.IWSlideSessionBean#createAllFoldersInPath
 	 */
 	public boolean createAllFoldersInPath(String path) throws HttpException, RemoteException, IOException, RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideSessionBean#isFolder
+	 */
+	public boolean isFolder(String folderURI) throws RemoteException;
 }

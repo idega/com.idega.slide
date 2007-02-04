@@ -1,5 +1,5 @@
 /*
- * $Id: PropertyParser.java,v 1.2 2004/12/17 18:04:55 gummi Exp $
+ * $Id: PropertyParser.java,v 1.3 2007/02/04 20:42:22 valdas Exp $
  * Created on 15.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -9,7 +9,6 @@
  */
 package com.idega.slide.util;
 
-import java.rmi.RemoteException;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -18,10 +17,10 @@ import java.util.Set;
 /**
  * Class for parsing and encoding properties in slide.
  * 
- *  Last modified: $Date: 2004/12/17 18:04:55 $ by $Author: gummi $
+ *  Last modified: $Date: 2007/02/04 20:42:22 $ by $Author: valdas $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class PropertyParser {
 	/**

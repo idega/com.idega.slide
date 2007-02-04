@@ -5,10 +5,10 @@ import com.idega.util.dbschema.IndexImpl;
 /**
  * 
  * 
- *  Last modified: $Date: 2006/05/26 17:11:18 $ by $Author: thomas $
+ *  Last modified: $Date: 2007/02/04 20:42:22 $ by $Author: valdas $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class PropertiesSchema extends SlideSchema {
 	
@@ -82,7 +82,7 @@ public class PropertiesSchema extends SlideSchema {
 		addUniqueKey(uniqueKey);
 		
 //		CREATE INDEX properties_idx1 ON properties(version_id,property_name);
-//		CREATE INDEX property_name_idx2 ON properties(version_id,property_namespace,property_name);
+//		CREATE INDEX properties_idx2 ON properties(version_id,property_namespace,property_name);
 		
 		IndexImpl index1 = new IndexImpl("properties_idx1",getSQLName());
 		index1.addField("VERSION_ID");
