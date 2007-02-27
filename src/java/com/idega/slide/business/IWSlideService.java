@@ -301,5 +301,5 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#uploadZipFileContents
 	 */
-	public boolean uploadZipFileContents(ZipInputStream zipInputStream, String uploadPath) throws RemoteException;
+	public boolean uploadZipFileContents(ZipInputStream zipInputStream, String uploadPath, List<String> filesToClean) throws RemoteException;
 }

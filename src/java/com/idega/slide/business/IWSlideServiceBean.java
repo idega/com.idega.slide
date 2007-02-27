@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.49 2006/11/28 18:46:57 laddi Exp $
+ * $Id: IWSlideServiceBean.java,v 1.50 2007/02/27 10:36:24 valdas Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -42,6 +42,7 @@ import org.apache.webdav.lib.WebdavResource;
 import org.apache.webdav.lib.WebdavResources;
 import org.apache.webdav.lib.properties.AclProperty;
 import org.apache.webdav.lib.util.WebdavStatus;
+import org.htmlcleaner.HtmlCleaner;
 
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBORuntimeException;
@@ -62,12 +63,14 @@ import com.idega.util.IWTimestamp;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2006/11/28 18:46:57 $ by $Author: laddi $
+ *  Last modified: $Date: 2007/02/27 10:36:24 $ by $Author: valdas $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.49 $
+ * @version $Revision: 1.50 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService, IWSlideChangeListener {
+
+	private static final long serialVersionUID = -4520443825572949293L;
 	
 	//listeners and caching
 	private List <IWSlideChangeListener> iwSlideChangeListeners = null;
@@ -81,6 +84,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	private static final String SPACE = " ";
 	private static final String UNDER = "_";
 	private static final String EMPTY = "";
+	private static final String DOT = ".";
 	
 	protected static final String WEBDAV_SERVLET_URI = "/content";
 	protected static final String FILE_SERVER_URI = WEBDAV_SERVLET_URI+"/files";
@@ -372,7 +376,6 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 //				e1.printStackTrace();
 //			}
 //			catch (IOException e1) {
-//				// TODO Auto-generated catch block
 //				e1.printStackTrace();
 //			}
 //			
@@ -419,19 +422,15 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 //				rootFolder.aclMethod(userFolderPath+FOLDER_NAME_PUBLIC,publicAce);
 //			}
 //			catch (IBOLookupException e) {
-//				// TODO Auto-generated catch block
 //				e.printStackTrace();
 //			}
 //			catch (HttpException e) {
-//				// TODO Auto-generated catch block
 //				e.printStackTrace();
 //			}
 //			catch (RemoteException e) {
-//				// TODO Auto-generated catch block
 //				e.printStackTrace();
 //			}
 //			catch (IOException e) {
-//				// TODO Auto-generated catch block
 //				e.printStackTrace();
 //			}
 //			
@@ -440,11 +439,9 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 //				logOutAcesForUserFolders(loginName);
 //			}
 //			catch (HttpException e1) {
-//				// TODO Auto-generated catch block
 //				e1.printStackTrace();
 //			}
 //			catch (IOException e1) {
-//				// TODO Auto-generated catch block
 //				e1.printStackTrace();
 //			}
 //			
@@ -913,6 +910,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	/**
 	 * @param iwSlideChangeListeners The iwSlideChangeListeners to set. Overwrites the current list
 	 */
+	@SuppressWarnings("unchecked")
 	public void setIWSlideChangeListeners(List iwSlideChangeListeners) {
 		this.iwSlideChangeListeners = iwSlideChangeListeners;
 		this.iwSlideChangeListenersArray = (IWSlideChangeListener[]) iwSlideChangeListeners.toArray(new IWSlideChangeListener[0]);
@@ -991,6 +989,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @param folderURI
 	 * @return the count of "real" child resources, excluding folders and hidden files
 	 */
+	@SuppressWarnings("unchecked")
 	public List getChildPathsExcludingFoldersAndHiddenFiles(String folderURI) {
 		
 		Map cache = getChildPathsCacheMap();
@@ -1036,6 +1035,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @param folderURI
 	 * @return the paths of folder resources under the specified path, excluding files and hidden files
 	 */
+	@SuppressWarnings("unchecked")
 	public List getChildFolderPaths(String folderURI) {
 		
 		Map <String, List> cache = getChildFolderPathsCacheMap();
@@ -1079,6 +1079,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @param folderURI
 	 * @return the path of ALL child resources, including folders and hidden files. Null if no children
 	 */
+	@SuppressWarnings("unchecked")
 	public List getChildPaths(String folderURI) {
 		
 		Map <String, List> cache = getChildPathsCacheMap();
@@ -1236,9 +1237,8 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @param uploadPath: a path in slide where to store files (for example: "/files/public/")
 	 * @return result: success (true) or failure (false) while uploading file
 	 */
-	public boolean uploadZipFileContents(ZipInputStream zipInputStream, String uploadPath) {
-		// Checking if parameters are valid
-		boolean result = (uploadPath == null || "".equals(uploadPath)) ? false : true;
+	public boolean uploadZipFileContents(ZipInputStream zipInputStream, String uploadPath, List<String> filesToClean) {
+		boolean result = (uploadPath == null || "".equals(uploadPath)) ? false : true; // Checking if parameters are valid
 		if (!result) {
 			log.error("Invalid upload path!");
 			return result;
@@ -1254,6 +1254,11 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		InputStream is = null;
 		String pathToFile = null;
 		String fileName = null;
+		HtmlCleaner cleaner = null;
+		if (filesToClean == null) { // To avoid NullPointerException
+			filesToClean = new ArrayList<String>();
+		}
+		String fileType = null;
 		try {
 			while ((entry = zipInputStream.getNextEntry()) != null && result) {
 				if (!entry.isDirectory()) {
@@ -1267,6 +1272,21 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 					memory = new ByteArrayOutputStream();
 					zip.writeFromStreamToStream(zipInputStream, memory);
 					is = new ByteArrayInputStream(memory.toByteArray());
+					
+					if (filesToClean.size() > 0) { // If need to clean any file type
+						if (fileName.indexOf(DOT) != -1 && (fileName.lastIndexOf(DOT) + 1) < fileName.length()) {
+							fileType = fileName.substring(fileName.lastIndexOf(DOT) + 1).toLowerCase();
+							if (filesToClean.contains(fileType)) { // Checking if current file needs to be cleaned
+								cleaner = new HtmlCleaner(is);
+								cleaner.setOmitDoctypeDeclaration(false);
+								cleaner.clean();
+								String content = cleaner.getPrettyXmlAsString();
+								is.close();
+								is = new ByteArrayInputStream(content.getBytes());
+							}
+						}
+					}
+					
 					result = uploadFileAndCreateFoldersFromStringAsRoot(uploadPath + pathToFile, fileName, is, null, true);
 					memory.close();
 					is.close();
