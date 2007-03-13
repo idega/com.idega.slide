@@ -10,6 +10,7 @@ import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.HttpsURL;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
+import org.apache.webdav.lib.methods.LockMethod;
 import org.apache.webdav.lib.Property;
 import org.apache.webdav.lib.WebdavResource;
 import org.apache.webdav.lib.WebdavResources;
@@ -349,5 +350,14 @@ public class WebdavExtendedResource extends WebdavResource {
 	 */
 	public void setComment(String comment) {
 		this.comment = comment;
+	}
+	
+	public boolean lockMethodNoTimeout() throws HttpException, IOException {
+		
+		String owner = httpURL.getUser() == null ? "Slide" : httpURL.getUser();
+	    boolean result = lockMethod(httpURL.getPath(), owner, LockMethod.TIMEOUT_INFINITY);
+	    if(result)
+	    	refresh();
+	    return result;
 	}
 }
