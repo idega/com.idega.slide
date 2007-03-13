@@ -1,5 +1,5 @@
 /*
- * $Id: WebdavExtendedServlet.java,v 1.2 2006/06/21 18:05:46 tryggvil Exp $
+ * $Id: WebdavExtendedServlet.java,v 1.3 2007/03/13 13:55:23 eiki Exp $
  * Created on 31.5.2006 in project com.idega.slide
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -25,10 +25,10 @@ import com.idega.util.dbschema.SQLSchemaAdapter;
  * <p>
  * TODO tryggvil Describe Type WebavExtendedServlet
  * </p>
- *  Last modified: $Date: 2006/06/21 18:05:46 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2007/03/13 13:55:23 $ by $Author: eiki $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class WebdavExtendedServlet extends ServletWrapper {
 	
@@ -98,14 +98,25 @@ public class WebdavExtendedServlet extends ServletWrapper {
 					return domainparam;
 				}
 			}
+			else{
+				domainparam=domainTxPath;
+				return domainparam;
+			}
+			
+
+			//THE DEFAULT WILL NOW BE TXFILE!!
+			//Eiki
 			//Secondly check the database if it supports slide:
-		    Connection conn = ConnectionBroker.getConnection();
-		    String datastoreType = SQLSchemaAdapter.detectDataStoreType(conn);
-		    ConnectionBroker.freeConnection(conn);
-		    SQLSchemaAdapter adapter = SQLSchemaAdapter.getInstance(datastoreType);
-		    if(adapter.getSupportsSlide()){
-		    	domainparam=domainRdbmsPath;
-		    }
+//		    Connection conn = ConnectionBroker.getConnection();
+//		    String datastoreType = SQLSchemaAdapter.detectDataStoreType(conn);
+//		    ConnectionBroker.freeConnection(conn);
+//		    SQLSchemaAdapter adapter = SQLSchemaAdapter.getInstance(datastoreType);
+//		    if(adapter.getSupportsSlide()){
+//		    	domainparam=domainRdbmsPath;
+//		    }
+		    
+		    
+		    
 		} catch (Exception e) {
 		    e.printStackTrace();
 		}
