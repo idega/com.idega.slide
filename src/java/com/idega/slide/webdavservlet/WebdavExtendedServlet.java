@@ -1,5 +1,5 @@
 /*
- * $Id: WebdavExtendedServlet.java,v 1.3 2007/03/13 13:55:23 eiki Exp $
+ * $Id: WebdavExtendedServlet.java,v 1.4 2007/03/21 17:21:07 eiki Exp $
  * Created on 31.5.2006 in project com.idega.slide
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -25,10 +25,10 @@ import com.idega.util.dbschema.SQLSchemaAdapter;
  * <p>
  * TODO tryggvil Describe Type WebavExtendedServlet
  * </p>
- *  Last modified: $Date: 2007/03/13 13:55:23 $ by $Author: eiki $
+ *  Last modified: $Date: 2007/03/21 17:21:07 $ by $Author: eiki $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class WebdavExtendedServlet extends ServletWrapper {
 	
@@ -91,16 +91,21 @@ public class WebdavExtendedServlet extends ServletWrapper {
 			if(prop!=null){
 				if(prop.equals(TYPE_TXFILE)){
 					domainparam=domainTxPath;
-					return domainparam;
 				}
 				else if(prop.equals(TYPE_RDBMS)){
 					domainparam=domainRdbmsPath;
-					return domainparam;
 				}
 			}
 			else{
 				domainparam=domainTxPath;
-				return domainparam;
+			}
+			
+			//Register the usage for future reference
+			if(domainparam.equals(domainTxPath)){
+				iwma.getSettings().setProperty(SLIDE_STORE_TYPE, TYPE_TXFILE);
+			}
+			else if(domainparam.equals(domainRdbmsPath)){
+				iwma.getSettings().setProperty(SLIDE_STORE_TYPE, TYPE_RDBMS);
 			}
 			
 
@@ -120,13 +125,7 @@ public class WebdavExtendedServlet extends ServletWrapper {
 		} catch (Exception e) {
 		    e.printStackTrace();
 		}
-		//Register the usage for future reference
-		if(domainparam.equals(domainTxPath)){
-			iwma.getSettings().setProperty(SLIDE_STORE_TYPE, TYPE_TXFILE);
-		}
-		else if(domainparam.equals(domainRdbmsPath)){
-			iwma.getSettings().setProperty(SLIDE_STORE_TYPE, TYPE_RDBMS);
-		}
+	
 		return domainparam;
 	}
 
