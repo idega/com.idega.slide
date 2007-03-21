@@ -1,5 +1,5 @@
 /*
- * $Id: WebdavExtendedServlet.java,v 1.4 2007/03/21 17:21:07 eiki Exp $
+ * $Id: WebdavExtendedServlet.java,v 1.5 2007/03/21 17:21:22 eiki Exp $
  * Created on 31.5.2006 in project com.idega.slide
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -9,26 +9,25 @@
  */
 package com.idega.slide.webdavservlet;
 
-import java.sql.Connection;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+
 import org.apache.slide.webdav.WebdavServlet;
+
 import com.idega.idegaweb.IWMainApplication;
 import com.idega.servlet.ServletConfigWrapper;
 import com.idega.servlet.ServletWrapper;
 import com.idega.servlet.filter.IWBundleResourceFilter;
-import com.idega.util.database.ConnectionBroker;
-import com.idega.util.dbschema.SQLSchemaAdapter;
 
 
 /**
  * <p>
  * TODO tryggvil Describe Type WebavExtendedServlet
  * </p>
- *  Last modified: $Date: 2007/03/21 17:21:07 $ by $Author: eiki $
+ *  Last modified: $Date: 2007/03/21 17:21:22 $ by $Author: eiki $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class WebdavExtendedServlet extends ServletWrapper {
 	
