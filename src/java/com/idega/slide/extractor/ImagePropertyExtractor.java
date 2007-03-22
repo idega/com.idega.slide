@@ -3,6 +3,9 @@ package com.idega.slide.extractor;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.slide.content.NodeRevisionDescriptor;
+import org.apache.slide.content.NodeRevisionDescriptors;
 import org.apache.slide.extractor.AbstractPropertyExtractor;
 import org.apache.slide.extractor.ExtractorException;
 import com.idega.graphics.ImageInfo;
@@ -26,7 +29,7 @@ public class ImagePropertyExtractor extends AbstractPropertyExtractor {
 		super(namespace, uri, contentType);
 	}
 
-	public Map extract(InputStream content) throws ExtractorException {
+	public Map extract(NodeRevisionDescriptors descriptors, NodeRevisionDescriptor descriptor, InputStream content) throws ExtractorException {
 		Map result = new HashMap();
 		ImageInfo ii = new ImageInfo();
 		ii.setInput(content);
