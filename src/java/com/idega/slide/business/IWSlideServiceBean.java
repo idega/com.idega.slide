@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.50 2007/02/27 10:36:24 valdas Exp $
+ * $Id: IWSlideServiceBean.java,v 1.51 2007/03/27 16:19:51 valdas Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -56,6 +56,7 @@ import com.idega.slide.util.IWSlideConstants;
 import com.idega.slide.util.WebdavExtendedResource;
 import com.idega.slide.util.WebdavRootResource;
 import com.idega.util.IWTimestamp;
+import com.idega.util.StringHandler;
 
 
 /**
@@ -63,10 +64,10 @@ import com.idega.util.IWTimestamp;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2007/02/27 10:36:24 $ by $Author: valdas $
+ *  Last modified: $Date: 2007/03/27 16:19:51 $ by $Author: valdas $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.50 $
+ * @version $Revision: 1.51 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService, IWSlideChangeListener {
 
@@ -85,6 +86,8 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	private static final String UNDER = "_";
 	private static final String EMPTY = "";
 	private static final String DOT = ".";
+	private static final String BRACKET_OPENING = "(";
+	private static final String BRACKET_CLOSING = ")";
 	
 	protected static final String WEBDAV_SERVLET_URI = "/content";
 	protected static final String FILE_SERVER_URI = WEBDAV_SERVLET_URI+"/files";
@@ -1248,6 +1251,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 			log.error("ZipInputStream is closed!");
 			return result;
 		}
+
 		ZipEntry entry = null;
 		ZipInstaller zip = new ZipInstaller();
 		ByteArrayOutputStream memory = null;
@@ -1263,33 +1267,37 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 			while ((entry = zipInputStream.getNextEntry()) != null && result) {
 				if (!entry.isDirectory()) {
 					pathToFile = EMPTY;
-					fileName = removeSpaces(entry.getName());
+					fileName = StringHandler.removeCharacters(entry.getName(), SPACE, UNDER);
+					fileName = StringHandler.removeCharacters(fileName, BRACKET_OPENING, EMPTY);
+					fileName = StringHandler.removeCharacters(fileName, BRACKET_CLOSING, EMPTY);
 					int lastSlash = fileName.lastIndexOf(SLASH);
 					if (lastSlash != -1) {
 						pathToFile = fileName.substring(0, lastSlash + 1);
 						fileName = fileName.substring(lastSlash + 1, fileName.length());
 					}
-					memory = new ByteArrayOutputStream();
-					zip.writeFromStreamToStream(zipInputStream, memory);
-					is = new ByteArrayInputStream(memory.toByteArray());
-					
-					if (filesToClean.size() > 0) { // If need to clean any file type
-						if (fileName.indexOf(DOT) != -1 && (fileName.lastIndexOf(DOT) + 1) < fileName.length()) {
-							fileType = fileName.substring(fileName.lastIndexOf(DOT) + 1).toLowerCase();
-							if (filesToClean.contains(fileType)) { // Checking if current file needs to be cleaned
-								cleaner = new HtmlCleaner(is);
-								cleaner.setOmitDoctypeDeclaration(false);
-								cleaner.clean();
-								String content = cleaner.getPrettyXmlAsString();
-								is.close();
-								is = new ByteArrayInputStream(content.getBytes());
+					if (!fileName.startsWith(DOT)) {	// If not a system file
+						memory = new ByteArrayOutputStream();
+						zip.writeFromStreamToStream(zipInputStream, memory);
+						is = new ByteArrayInputStream(memory.toByteArray());
+						
+						if (filesToClean.size() > 0) { // If need to clean any file type
+							if (fileName.indexOf(DOT) != -1 && (fileName.lastIndexOf(DOT) + 1) < fileName.length()) {
+								fileType = fileName.substring(fileName.lastIndexOf(DOT) + 1).toLowerCase();
+								if (filesToClean.contains(fileType)) { // Checking if current file needs to be cleaned
+									cleaner = new HtmlCleaner(is);
+									cleaner.setOmitDoctypeDeclaration(false);
+									cleaner.clean();
+									String content = cleaner.getPrettyXmlAsString();
+									is.close();
+									is = new ByteArrayInputStream(content.getBytes());
+								}
 							}
 						}
+						
+						result = uploadFileAndCreateFoldersFromStringAsRoot(uploadPath + pathToFile, fileName, is, null, true);
+						memory.close();
+						is.close();
 					}
-					
-					result = uploadFileAndCreateFoldersFromStringAsRoot(uploadPath + pathToFile, fileName, is, null, true);
-					memory.close();
-					is.close();
 				}
 				zip.closeEntry(zipInputStream);
 			}
@@ -1301,17 +1309,6 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 			zip.closeEntry(zipInputStream);
 		}
 		return result;
-	}
-	
-	private String removeSpaces(String value) {
-		if (value == null) {
-			return null;
-		}
-		value = value.trim();
-		while (value.indexOf(SPACE) != -1) {
-			value = value.replace(SPACE, UNDER);
-		}
-		return value;
 	}
 
 }
