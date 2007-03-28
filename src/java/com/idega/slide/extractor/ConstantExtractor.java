@@ -19,7 +19,10 @@ import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.slide.common.PropertyName;
+import org.apache.slide.content.NodeRevisionDescriptor;
+import org.apache.slide.content.NodeRevisionDescriptors;
 import org.apache.slide.extractor.AbstractPropertyExtractor;
 import org.apache.slide.extractor.ExtractorException;
 import org.apache.slide.util.conf.Configurable;
@@ -44,7 +47,7 @@ public class ConstantExtractor extends AbstractPropertyExtractor implements Conf
 
    
 
-    public Map extract(InputStream content) throws ExtractorException
+    public Map extract(NodeRevisionDescriptors descriptors, NodeRevisionDescriptor descriptor,InputStream content) throws ExtractorException
 	{
 		return this.properties;
 	}

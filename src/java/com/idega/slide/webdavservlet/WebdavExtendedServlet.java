@@ -1,5 +1,5 @@
 /*
- * $Id: WebdavExtendedServlet.java,v 1.2 2006/06/21 18:05:46 tryggvil Exp $
+ * $Id: WebdavExtendedServlet.java,v 1.1.2.1 2007/03/28 15:33:22 eiki Exp $
  * Created on 31.5.2006 in project com.idega.slide
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -9,26 +9,24 @@
  */
 package com.idega.slide.webdavservlet;
 
-import java.sql.Connection;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+
 import org.apache.slide.webdav.WebdavServlet;
+
 import com.idega.idegaweb.IWMainApplication;
 import com.idega.servlet.ServletConfigWrapper;
 import com.idega.servlet.ServletWrapper;
-import com.idega.servlet.filter.IWBundleResourceFilter;
-import com.idega.util.database.ConnectionBroker;
-import com.idega.util.dbschema.SQLSchemaAdapter;
 
 
 /**
  * <p>
  * TODO tryggvil Describe Type WebavExtendedServlet
  * </p>
- *  Last modified: $Date: 2006/06/21 18:05:46 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2007/03/28 15:33:22 $ by $Author: eiki $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.1.2.1 $
  */
 public class WebdavExtendedServlet extends ServletWrapper {
 	
@@ -62,11 +60,6 @@ public class WebdavExtendedServlet extends ServletWrapper {
 
 			domainparam = getDomainPath(newConfig);
 			newConfig.setInitParameter("domain", domainparam);
-			
-			//Temporary workaround to copy config file to webapp
-			IWMainApplication iwma = IWMainApplication.getIWMainApplication(config.getServletContext());
-			IWBundleResourceFilter.copyResourceFromJarToWebapp(iwma, domainparam);
-			
 			setDefaultConfig(newConfig);
 		}
 		//setServletConfig(newConfig);*/
@@ -91,31 +84,41 @@ public class WebdavExtendedServlet extends ServletWrapper {
 			if(prop!=null){
 				if(prop.equals(TYPE_TXFILE)){
 					domainparam=domainTxPath;
-					return domainparam;
 				}
 				else if(prop.equals(TYPE_RDBMS)){
 					domainparam=domainRdbmsPath;
-					return domainparam;
 				}
 			}
+			else{
+				domainparam=domainTxPath;
+			}
+			
+			//Register the usage for future reference
+			if(domainparam.equals(domainTxPath)){
+				iwma.getSettings().setProperty(SLIDE_STORE_TYPE, TYPE_TXFILE);
+			}
+			else if(domainparam.equals(domainRdbmsPath)){
+				iwma.getSettings().setProperty(SLIDE_STORE_TYPE, TYPE_RDBMS);
+			}
+			
+
+			//THE DEFAULT WILL NOW BE TXFILE!!
+			//Eiki
 			//Secondly check the database if it supports slide:
-		    Connection conn = ConnectionBroker.getConnection();
-		    String datastoreType = SQLSchemaAdapter.detectDataStoreType(conn);
-		    ConnectionBroker.freeConnection(conn);
-		    SQLSchemaAdapter adapter = SQLSchemaAdapter.getInstance(datastoreType);
-		    if(adapter.getSupportsSlide()){
-		    	domainparam=domainRdbmsPath;
-		    }
+//		    Connection conn = ConnectionBroker.getConnection();
+//		    String datastoreType = SQLSchemaAdapter.detectDataStoreType(conn);
+//		    ConnectionBroker.freeConnection(conn);
+//		    SQLSchemaAdapter adapter = SQLSchemaAdapter.getInstance(datastoreType);
+//		    if(adapter.getSupportsSlide()){
+//		    	domainparam=domainRdbmsPath;
+//		    }
+		    
+		    
+		    
 		} catch (Exception e) {
 		    e.printStackTrace();
 		}
-		//Register the usage for future reference
-		if(domainparam.equals(domainTxPath)){
-			iwma.getSettings().setProperty(SLIDE_STORE_TYPE, TYPE_TXFILE);
-		}
-		else if(domainparam.equals(domainRdbmsPath)){
-			iwma.getSettings().setProperty(SLIDE_STORE_TYPE, TYPE_RDBMS);
-		}
+	
 		return domainparam;
 	}
 
@@ -141,6 +144,8 @@ public class WebdavExtendedServlet extends ServletWrapper {
 		newConfig.setInitParameterIfNotSet("extendedAllprop","false");
 		newConfig.setInitParameterIfNotSet("lockdiscoveryIncludesPrincipalURL","false");
 		newConfig.setInitParameterIfNotSet("updateLastModified","true");
+		
+		//newConfig.setInitParameterIfNotSet("updateLastModified","true");
 	}
 	
 	
