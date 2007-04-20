@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.51 2007/03/27 16:19:51 valdas Exp $
+ * $Id: IWSlideServiceBean.java,v 1.52 2007/04/20 07:23:59 valdas Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -64,10 +64,10 @@ import com.idega.util.StringHandler;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2007/03/27 16:19:51 $ by $Author: valdas $
+ *  Last modified: $Date: 2007/04/20 07:23:59 $ by $Author: valdas $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.51 $
+ * @version $Revision: 1.52 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService, IWSlideChangeListener {
 
@@ -221,8 +221,6 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	    try {
             return new WebdavFile(getWebdavServerURL(credentials,path));
         } catch (HttpException e) {
-            throw new IBORuntimeException(e);
-        } catch (IOException e) {
             throw new IBORuntimeException(e);
         }
 	}
