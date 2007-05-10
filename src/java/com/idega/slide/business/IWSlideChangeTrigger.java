@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideChangeTrigger.java,v 1.2 2006/04/09 11:44:15 laddi Exp $ Created on Mar 24,
+ * $Id: IWSlideChangeTrigger.java,v 1.2.2.1 2007/05/10 11:09:14 thomas Exp $ Created on Mar 24,
  * 2006
  * 
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -20,21 +20,25 @@ import org.apache.slide.event.VetoException;
 import com.idega.business.IBOLookup;
 import com.idega.business.IBOLookupException;
 import com.idega.idegaweb.IWMainApplication;
+import com.idega.slide.event.IWSlideChangeEventClient;
 
 /**
  * Listens for any change to the slide filesystem and notifies
  * IWSlideChangeListener classes. Useful for decaching stuff and more...
  * 
- * Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
+ * Last modified: $Date: 2007/05/10 11:09:14 $ by $Author: thomas $
  * 
  * @author <a href="mailto:eiki@idega.com">eiki</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.2.2.1 $
  */
 public class IWSlideChangeTrigger implements EventCollectionListener {
 
 	private IWSlideService service;
+	
+	private IWSlideChangeEventClient eventClient;
 
 	public IWSlideChangeTrigger() {
+		// empty
 	}
 
 	public void vetoableCollected(EventCollection events) throws VetoException {
@@ -70,6 +74,8 @@ public class IWSlideChangeTrigger implements EventCollectionListener {
 					AbstractEventMethod method = event.getMethod();
 					if(ContentEvent.REMOVE.equals(method) || ContentEvent.CREATE.equals(method) || ContentEvent.STORE.equals(method) ){
 						ContentEvent contentEvent = (ContentEvent)event.getEvent();
+						// notify my event client
+						eventClient.onSlideChange(contentEvent, method);
 						
 						for (int j = 0; j < listeners.length; j++) {
 							IWSlideChangeListener listener = listeners[j];
