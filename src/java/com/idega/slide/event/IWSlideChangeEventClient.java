@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideChangeEventClient.java,v 1.2 2007/05/10 12:56:51 thomas Exp $
+ * $Id: IWSlideChangeEventClient.java,v 1.3 2007/05/11 11:21:55 eiki Exp $
  * Created on May 9, 2007
  *
  * Copyright (C) 2007 Idega Software hf. All Rights Reserved.
@@ -15,23 +15,25 @@ import org.apache.slide.common.Domain;
 import org.apache.slide.common.NamespaceAccessToken;
 import org.apache.slide.common.SlideTokenImpl;
 import org.apache.slide.common.Uri;
-import org.apache.slide.event.AbstractEventMethod;
 import org.apache.slide.event.ContentEvent;
 import org.apache.slide.store.ExtendedStore;
 import org.apache.slide.store.Store;
 import org.apache.slide.util.logger.Logger;
+
 import com.idega.core.event.MethodCallEvent;
 import com.idega.core.event.impl.EventClient;
+import com.idega.slide.business.IWContentEvent;
+import com.idega.slide.business.IWSlideChangeListener;
 
 
 /**
  * 
- *  Last modified: $Date: 2007/05/10 12:56:51 $ by $Author: thomas $
+ *  Last modified: $Date: 2007/05/11 11:21:55 $ by $Author: eiki $
  * 
  * @author <a href="mailto:thomas@idega.com">thomas</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
-public class IWSlideChangeEventClient extends EventClient {
+public class IWSlideChangeEventClient extends EventClient implements IWSlideChangeListener {
 	
 	private static final String LOG_CHANNEL = IWSlideChangeEventClient.class.getName();
 	
@@ -48,10 +50,10 @@ public class IWSlideChangeEventClient extends EventClient {
 		initialize(IWSlideChangeEventClient.class);
 	}
 	
-	public void onSlideChange(ContentEvent contentEvent, AbstractEventMethod method) {
+	public void onSlideChange(IWContentEvent event) {
 		if (isNothingToDo()) return;
-		String methodName = method.getName();
-		String uri = contentEvent.getUri();
+		String methodName = event.getMethod().getName();
+		String uri = event.getContentEvent().getUri();
 		fireEvent(methodName, URI, uri);
 	}
 	

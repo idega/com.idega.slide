@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideChangeTrigger.java,v 1.4 2007/05/10 12:56:51 thomas Exp $ Created on Mar 24,
+ * $Id: IWSlideChangeTrigger.java,v 1.5 2007/05/11 11:21:55 eiki Exp $ Created on Mar 24,
  * 2006
  * 
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -12,30 +12,29 @@ package com.idega.slide.business;
 import java.rmi.RemoteException;
 import java.util.Iterator;
 import java.util.List;
+
 import org.apache.slide.event.AbstractEventMethod;
 import org.apache.slide.event.ContentEvent;
 import org.apache.slide.event.EventCollection;
 import org.apache.slide.event.EventCollectionListener;
 import org.apache.slide.event.VetoException;
+
 import com.idega.business.IBOLookup;
 import com.idega.business.IBOLookupException;
 import com.idega.idegaweb.IWMainApplication;
-import com.idega.slide.event.IWSlideChangeEventClient;
 
 /**
  * Listens for any change to the slide filesystem and notifies
  * IWSlideChangeListener classes. Useful for decaching stuff and more...
  * 
- * Last modified: $Date: 2007/05/10 12:56:51 $ by $Author: thomas $
+ * Last modified: $Date: 2007/05/11 11:21:55 $ by $Author: eiki $
  * 
  * @author <a href="mailto:eiki@idega.com">eiki</a>
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class IWSlideChangeTrigger implements EventCollectionListener {
 
 	private IWSlideService service;
-	
-	private IWSlideChangeEventClient eventClient;
 
 	public IWSlideChangeTrigger() {
 		// empty
@@ -74,17 +73,10 @@ public class IWSlideChangeTrigger implements EventCollectionListener {
 					AbstractEventMethod method = event.getMethod();
 					if(ContentEvent.REMOVE.equals(method) || ContentEvent.CREATE.equals(method) || ContentEvent.STORE.equals(method) ){
 						ContentEvent contentEvent = (ContentEvent)event.getEvent();
-						// notify my event client
-						eventClient.onSlideChange(contentEvent, method);
 						IWContentEvent iwContentEvent = new IWContentEvent(event);
 						
 						for (int j = 0; j < listeners.length; j++) {
 							IWSlideChangeListener listener = listeners[j];
-							// Warning:
-							// Interface IWSlideChangeListener has been changed (change of parameter type)
-							// This might conflict with existing IWSlideChangeListeners like 
-							// + BuilderSlideListener (com.idega.builder), 
-							// + ContentRSSProducer, IWCacheInvalidatorIWSlideListener (com.idega.content)
 							listener.onSlideChange(iwContentEvent);
 						}					
 					}
