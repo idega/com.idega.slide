@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideChangeTrigger.java,v 1.2.2.1 2007/05/10 11:09:14 thomas Exp $ Created on Mar 24,
+ * $Id: IWSlideChangeTrigger.java,v 1.2.2.2 2007/05/16 11:09:55 thomas Exp $ Created on Mar 24,
  * 2006
  * 
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -26,10 +26,10 @@ import com.idega.slide.event.IWSlideChangeEventClient;
  * Listens for any change to the slide filesystem and notifies
  * IWSlideChangeListener classes. Useful for decaching stuff and more...
  * 
- * Last modified: $Date: 2007/05/10 11:09:14 $ by $Author: thomas $
+ * Last modified: $Date: 2007/05/16 11:09:55 $ by $Author: thomas $
  * 
  * @author <a href="mailto:eiki@idega.com">eiki</a>
- * @version $Revision: 1.2.2.1 $
+ * @version $Revision: 1.2.2.2 $
  */
 public class IWSlideChangeTrigger implements EventCollectionListener {
 
@@ -38,7 +38,7 @@ public class IWSlideChangeTrigger implements EventCollectionListener {
 	private IWSlideChangeEventClient eventClient;
 
 	public IWSlideChangeTrigger() {
-		// empty
+		eventClient = new IWSlideChangeEventClient();
 	}
 
 	public void vetoableCollected(EventCollection events) throws VetoException {
