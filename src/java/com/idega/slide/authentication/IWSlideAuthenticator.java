@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticator.java,v 1.21 2006/05/16 17:02:20 tryggvil Exp $
+ * $Id: IWSlideAuthenticator.java,v 1.21.2.1 2007/05/20 13:53:55 tryggvil Exp $
  * Created on 8.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -40,10 +40,10 @@ import com.idega.slide.business.IWSlideSession;
  * This filter is mapped before any request to the Slide WebdavServlet to make sure
  * a logged in user from idegaWeb is logged also into the Slide authentication system.
  * </p>
- *  Last modified: $Date: 2006/05/16 17:02:20 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2007/05/20 13:53:55 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.21 $
+ * @version $Revision: 1.21.2.1 $
  */
 public class IWSlideAuthenticator extends BaseFilter{
 
@@ -90,13 +90,18 @@ public class IWSlideAuthenticator extends BaseFilter{
 		
 		IWMainApplication iwma = getIWMainApplication(request);
 		
-		String prop = iwma.getSettings().getProperty(PROPERTY_ENABLED);
-		if(prop==null){
-			return true;
+		String method = request.getMethod();
+		if(method.equals(HTTP_METHOD_GET)||method.equals(HTTP_METHOD_POST)){
+			String prop = iwma.getSettings().getProperty(PROPERTY_ENABLED);
+			if(prop!=null){
+				return Boolean.valueOf(prop).booleanValue();
+			}
+			return false;
 		}
 		else{
-			return Boolean.valueOf(prop).booleanValue();
+			return true;
 		}
+
 	}
 
 
