@@ -14,7 +14,7 @@ public class IWSlidePropertyHandler implements ICPropertyHandler {
 		return null;
 	}
 
-	public PresentationObject getHandlerObject(String name, String stringValue, IWContext iwc, boolean oldGenerationHandler) {
+	public PresentationObject getHandlerObject(String name, String stringValue, IWContext iwc, boolean oldGenerationHandler, String instanceId, String method) {
 		DropdownMenu menu = new DropdownMenu(name);
 		
 		try {
