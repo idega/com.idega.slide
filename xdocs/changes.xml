@@ -5,11 +5,18 @@
   </properties>
   <body>
   
-		<release version="3.1.6" date="2007-05-20">
-			<action dev="tryggvil" type="fix">
-				Improved handing of Slide authentication, disabled Slide authentication by default for GET and POST requests.
-			</action>
-		</release>
+	<release version="3.1.7" date="2007-06-21">
+		<action dev="tryggvil" type="fix">
+			Updated so that the IWSlideAuthenticator is enabled for the Documents list (/workspace/content/documents).
+			This fixes the Error displayed in the documents list by default.
+		</action>
+	</release>
+	
+	<release version="3.1.6" date="2007-05-20">
+		<action dev="tryggvil" type="fix">
+			Improved handing of Slide authentication, disabled Slide authentication by default for GET and POST requests.
+		</action>
+	</release>
 
     <release version="3.1.5" date="2007-05-16">
       <action dev="thomas" type="fix">
