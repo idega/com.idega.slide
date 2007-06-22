@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticator.java,v 1.21.2.1 2007/05/20 13:53:55 tryggvil Exp $
+ * $Id: IWSlideAuthenticator.java,v 1.21.2.2 2007/06/22 12:02:40 tryggvil Exp $
  * Created on 8.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -40,10 +40,10 @@ import com.idega.slide.business.IWSlideSession;
  * This filter is mapped before any request to the Slide WebdavServlet to make sure
  * a logged in user from idegaWeb is logged also into the Slide authentication system.
  * </p>
- *  Last modified: $Date: 2007/05/20 13:53:55 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2007/06/22 12:02:40 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.21.2.1 $
+ * @version $Revision: 1.21.2.2 $
  */
 public class IWSlideAuthenticator extends BaseFilter{
 
@@ -51,6 +51,8 @@ public class IWSlideAuthenticator extends BaseFilter{
 
 	private static final String PROPERTY_ENABLED = "slide.authenticator.enable";
 	private static final String PROPERTY_UPDATE_ROLES = "slide.updateroles.enable";
+	
+	private static final String DOCUMENTS_URI = "/workspace/content/documents";
 	
 	private LoginBusinessBean loginBusiness = new LoginBusinessBean();
 	
@@ -89,14 +91,21 @@ public class IWSlideAuthenticator extends BaseFilter{
 	private boolean isEnabled(HttpServletRequest request) {
 		
 		IWMainApplication iwma = getIWMainApplication(request);
-		
 		String method = request.getMethod();
 		if(method.equals(HTTP_METHOD_GET)||method.equals(HTTP_METHOD_POST)){
-			String prop = iwma.getSettings().getProperty(PROPERTY_ENABLED);
-			if(prop!=null){
-				return Boolean.valueOf(prop).booleanValue();
+			String requestUri = request.getRequestURI();
+			//Workaround to make the "Documents List" in the CMS system work
+			// because it needs attributes set by this IWSlideAuthenticator
+			if(requestUri.startsWith(DOCUMENTS_URI)){
+				return true;
 			}
-			return false;
+			else{
+				String prop = iwma.getSettings().getProperty(PROPERTY_ENABLED);
+				if(prop!=null){
+					return Boolean.valueOf(prop).booleanValue();
+				}
+				return false;
+			}
 		}
 		else{
 			return true;
