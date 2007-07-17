@@ -6,7 +6,7 @@
   <artifactId>com.idega.slide</artifactId>
   <name>idegaWeb Slide</name>
   <groupId>bundles</groupId>
-  <currentVersion>3.1.7</currentVersion>
+  <currentVersion>3.1.8</currentVersion>
   <organization>
     <name>Idega Software</name>
     <url>www.idega.com</url>
@@ -85,6 +85,11 @@
       <id>3.1.7</id>
       <name>3.1.7</name>
       <tag>SLIDE_3_1_7</tag>
+    </version>
+    <version>
+      <id>3.1.8</id>
+      <name>3.1.8</name>
+      <tag>SLIDE_3_1_8</tag>
     </version>
   </versions>
   <developers>
