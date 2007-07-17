@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticator.java,v 1.21.2.2 2007/06/22 12:02:40 tryggvil Exp $
+ * $Id: IWSlideAuthenticator.java,v 1.21.2.3 2007/07/17 16:34:42 tryggvil Exp $
  * Created on 8.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -40,10 +40,10 @@ import com.idega.slide.business.IWSlideSession;
  * This filter is mapped before any request to the Slide WebdavServlet to make sure
  * a logged in user from idegaWeb is logged also into the Slide authentication system.
  * </p>
- *  Last modified: $Date: 2007/06/22 12:02:40 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2007/07/17 16:34:42 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.21.2.2 $
+ * @version $Revision: 1.21.2.3 $
  */
 public class IWSlideAuthenticator extends BaseFilter{
 
@@ -53,6 +53,8 @@ public class IWSlideAuthenticator extends BaseFilter{
 	private static final String PROPERTY_UPDATE_ROLES = "slide.updateroles.enable";
 	
 	private static final String DOCUMENTS_URI = "/workspace/content/documents";
+	private static final String IMAGECHOOSER_URI = "/workspace/imagechooser";
+	private static final String LINKCHOOSER_URI = "/workspace/linkchooser";
 	
 	private LoginBusinessBean loginBusiness = new LoginBusinessBean();
 	
@@ -97,6 +99,12 @@ public class IWSlideAuthenticator extends BaseFilter{
 			//Workaround to make the "Documents List" in the CMS system work
 			// because it needs attributes set by this IWSlideAuthenticator
 			if(requestUri.startsWith(DOCUMENTS_URI)){
+				return true;
+			}
+			else if(requestUri.startsWith(IMAGECHOOSER_URI)){
+				return true;
+			}
+			else if(requestUri.startsWith(LINKCHOOSER_URI)){
 				return true;
 			}
 			else{
