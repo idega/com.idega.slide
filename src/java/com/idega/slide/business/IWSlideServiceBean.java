@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.52 2007/04/20 07:23:59 valdas Exp $
+ * $Id: IWSlideServiceBean.java,v 1.53 2007/08/17 13:42:00 valdas Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -55,6 +55,7 @@ import com.idega.slide.util.AccessControlList;
 import com.idega.slide.util.IWSlideConstants;
 import com.idega.slide.util.WebdavExtendedResource;
 import com.idega.slide.util.WebdavRootResource;
+import com.idega.util.CoreConstants;
 import com.idega.util.IWTimestamp;
 import com.idega.util.StringHandler;
 
@@ -64,10 +65,10 @@ import com.idega.util.StringHandler;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2007/04/20 07:23:59 $ by $Author: valdas $
+ *  Last modified: $Date: 2007/08/17 13:42:00 $ by $Author: valdas $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.52 $
+ * @version $Revision: 1.53 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService, IWSlideChangeListener {
 
@@ -90,13 +91,12 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	private static final String BRACKET_CLOSING = ")";
 	
 	protected static final String WEBDAV_SERVLET_URI = "/content";
-	protected static final String FILE_SERVER_URI = WEBDAV_SERVLET_URI+"/files";
+	protected static final String FILE_SERVER_URI = WEBDAV_SERVLET_URI+CoreConstants.PATH_FILES_ROOT;
 	protected static final String USER_SERVLET_URI = WEBDAV_SERVLET_URI+"/users";
 	
-	protected static final String PATH_FILES_ROOT = "/files";
-	protected static final String PATH_BLOCK_HOME = PATH_FILES_ROOT+"/cms";
-	protected static final String PATH_USERS_HOME_FOLDERS = PATH_FILES_ROOT+"/users";
-	protected static final String PATH_GROUPS_HOME_FOLDERS = PATH_FILES_ROOT+"/groups";
+	protected static final String PATH_BLOCK_HOME = CoreConstants.PATH_FILES_ROOT+"/cms";
+	protected static final String PATH_USERS_HOME_FOLDERS = CoreConstants.PATH_FILES_ROOT+"/users";
+	protected static final String PATH_GROUPS_HOME_FOLDERS = CoreConstants.PATH_FILES_ROOT+"/groups";
 	
 	protected static final String FOLDER_NAME_PUBLIC = "/public";
 	protected static final String FOLDER_NAME_SHARED = "/shared";

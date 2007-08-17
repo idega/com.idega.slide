@@ -1,5 +1,5 @@
 /*
- * $Id: FileSystemCopyServiceBean.java,v 1.9 2006/04/09 11:44:15 laddi Exp $
+ * $Id: FileSystemCopyServiceBean.java,v 1.10 2007/08/17 13:42:00 valdas Exp $
  * Created on 2.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -34,14 +34,15 @@ import com.idega.data.IDOLookupException;
 import com.idega.data.IDOStoreException;
 import com.idega.slide.data.SlideFile;
 import com.idega.slide.data.SlideFileHome;
+import com.idega.util.CoreConstants;
 import com.idega.util.database.ConnectionBroker;
 
 /**
  * 
- *  Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
+ *  Last modified: $Date: 2007/08/17 13:42:00 $ by $Author: valdas $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  */
 public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSystemCopyService{
     
@@ -310,7 +311,7 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
 //            webdavResource.setHttpURL(httpURL);
             this.webdavResource = getService().getWebdavResourceAuthenticatedAsRoot();
         }
-        setPath(this.webdavResource.getPath()+"/files");
+        setPath(this.webdavResource.getPath()+CoreConstants.PATH_FILES_ROOT);
         }
         catch (HttpException we) {
             System.out.print("HttpException.getReasonCode(): "+ we.getReasonCode());
