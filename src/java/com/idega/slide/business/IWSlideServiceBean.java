@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.53 2007/08/17 13:42:00 valdas Exp $
+ * $Id: IWSlideServiceBean.java,v 1.54 2007/08/20 14:41:03 valdas Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -65,10 +65,10 @@ import com.idega.util.StringHandler;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2007/08/17 13:42:00 $ by $Author: valdas $
+ *  Last modified: $Date: 2007/08/20 14:41:03 $ by $Author: valdas $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.53 $
+ * @version $Revision: 1.54 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService, IWSlideChangeListener {
 
@@ -90,9 +90,8 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	private static final String BRACKET_OPENING = "(";
 	private static final String BRACKET_CLOSING = ")";
 	
-	protected static final String WEBDAV_SERVLET_URI = "/content";
-	protected static final String FILE_SERVER_URI = WEBDAV_SERVLET_URI+CoreConstants.PATH_FILES_ROOT;
-	protected static final String USER_SERVLET_URI = WEBDAV_SERVLET_URI+"/users";
+	protected static final String FILE_SERVER_URI = CoreConstants.WEBDAV_SERVLET_URI+CoreConstants.PATH_FILES_ROOT;
+	protected static final String USER_SERVLET_URI = CoreConstants.WEBDAV_SERVLET_URI+"/users";
 	
 	protected static final String PATH_BLOCK_HOME = CoreConstants.PATH_FILES_ROOT+"/cms";
 	protected static final String PATH_USERS_HOME_FOLDERS = CoreConstants.PATH_FILES_ROOT+"/users";
@@ -128,7 +127,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		if (appContext.endsWith("/")){
 			appContext = appContext.substring(0, appContext.lastIndexOf("/"));			
 		}
-		return appContext+WEBDAV_SERVLET_URI;
+		return appContext+CoreConstants.WEBDAV_SERVLET_URI;
 	}
 	
 	/**

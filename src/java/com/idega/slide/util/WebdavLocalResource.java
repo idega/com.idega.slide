@@ -1,5 +1,5 @@
 /*
- * $Id: WebdavLocalResource.java,v 1.4 2006/04/09 11:44:15 laddi Exp $
+ * $Id: WebdavLocalResource.java,v 1.5 2007/08/20 14:41:03 valdas Exp $
  * Created on 11.10.2005 in project com.idega.slide
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -57,6 +57,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import com.idega.util.CoreConstants;
+
 
 /**
  * <p>
@@ -64,10 +66,10 @@ import org.w3c.dom.Node;
  * operations locally (in the jvm) instead of going through http when communicating with
  * the built in WebDav server. This class is experimental only.
  * </p>
- *  Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
+ *  Last modified: $Date: 2007/08/20 14:41:03 $ by $Author: valdas $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class WebdavLocalResource extends WebdavExtendedResource {
 
@@ -1922,7 +1924,7 @@ public class WebdavLocalResource extends WebdavExtendedResource {
         this.token.setForceStoreEnlistment(true);
         String resourcePath = getPath();
         String contextPath = "/uppsala";
-        String servletPath = "/content";
+        String servletPath = CoreConstants.WEBDAV_SERVLET_URI;
         if(resourcePath.startsWith(contextPath)){
         		resourcePath = resourcePath.substring(contextPath.length());
         }
