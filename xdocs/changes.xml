@@ -5,6 +5,13 @@
   </properties>
   <body>
   
+	<release version="3.1.9" date="2007-10-13">
+      		<action dev="tryggvil" type="update">
+      			Updated handling of authentication to let Slide be able to run on a separate server and authenticate correctly.
+      			<br/>This was done for the golf application.
+      		</action>
+	</release>
+  
 	<release version="3.1.8" date="2007-07-17">
 		<action dev="tryggvil" type="fix">
 			Made same change as in 3.1.7 regarding IWSlideAuthenticator and the Image and Link choosers (that also display the documents list)

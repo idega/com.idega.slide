@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticator.java,v 1.21.2.3 2007/07/17 16:34:42 tryggvil Exp $
+ * $Id: IWSlideAuthenticator.java,v 1.21.2.4 2007/10/13 12:56:18 tryggvil Exp $
  * Created on 8.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -33,6 +33,7 @@ import com.idega.presentation.IWContext;
 import com.idega.servlet.filter.BaseFilter;
 import com.idega.slide.business.IWSlideService;
 import com.idega.slide.business.IWSlideSession;
+import com.idega.slide.business.IWSlideSessionBean;
 
 
 /**
@@ -40,10 +41,10 @@ import com.idega.slide.business.IWSlideSession;
  * This filter is mapped before any request to the Slide WebdavServlet to make sure
  * a logged in user from idegaWeb is logged also into the Slide authentication system.
  * </p>
- *  Last modified: $Date: 2007/07/17 16:34:42 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2007/10/13 12:56:18 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.21.2.3 $
+ * @version $Revision: 1.21.2.4 $
  */
 public class IWSlideAuthenticator extends BaseFilter{
 
@@ -278,7 +279,7 @@ public class IWSlideAuthenticator extends BaseFilter{
 				return true;
 			}
 			if(info != null){
-				String slidePassword = (String)info.getAttribute("iw_slide_password");
+				String slidePassword = (String)info.getAttribute(IWSlideSessionBean.SLIDE_PASSWORD_ATTRIBUTE_NAME);
 				if(slidePassword!=null){
 					return slidePassword.equals(password);
 				}

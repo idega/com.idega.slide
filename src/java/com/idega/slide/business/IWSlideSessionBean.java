@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.33.2.1 2006/09/28 18:07:11 eiki Exp $
+ * $Id: IWSlideSessionBean.java,v 1.33.2.2 2007/10/13 12:56:18 tryggvil Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -15,9 +15,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.rmi.RemoteException;
 import java.util.Enumeration;
-
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSessionBindingEvent;
-
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.URIException;
@@ -28,30 +27,32 @@ import org.apache.slide.security.Security;
 import org.apache.slide.structure.ActionNode;
 import org.apache.slide.structure.LinkNode;
 import org.apache.slide.structure.ObjectNotFoundException;
+import org.apache.slide.webdav.util.WebdavUtils;
 import org.apache.webdav.lib.Privilege;
 import org.apache.webdav.lib.WebdavFile;
 import org.apache.webdav.lib.WebdavResource;
 import org.apache.webdav.lib.util.WebdavStatus;
-
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBOSessionBean;
 import com.idega.core.accesscontrol.business.LoggedOnInfo;
 import com.idega.core.accesscontrol.business.LoginBusinessBean;
 import com.idega.core.accesscontrol.business.NotLoggedOnException;
+import com.idega.core.accesscontrol.data.LoginTable;
+import com.idega.presentation.IWContext;
+import com.idega.slide.authentication.AuthenticationBusiness;
 import com.idega.slide.util.AccessControlList;
 import com.idega.slide.util.IWSlideConstants;
 import com.idega.slide.util.WebdavExtendedResource;
 import com.idega.slide.util.WebdavOutputStream;
 import com.idega.slide.util.WebdavRootResource;
-import com.idega.util.StringHandler;
 
 
 /**
  * 
- *  Last modified: $Date: 2006/09/28 18:07:11 $ by $Author: eiki $
+ *  Last modified: $Date: 2007/10/13 12:56:18 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.33.2.1 $
+ * @version $Revision: 1.33.2.2 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -68,7 +69,8 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	
 	private String servletPath = null;
 	
-	private static final String SLIDE_PASSWORD_ATTRIBUTE_NAME = "iw_slide_password";
+	public static final String SLIDE_PASSWORD_ATTRIBUTE_NAME = "iw_slide_password";
+
 	
 	private SlideToken _slideToken = null;
 	
@@ -145,7 +147,7 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		if(lInfo!=null){
 			String password = (String)lInfo.getAttribute(SLIDE_PASSWORD_ATTRIBUTE_NAME);
 			if(password == null){
-				password = StringHandler.getRandomString(10);
+				password = getSlideReadableUserPassword();
 				lInfo.setAttribute(SLIDE_PASSWORD_ATTRIBUTE_NAME,password);
 			}
 			if(getUserContext().isSuperAdmin()){
@@ -158,6 +160,31 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		return null;
 	}
 	
+	
+	private String getSlideReadableUserPassword() {
+		LoggedOnInfo lInfo = LoginBusinessBean.getLoggedOnInfo(getUserContext());
+		return getSlideReadableUserPassword(lInfo);
+	}
+
+
+	private String getSlideReadableUserPassword(LoggedOnInfo info) {
+		try {
+			LoginTable login = info.getLoginTable();
+			return getAuthenticationBusiness().getSlideReadableUserPassword(login);
+		}
+		catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected AuthenticationBusiness getAuthenticationBusiness(){
+		try {
+			return (AuthenticationBusiness) getServiceInstance(AuthenticationBusiness.class);
+		}
+		catch (IBOLookupException e) {
+			throw new RuntimeException(e);
+		}
+	}
 	
 	/**
 	 * This returns a wrapper for the root webdavresoure.  Only one instance of this object is created for each session.
@@ -334,8 +361,15 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
      **/
     private SlideToken getSlideToken() {
     		if(this._slideToken == null){
-    			throw new RuntimeException("["+this.getClass().getName()+"]: Requesting SlideToken but token has not been set.  Check if IWSlideAuthenticator filter is mapped right (/*) in web.xml");
-//    			// This code is borrowed from org.apache.slide.webdav.util.WebdavUtils#getSlideToken(HttpServletRequest)
+    			try{
+    				HttpServletRequest request = IWContext.getInstance().getRequest();
+    				setSlideToken(WebdavUtils.getSlideToken(request));
+    			}
+    			catch(Exception e){
+    				throw new RuntimeException("["+this.getClass().getName()+"]: Requesting SlideToken but token has not been set.  Check if IWSlideAuthenticator filter is mapped right (/*) in web.xml");
+    			}
+    			
+    			//    			// This code is borrowed from org.apache.slide.webdav.util.WebdavUtils#getSlideToken(HttpServletRequest)
 //    			// and altered since we just have session and not requst object.
 //    			
 //            CredentialsToken credentialsToken;

@@ -6,7 +6,7 @@
   <artifactId>com.idega.slide</artifactId>
   <name>idegaWeb Slide</name>
   <groupId>bundles</groupId>
-  <currentVersion>3.1.8</currentVersion>
+  <currentVersion>3.1.9</currentVersion>
   <organization>
     <name>Idega Software</name>
     <url>www.idega.com</url>
@@ -119,7 +119,7 @@
     <dependency>
       <groupId>bundles</groupId>
       <artifactId>com.idega.core</artifactId>
-      <version>3.1.65</version>
+      <version>3.1.67</version>
       <type>jar</type>
       <url>http://www.idega.com/</url>
       <properties>

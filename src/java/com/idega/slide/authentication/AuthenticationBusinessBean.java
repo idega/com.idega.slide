@@ -1,5 +1,5 @@
 /*
- * $Id: AuthenticationBusinessBean.java,v 1.12 2006/04/09 11:44:15 laddi Exp $
+ * $Id: AuthenticationBusinessBean.java,v 1.12.2.1 2007/10/13 12:56:18 tryggvil Exp $
  * Created on 9.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -24,19 +24,22 @@ import org.apache.webdav.lib.WebdavResources;
 import com.idega.business.IBOLookup;
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBOServiceBean;
+import com.idega.core.accesscontrol.business.AccessController;
 import com.idega.core.accesscontrol.business.LoginBusinessBean;
+import com.idega.core.accesscontrol.data.LoginTable;
+import com.idega.core.accesscontrol.data.LoginTableHome;
 import com.idega.slide.business.IWSlideService;
 import com.idega.slide.util.IWSlideConstants;
 import com.idega.slide.util.PropertyParser;
-import com.idega.util.StringHandler;
+import com.idega.user.data.User;
 
 
 /**
  * 
- *  Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
+ *  Last modified: $Date: 2007/10/13 12:56:18 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.12.2.1 $
  */
 public class AuthenticationBusinessBean extends IBOServiceBean  implements AuthenticationBusiness{
 	//TODO extend Authenticationbusiness from core
@@ -55,7 +58,6 @@ public class AuthenticationBusinessBean extends IBOServiceBean  implements Authe
 	private static final String ROOT_USER_NAME = "root";
 	private final UsernamePasswordCredentials rootCredential = new UsernamePasswordCredentials(ROOT_USER_NAME,NO_PASSWORD);
 	//private LoginBusinessBean _loginBusiness = new LoginBusinessBean();
-	
 	
 	public WebdavResources getAllRoles() throws HttpException, RemoteException, IOException{
 		return getAllRoles(null);
@@ -224,7 +226,18 @@ public class AuthenticationBusinessBean extends IBOServiceBean  implements Authe
 	
 	public UsernamePasswordCredentials getRootUserCredentials(){
 		if(NO_PASSWORD.equals(this.rootCredential.getPassword())){
-			this.rootCredential.setPassword(StringHandler.getRandomString(20));
+			AccessController accessController = getIWApplicationContext().getIWMainApplication().getAccessController();
+			try {
+				User superAdmin = accessController.getAdministratorUser();
+				LoginTableHome ltHome = (LoginTableHome) getIDOHome(LoginTable.class);
+				LoginTable login = ltHome.findByUserAndType(superAdmin,null);
+				String encryptedPassword = getSlideReadableUserPassword(login);
+				this.rootCredential.setPassword(encryptedPassword);
+			}
+			catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}	
 		}
 		return this.rootCredential;
 	}
@@ -238,9 +251,17 @@ public class AuthenticationBusinessBean extends IBOServiceBean  implements Authe
 	}
 	
 	protected LoginBusinessBean getLoginBusiness(){
-		//return _loginBusiness;
+		//return _loginBusiness;	
 		return LoginBusinessBean.getLoginBusinessBean(getIWApplicationContext());
 	}
 	
+	public String getSlideReadableUserPassword(LoginTable login) {
+		if(login!=null){
+			String encryptedPass = login.getUserPasswordInClearText();
+			String returnString = LoginBusinessBean.ENCRYPTEDPASSWD_PREFIX+encryptedPass;
+			return returnString;
+		}
+		return null;
+	}
 	
 }
