@@ -1,5 +1,5 @@
 /*
- * $Id: IWBundleStarter.java,v 1.10 2007/05/11 11:21:55 eiki Exp $
+ * $Id: IWBundleStarter.java,v 1.11 2007/10/17 15:09:15 valdas Exp $
  * Created on 15.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -22,10 +22,10 @@ import com.idega.slide.util.DirtyUnloader;
 
 /**
  * 
- *  Last modified: $Date: 2007/05/11 11:21:55 $ by $Author: eiki $
+ *  Last modified: $Date: 2007/10/17 15:09:15 $ by $Author: valdas $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  */
 public class IWBundleStarter implements IWBundleStartable {
 
@@ -36,7 +36,7 @@ public class IWBundleStarter implements IWBundleStartable {
     	
 //    		System.out.println("[System.property]:java.security.auth.login.config="+starterBundle.getPropertiesRealPath()+ FileUtil.getFileSeparator()+"jaas.config");
 //		System.setProperty("java.security.auth.login.config",starterBundle.getPropertiesRealPath()+ FileUtil.getFileSeparator()+"jaas.config");
-	//	System.setProperty("file.encoding","UTF-8");
+	//	System.setProperty("file.encoding",CoreConstants.ENCODING_UTF8);
         DirtyUnloader unloader = new DirtyUnloader();
         unloader.reset();
     	

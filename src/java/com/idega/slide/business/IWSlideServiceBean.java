@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.54 2007/08/20 14:41:03 valdas Exp $
+ * $Id: IWSlideServiceBean.java,v 1.55 2007/10/17 15:09:15 valdas Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -65,10 +65,10 @@ import com.idega.util.StringHandler;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2007/08/20 14:41:03 $ by $Author: valdas $
+ *  Last modified: $Date: 2007/10/17 15:09:15 $ by $Author: valdas $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.54 $
+ * @version $Revision: 1.55 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService, IWSlideChangeListener {
 
@@ -810,7 +810,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	public boolean uploadFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName, String fileContentString, String contentType, boolean deletePredecessor){
 		ByteArrayInputStream utf8stream;
 		try {
-			utf8stream = new ByteArrayInputStream(fileContentString.getBytes("UTF-8"));
+			utf8stream = new ByteArrayInputStream(fileContentString.getBytes(CoreConstants.ENCODING_UTF8));
 			return	uploadFileAndCreateFoldersFromStringAsRoot(parentPath,fileName,utf8stream,contentType, deletePredecessor);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
