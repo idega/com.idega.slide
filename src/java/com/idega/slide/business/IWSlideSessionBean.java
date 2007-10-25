@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.34 2007/02/04 20:42:21 valdas Exp $
+ * $Id: IWSlideSessionBean.java,v 1.35 2007/10/25 22:06:46 eiki Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -48,10 +48,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2007/02/04 20:42:21 $ by $Author: valdas $
+ *  Last modified: $Date: 2007/10/25 22:06:46 $ by $Author: eiki $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.34 $
+ * @version $Revision: 1.35 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -253,7 +253,7 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	}
 	
 	/**
-	 * Gets an inputstream for reading the file on the given path
+	 * Gets an outputstream for writing to the file on the given path
 	 * @throws IOException
 	 * @throws  
 	 */

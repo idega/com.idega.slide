@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.55 2007/10/17 15:09:15 valdas Exp $
+ * $Id: IWSlideServiceBean.java,v 1.56 2007/10/25 22:06:45 eiki Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -11,8 +11,10 @@ package com.idega.slide.business;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -54,6 +56,7 @@ import com.idega.slide.util.AccessControlEntry;
 import com.idega.slide.util.AccessControlList;
 import com.idega.slide.util.IWSlideConstants;
 import com.idega.slide.util.WebdavExtendedResource;
+import com.idega.slide.util.WebdavOutputStream;
 import com.idega.slide.util.WebdavRootResource;
 import com.idega.util.CoreConstants;
 import com.idega.util.IWTimestamp;
@@ -65,10 +68,10 @@ import com.idega.util.StringHandler;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2007/10/17 15:09:15 $ by $Author: valdas $
+ *  Last modified: $Date: 2007/10/25 22:06:45 $ by $Author: eiki $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.55 $
+ * @version $Revision: 1.56 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService, IWSlideChangeListener {
 
@@ -1306,6 +1309,46 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 			zip.closeEntry(zipInputStream);
 		}
 		return result;
+	}
+	
+	
+	
+	/**
+	 * Gets an inputstream for reading the file on the given path as ROOT
+	 * @throws IOException 
+	 * @throws  
+	 */
+	public InputStream getInputStream(String path)throws IOException{
+		WebdavResource resource = getWebdavResourceAuthenticatedAsRoot(path);
+		return resource.getMethodData();
+	}
+
+	public OutputStream getOutputStream(File file)throws IOException{
+		return getOutputStream(file.getAbsolutePath());
+	}
+	
+	/**
+	 * Gets an outputstream for writing to the file on the given path
+	 * @throws IOException
+	 * @throws  
+	 */
+	public OutputStream getOutputStream(String path)throws IOException{
+		WebdavResource resource = getWebdavResourceAuthenticatedAsRoot(path);
+		return new WebdavOutputStream(resource);
+	}
+	
+	/**
+	 * Gets a file representation for the given path as root
+	 * @throws RemoteException 
+	 */
+	public File getFile(String path)throws URIException, RemoteException{
+		WebdavFile file = null;
+		try {
+			file = new WebdavFile(getWebdavServerURL(getRootUserCredentials(), path));
+		} catch (IBOLookupException e) {
+			e.printStackTrace();
+		}
+		return file;
 	}
 
 }

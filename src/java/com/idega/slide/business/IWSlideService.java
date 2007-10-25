@@ -1,8 +1,10 @@
 package com.idega.slide.business;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +12,7 @@ import java.util.zip.ZipInputStream;
 
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
+import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.slide.security.Security;
 import org.apache.webdav.lib.WebdavFile;
@@ -41,22 +44,26 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavServerURL
 	 */
-	public HttpURL getWebdavServerURL(UsernamePasswordCredentials credential) throws RemoteException;
+	public HttpURL getWebdavServerURL(UsernamePasswordCredentials credential)
+			throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavServerURL
 	 */
-	public HttpURL getWebdavServerURL(UsernamePasswordCredentials credential, String path) throws RemoteException;
+	public HttpURL getWebdavServerURL(UsernamePasswordCredentials credential,
+			String path) throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavFile
 	 */
-	public WebdavFile getWebdavFile(UsernamePasswordCredentials credentials, String path) throws RemoteException;
+	public WebdavFile getWebdavFile(UsernamePasswordCredentials credentials,
+			String path) throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavFile
 	 */
-	public WebdavFile getWebdavFile(UsernamePasswordCredentials credentials) throws RemoteException;
+	public WebdavFile getWebdavFile(UsernamePasswordCredentials credentials)
+			throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavFile
@@ -66,7 +73,8 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getRootUserCredentials
 	 */
-	public UsernamePasswordCredentials getRootUserCredentials() throws IBOLookupException, RemoteException, RemoteException;
+	public UsernamePasswordCredentials getRootUserCredentials()
+			throws IBOLookupException, RemoteException, RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#createSlideSchemas
@@ -76,27 +84,35 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavRootResource
 	 */
-	public WebdavResource getWebdavRootResource(UsernamePasswordCredentials credentials) throws HttpException, IOException, RemoteException, RemoteException;
+	public WebdavResource getWebdavRootResource(
+			UsernamePasswordCredentials credentials) throws HttpException,
+			IOException, RemoteException, RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavResource
 	 */
-	public WebdavResource getWebdavResource(String path, UsernamePasswordCredentials credentials) throws HttpException, IOException, RemoteException, RemoteException;
+	public WebdavResource getWebdavResource(String path,
+			UsernamePasswordCredentials credentials) throws HttpException,
+			IOException, RemoteException, RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavExtendedResource
 	 */
-	public WebdavExtendedResource getWebdavExtendedResource(String path, UsernamePasswordCredentials credentials) throws HttpException, IOException, RemoteException, RemoteException;
+	public WebdavExtendedResource getWebdavExtendedResource(String path,
+			UsernamePasswordCredentials credentials) throws HttpException,
+			IOException, RemoteException, RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavResourceAuthenticatedAsRoot
 	 */
-	public WebdavResource getWebdavResourceAuthenticatedAsRoot(String path) throws HttpException, IOException, RemoteException;
+	public WebdavResource getWebdavResourceAuthenticatedAsRoot(String path)
+			throws HttpException, IOException, RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavResourceAuthenticatedAsRoot
 	 */
-	public WebdavResource getWebdavResourceAuthenticatedAsRoot() throws HttpException, IOException, RemoteException;
+	public WebdavResource getWebdavResourceAuthenticatedAsRoot()
+			throws HttpException, IOException, RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getURI
@@ -111,47 +127,58 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getExistence
 	 */
-	public boolean getExistence(String path) throws HttpException, IOException, RemoteException;
+	public boolean getExistence(String path) throws HttpException, IOException,
+			RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#generateUserFolders
 	 */
-	public boolean generateUserFolders(String loginName) throws HttpException, IOException, RemoteException;
+	public boolean generateUserFolders(String loginName) throws HttpException,
+			IOException, RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#updateUserFolderPrivileges
 	 */
-	public void updateUserFolderPrivileges(String loginName) throws IOException, IOException, RemoteException;
+	public void updateUserFolderPrivileges(String loginName)
+			throws IOException, IOException, RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getAccessControlList
 	 */
-	public AccessControlList getAccessControlList(String path) throws HttpException, IOException, RemoteException;
+	public AccessControlList getAccessControlList(String path)
+			throws HttpException, IOException, RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getAccessControlList
 	 */
-	public AccessControlList getAccessControlList(String path, WebdavRootResource rResource) throws HttpException, IOException, RemoteException;
+	public AccessControlList getAccessControlList(String path,
+			WebdavRootResource rResource) throws HttpException, IOException,
+			RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#storeAccessControlList
 	 */
-	public boolean storeAccessControlList(AccessControlList acl) throws HttpException, IOException, RemoteException;
+	public boolean storeAccessControlList(AccessControlList acl)
+			throws HttpException, IOException, RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#storeAccessControlList
 	 */
-	public boolean storeAccessControlList(AccessControlList acl, WebdavRootResource rResource) throws HttpException, IOException, RemoteException;
+	public boolean storeAccessControlList(AccessControlList acl,
+			WebdavRootResource rResource) throws HttpException, IOException,
+			RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getAuthenticationBusiness
 	 */
-	public AuthenticationBusiness getAuthenticationBusiness() throws IBOLookupException, RemoteException;
+	public AuthenticationBusiness getAuthenticationBusiness()
+			throws IBOLookupException, RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getUserHomeFolderPath
 	 */
-	public String getUserHomeFolderPath(String loginName) throws RemoteException;
+	public String getUserHomeFolderPath(String loginName)
+			throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#createUniqueFileName
@@ -166,57 +193,76 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#createAllFoldersInPath
 	 */
-	public boolean createAllFoldersInPath(String path, UsernamePasswordCredentials credentials) throws HttpException, RemoteException, IOException, RemoteException;
+	public boolean createAllFoldersInPath(String path,
+			UsernamePasswordCredentials credentials) throws HttpException,
+			RemoteException, IOException, RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#createAllFoldersInPathAsRoot
 	 */
-	public boolean createAllFoldersInPathAsRoot(String path) throws HttpException, RemoteException, IOException, RemoteException;
+	public boolean createAllFoldersInPathAsRoot(String path)
+			throws HttpException, RemoteException, IOException, RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#uploadFileAndCreateFoldersFromStringAsRoot
 	 */
-	public boolean uploadFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName, String fileContentString, String contentType) throws RemoteException;
+	public boolean uploadFileAndCreateFoldersFromStringAsRoot(
+			String parentPath, String fileName, String fileContentString,
+			String contentType) throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#uploadFileAndCreateFoldersFromStringAsRoot
 	 */
-	public boolean uploadFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName, String fileContentString, String contentType, boolean deletePredecessor) throws RemoteException;
+	public boolean uploadFileAndCreateFoldersFromStringAsRoot(
+			String parentPath, String fileName, String fileContentString,
+			String contentType, boolean deletePredecessor)
+			throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#uploadFileAndCreateFoldersFromStringAsRoot
 	 */
-	public boolean uploadFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName, InputStream fileInputStream, String contentType, boolean deletePredecessor) throws RemoteException;
+	public boolean uploadFileAndCreateFoldersFromStringAsRoot(
+			String parentPath, String fileName, InputStream fileInputStream,
+			String contentType, boolean deletePredecessor)
+			throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#uploadXMLFileAndCreateFoldersFromStringAsRoot
 	 */
-	public boolean uploadXMLFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName, String fileContentString) throws RemoteException;
+	public boolean uploadXMLFileAndCreateFoldersFromStringAsRoot(
+			String parentPath, String fileName, String fileContentString)
+			throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#uploadXMLFileAndCreateFoldersFromStringAsRoot
 	 */
-	public boolean uploadXMLFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName, String fileContentString, boolean deletePredecessor) throws RemoteException;
+	public boolean uploadXMLFileAndCreateFoldersFromStringAsRoot(
+			String parentPath, String fileName, String fileContentString,
+			boolean deletePredecessor) throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getIWSlideChangeListeners
 	 */
-	public IWSlideChangeListener[] getIWSlideChangeListeners() throws RemoteException;
+	public IWSlideChangeListener[] getIWSlideChangeListeners()
+			throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#setIWSlideChangeListeners
 	 */
-	public void setIWSlideChangeListeners(List iwSlideChangeListeners) throws RemoteException;
+	public void setIWSlideChangeListeners(List iwSlideChangeListeners)
+			throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#addIWSlideChangeListeners
 	 */
-	public void addIWSlideChangeListeners(IWSlideChangeListener iwSlideChangeListener) throws RemoteException;
+	public void addIWSlideChangeListeners(
+			IWSlideChangeListener iwSlideChangeListener) throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getChildCountExcludingFoldersAndHiddenFiles
 	 */
-	public int getChildCountExcludingFoldersAndHiddenFiles(String folderURI) throws RemoteException;
+	public int getChildCountExcludingFoldersAndHiddenFiles(String folderURI)
+			throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getChildFolderCount
@@ -236,7 +282,8 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getChildPathsExcludingFoldersAndHiddenFiles
 	 */
-	public List getChildPathsExcludingFoldersAndHiddenFiles(String folderURI) throws RemoteException;
+	public List getChildPathsExcludingFoldersAndHiddenFiles(String folderURI)
+			throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getChildFolderPaths
@@ -251,7 +298,8 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#invalidateCacheForAllFoldersInURIPath
 	 */
-	public void invalidateCacheForAllFoldersInURIPath(String URI) throws RemoteException;
+	public void invalidateCacheForAllFoldersInURIPath(String URI)
+			throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getChildFolderPathsCacheMap
@@ -261,7 +309,8 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#setChildFolderPathsCacheMap
 	 */
-	public void setChildFolderPathsCacheMap(Map childFolderPathsCacheMap) throws RemoteException;
+	public void setChildFolderPathsCacheMap(Map childFolderPathsCacheMap)
+			throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getChildPathsCacheMap
@@ -271,17 +320,21 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#setChildPathsCacheMap
 	 */
-	public void setChildPathsCacheMap(Map childPathsCacheMap) throws RemoteException;
+	public void setChildPathsCacheMap(Map childPathsCacheMap)
+			throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getChildPathsExcludingFolderAndHiddenFilesCacheMap
 	 */
-	public Map getChildPathsExcludingFolderAndHiddenFilesCacheMap() throws RemoteException;
+	public Map getChildPathsExcludingFolderAndHiddenFilesCacheMap()
+			throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#setChildPathsExcludingFolderAndHiddenFilesCacheMap
 	 */
-	public void setChildPathsExcludingFolderAndHiddenFilesCacheMap(Map childPathsExcludingFolderAndHiddenFilesCacheMap) throws RemoteException;
+	public void setChildPathsExcludingFolderAndHiddenFilesCacheMap(
+			Map childPathsExcludingFolderAndHiddenFilesCacheMap)
+			throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#onSlideChange
@@ -297,9 +350,34 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 	 * @see com.idega.slide.business.IWSlideServiceBean#getParentPath
 	 */
 	public String getParentPath(String path) throws RemoteException;
-	
+
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#uploadZipFileContents
 	 */
-	public boolean uploadZipFileContents(ZipInputStream zipInputStream, String uploadPath, List<String> filesToClean) throws RemoteException;
+	public boolean uploadZipFileContents(ZipInputStream zipInputStream,
+			String uploadPath, List<String> filesToClean)
+			throws RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#getInputStream
+	 */
+	public InputStream getInputStream(String path) throws IOException,
+			RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#getOutputStream
+	 */
+	public OutputStream getOutputStream(File file) throws IOException,
+			RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#getOutputStream
+	 */
+	public OutputStream getOutputStream(String path) throws IOException,
+			RemoteException;
+	
+	/**
+	 * @see com.idega.slide.business.IWSlideServiceBean#getFile
+	 */
+	public File getFile(String path)throws URIException, RemoteException;
 }
