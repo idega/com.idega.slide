@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.56 2007/10/25 22:06:45 eiki Exp $
+ * $Id: IWSlideServiceBean.java,v 1.57 2007/11/05 16:20:21 valdas Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -68,10 +68,10 @@ import com.idega.util.StringHandler;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2007/10/25 22:06:45 $ by $Author: eiki $
+ *  Last modified: $Date: 2007/11/05 16:20:21 $ by $Author: valdas $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.56 $
+ * @version $Revision: 1.57 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService, IWSlideChangeListener {
 
@@ -1241,7 +1241,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @return result: success (true) or failure (false) while uploading file
 	 */
 	public boolean uploadZipFileContents(ZipInputStream zipInputStream, String uploadPath, List<String> filesToClean) {
-		boolean result = (uploadPath == null || "".equals(uploadPath)) ? false : true; // Checking if parameters are valid
+		boolean result = (uploadPath == null || CoreConstants.EMPTY.equals(uploadPath)) ? false : true; // Checking if parameters are valid
 		if (!result) {
 			log.error("Invalid upload path!");
 			return result;
