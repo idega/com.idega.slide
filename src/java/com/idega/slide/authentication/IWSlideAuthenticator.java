@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticator.java,v 1.22 2007/03/28 10:11:39 civilis Exp $
+ * $Id: IWSlideAuthenticator.java,v 1.23 2007/12/12 10:46:30 civilis Exp $
  * Created on 8.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -41,10 +41,10 @@ import com.idega.slide.business.IWSlideSession;
  * This filter is mapped before any request to the Slide WebdavServlet to make sure
  * a logged in user from idegaWeb is logged also into the Slide authentication system.
  * </p>
- *  Last modified: $Date: 2007/03/28 10:11:39 $ by $Author: civilis $
+ *  Last modified: $Date: 2007/12/12 10:46:30 $ by $Author: civilis $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.22 $
+ * @version $Revision: 1.23 $
  */
 public class IWSlideAuthenticator extends BaseFilter{
 
@@ -187,7 +187,7 @@ public class IWSlideAuthenticator extends BaseFilter{
 		HttpSession session = request.getSession();
 		LoginBusinessBean loginBusiness = getLoginBusiness(request);
 		if(loginBusiness.isLoggedOn(request)){	
-			LoginSession loginSession = (LoginSession)SpringBeanLookup.getInstance().getSpringBean(request.getSession(), LoginSession.class);
+			LoginSession loginSession = SpringBeanLookup.getInstance().getSpringBean(request.getSession(), LoginSession.class);
 			if(loginSession.isSuperAdmin()){
 				String rootUserName = getAuthenticationBusiness(request).getRootUserCredentials().getUserName();
 				//iwc.setRequest(new IWSlideAuthenticatedRequest(iwc.getRequest(),rootUserName,Collections.singleton(rootUserName)));
