@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.57 2007/11/05 16:20:21 valdas Exp $
+ * $Id: IWSlideServiceBean.java,v 1.58 2008/02/14 11:44:19 eiki Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -68,10 +68,10 @@ import com.idega.util.StringHandler;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2007/11/05 16:20:21 $ by $Author: valdas $
+ *  Last modified: $Date: 2008/02/14 11:44:19 $ by $Author: eiki $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.57 $
+ * @version $Revision: 1.58 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService, IWSlideChangeListener {
 
@@ -326,6 +326,10 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @return
 	 */
 	public String getURI(String path) throws RemoteException{
+		if(path.startsWith(CoreConstants.WEBDAV_SERVLET_URI)){
+			//to avoid /content/content/
+			path = path.substring(CoreConstants.WEBDAV_SERVLET_URI.length());
+		}
 		return getWebdavServerURI()+((path.startsWith(SLASH))?"":SLASH)+path;
 	}
 	
@@ -845,7 +849,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 			
 			//Conflict fix: uri for creating but path for updating
 			//Note! This is a patch to what seems to be a bug in WebDav
-			//Apparently in verion below works in some cases and the other in other cases.
+			//Apparently in version below works in some cases and the other in other cases.
 			//Seems to be connected to creating files in folders created in same tomcat session or similar
 			//not quite clear...
 
