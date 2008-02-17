@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.36 2008/02/14 11:44:19 eiki Exp $
+ * $Id: IWSlideSessionBean.java,v 1.37 2008/02/17 13:23:47 eiki Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -49,10 +49,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2008/02/14 11:44:19 $ by $Author: eiki $
+ *  Last modified: $Date: 2008/02/17 13:23:47 $ by $Author: eiki $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.36 $
+ * @version $Revision: 1.37 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -265,11 +265,7 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 
 	
 	public String getURI(String path) throws RemoteException{
-		if(path.startsWith(CoreConstants.WEBDAV_SERVLET_URI)){
-			//to avoid /content/content/
-			path = path.substring(CoreConstants.WEBDAV_SERVLET_URI.length());
-		}
-		return getWebdavServerURI()+((path.startsWith("/"))?"":"/")+path;
+		return getIWSlideService().getURI(path);
 	}
 	
 	public String getPath(String uri) throws RemoteException{
