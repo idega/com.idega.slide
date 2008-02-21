@@ -1,5 +1,5 @@
 /*
- * $Id: AuthenticationBusiness.java,v 1.3 2006/01/12 16:10:31 tryggvil Exp $
+ * $Id: AuthenticationBusiness.java,v 1.4 2008/02/21 17:37:14 valdas Exp $
  * Created on 13.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -12,19 +12,23 @@ package com.idega.slide.authentication;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.webdav.lib.WebdavResources;
+
 import com.idega.business.IBOService;
+import com.idega.slide.util.AccessControlList;
 
 
 /**
  * 
- *  Last modified: $Date: 2006/01/12 16:10:31 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2008/02/21 17:37:14 $ by $Author: valdas $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public interface AuthenticationBusiness extends IBOService {
 
@@ -78,4 +82,6 @@ public interface AuthenticationBusiness extends IBOService {
 	public UsernamePasswordCredentials getRootUserCredentials() throws RemoteException;
 	
 	public boolean isRootUser(HttpServletRequest request) throws RemoteException;
+	
+	public AccessControlList applyDefaultPermissionsToRepository(AccessControlList acl);
 }

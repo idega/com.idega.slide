@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticator.java,v 1.23 2007/12/12 10:46:30 civilis Exp $
+ * $Id: IWSlideAuthenticator.java,v 1.24 2008/02/21 17:37:14 valdas Exp $
  * Created on 8.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -34,6 +34,8 @@ import com.idega.presentation.IWContext;
 import com.idega.servlet.filter.BaseFilter;
 import com.idega.slide.business.IWSlideService;
 import com.idega.slide.business.IWSlideSession;
+import com.idega.slide.util.AccessControlList;
+import com.idega.util.CoreConstants;
 
 
 /**
@@ -41,10 +43,10 @@ import com.idega.slide.business.IWSlideSession;
  * This filter is mapped before any request to the Slide WebdavServlet to make sure
  * a logged in user from idegaWeb is logged also into the Slide authentication system.
  * </p>
- *  Last modified: $Date: 2007/12/12 10:46:30 $ by $Author: civilis $
+ *  Last modified: $Date: 2008/02/21 17:37:14 $ by $Author: valdas $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.23 $
+ * @version $Revision: 1.24 $
  */
 public class IWSlideAuthenticator extends BaseFilter{
 
@@ -54,6 +56,8 @@ public class IWSlideAuthenticator extends BaseFilter{
 	private static final String PROPERTY_UPDATE_ROLES = "slide.updateroles.enable";
 	
 	private LoginBusinessBean loginBusiness = new LoginBusinessBean();
+	
+	private boolean defaultPermissionsApplied = false;
 	
 	/* (non-Javadoc)
 	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
@@ -74,11 +78,30 @@ public class IWSlideAuthenticator extends BaseFilter{
 		boolean isEnabled=isEnabled(hRequest);
 		if(isEnabled){
 			doAuthentication(request,response,chain);
+			
+			if (!defaultPermissionsApplied) {
+				defaultPermissionsApplied = true;
+				defaultPermissionsApplied = applyDefaultPermissionsToRepository(hRequest.getSession());
+			}
 		}
 		else{
 			chain.doFilter(request,response);
 		}
 	
+	}
+	
+	private boolean applyDefaultPermissionsToRepository(HttpSession session) {
+		try {
+			IWSlideService slideService = (IWSlideService) IBOLookup.getServiceInstance(IWMainApplication.getDefaultIWApplicationContext(), IWSlideService.class);
+			slideService.createAllFoldersInPathAsRoot(CoreConstants.CONTENT_PATH);
+			AccessControlList acl = slideService.getAccessControlList(CoreConstants.CONTENT_PATH);
+			acl = slideService.getAuthenticationBusiness().applyDefaultPermissionsToRepository(acl);
+			slideService.storeAccessControlList(acl);
+		} catch(Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
 	}
 	
 	/**

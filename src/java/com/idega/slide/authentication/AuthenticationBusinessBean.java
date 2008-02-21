@@ -1,5 +1,5 @@
 /*
- * $Id: AuthenticationBusinessBean.java,v 1.12 2006/04/09 11:44:15 laddi Exp $
+ * $Id: AuthenticationBusinessBean.java,v 1.13 2008/02/21 17:37:14 valdas Exp $
  * Created on 9.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -15,17 +15,25 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.webdav.lib.Ace;
+import org.apache.webdav.lib.Privilege;
 import org.apache.webdav.lib.PropertyName;
 import org.apache.webdav.lib.WebdavResource;
 import org.apache.webdav.lib.WebdavResources;
+
 import com.idega.business.IBOLookup;
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBOServiceBean;
 import com.idega.core.accesscontrol.business.LoginBusinessBean;
+import com.idega.core.accesscontrol.business.StandardRoles;
 import com.idega.slide.business.IWSlideService;
+import com.idega.slide.util.AccessControlEntry;
+import com.idega.slide.util.AccessControlList;
 import com.idega.slide.util.IWSlideConstants;
 import com.idega.slide.util.PropertyParser;
 import com.idega.util.StringHandler;
@@ -33,10 +41,10 @@ import com.idega.util.StringHandler;
 
 /**
  * 
- *  Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
+ *  Last modified: $Date: 2008/02/21 17:37:14 $ by $Author: valdas $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.13 $
  */
 public class AuthenticationBusinessBean extends IBOServiceBean  implements AuthenticationBusiness{
 	//TODO extend Authenticationbusiness from core
@@ -242,5 +250,22 @@ public class AuthenticationBusinessBean extends IBOServiceBean  implements Authe
 		return LoginBusinessBean.getLoginBusinessBean(getIWApplicationContext());
 	}
 	
+	public AccessControlList applyDefaultPermissionsToRepository(AccessControlList acl) {
+		try {
+			for (int i = 0; i < StandardRoles.ALL_STANDARD_ROLES.size(); i++) {
+				String roleUri = getRoleURI(StandardRoles.ALL_STANDARD_ROLES.get(i));
+				Ace newAce = new Ace(roleUri);
+				newAce.addPrivilege(Privilege.READ);
+				newAce.addPrivilege(Privilege.WRITE);
+				AccessControlEntry editorEntry = new AccessControlEntry(newAce, AccessControlEntry.PRINCIPAL_TYPE_ROLE);
+				acl.add(editorEntry);
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		return acl;
+	}
 	
 }
