@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.58 2008/02/14 11:44:19 eiki Exp $
+ * $Id: IWSlideServiceBean.java,v 1.59 2008/02/22 02:28:28 eiki Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -68,10 +68,10 @@ import com.idega.util.StringHandler;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2008/02/14 11:44:19 $ by $Author: eiki $
+ *  Last modified: $Date: 2008/02/22 02:28:28 $ by $Author: eiki $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.58 $
+ * @version $Revision: 1.59 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService, IWSlideChangeListener {
 
@@ -832,7 +832,14 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	public boolean uploadFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName, InputStream fileInputStream, String contentType, boolean deletePredecessor){
 		boolean returnValue = true;
 		try {
-			createAllFoldersInPathAsRoot(parentPath);
+			
+			if(parentPath.startsWith(CoreConstants.WEBDAV_SERVLET_URI)){
+				//to avoid /content/content/
+				createAllFoldersInPathAsRoot(parentPath.substring(CoreConstants.WEBDAV_SERVLET_URI.length()));
+			}
+			else{
+				createAllFoldersInPathAsRoot(parentPath);
+			}
 			
 			String filePath = parentPath+fileName;
 			WebdavResource rootResource = getWebdavResourceAuthenticatedAsRoot();
