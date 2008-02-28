@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticator.java,v 1.24 2008/02/21 17:37:14 valdas Exp $
+ * $Id: IWSlideAuthenticator.java,v 1.25 2008/02/28 17:03:56 eiki Exp $
  * Created on 8.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -12,6 +12,7 @@ package com.idega.slide.authentication;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Collections;
+
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -20,8 +21,10 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
 import org.apache.commons.httpclient.HttpException;
 import org.apache.slide.webdav.util.WebdavUtils;
+
 import com.idega.business.IBOLookup;
 import com.idega.business.IBOLookupException;
 import com.idega.business.SpringBeanLookup;
@@ -43,10 +46,10 @@ import com.idega.util.CoreConstants;
  * This filter is mapped before any request to the Slide WebdavServlet to make sure
  * a logged in user from idegaWeb is logged also into the Slide authentication system.
  * </p>
- *  Last modified: $Date: 2008/02/21 17:37:14 $ by $Author: valdas $
+ *  Last modified: $Date: 2008/02/28 17:03:56 $ by $Author: eiki $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.24 $
+ * @version $Revision: 1.25 $
  */
 public class IWSlideAuthenticator extends BaseFilter{
 
@@ -94,9 +97,12 @@ public class IWSlideAuthenticator extends BaseFilter{
 		try {
 			IWSlideService slideService = (IWSlideService) IBOLookup.getServiceInstance(IWMainApplication.getDefaultIWApplicationContext(), IWSlideService.class);
 			slideService.createAllFoldersInPathAsRoot(CoreConstants.CONTENT_PATH);
-			AccessControlList acl = slideService.getAccessControlList(CoreConstants.CONTENT_PATH);
-			acl = slideService.getAuthenticationBusiness().applyDefaultPermissionsToRepository(acl);
-			slideService.storeAccessControlList(acl);
+			AccessControlList aclCMS = slideService.getAccessControlList(CoreConstants.CONTENT_PATH);
+			AccessControlList aclPublic = slideService.getAccessControlList(CoreConstants.PUBLIC_PATH);
+			aclCMS = slideService.getAuthenticationBusiness().applyDefaultPermissionsToRepository(aclCMS);
+			aclPublic = slideService.getAuthenticationBusiness().applyDefaultPermissionsToRepository(aclPublic);
+			slideService.storeAccessControlList(aclCMS);
+			slideService.storeAccessControlList(aclPublic);
 		} catch(Exception e) {
 			e.printStackTrace();
 			return false;
