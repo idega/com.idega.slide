@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticator.java,v 1.25 2008/02/28 17:03:56 eiki Exp $
+ * $Id: IWSlideAuthenticator.java,v 1.26 2008/03/31 15:52:36 anton Exp $
  * Created on 8.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -33,6 +33,7 @@ import com.idega.core.accesscontrol.business.LoginBusinessBean;
 import com.idega.core.accesscontrol.business.LoginSession;
 import com.idega.idegaweb.IWApplicationContext;
 import com.idega.idegaweb.IWMainApplication;
+import com.idega.idegaweb.IWMainSlideStartedEvent;
 import com.idega.presentation.IWContext;
 import com.idega.servlet.filter.BaseFilter;
 import com.idega.slide.business.IWSlideService;
@@ -46,10 +47,10 @@ import com.idega.util.CoreConstants;
  * This filter is mapped before any request to the Slide WebdavServlet to make sure
  * a logged in user from idegaWeb is logged also into the Slide authentication system.
  * </p>
- *  Last modified: $Date: 2008/02/28 17:03:56 $ by $Author: eiki $
+ *  Last modified: $Date: 2008/03/31 15:52:36 $ by $Author: anton $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.25 $
+ * @version $Revision: 1.26 $
  */
 public class IWSlideAuthenticator extends BaseFilter{
 
@@ -85,6 +86,10 @@ public class IWSlideAuthenticator extends BaseFilter{
 			if (!defaultPermissionsApplied) {
 				defaultPermissionsApplied = true;
 				defaultPermissionsApplied = applyDefaultPermissionsToRepository(hRequest.getSession());
+				
+				//fire slide started action
+				IWMainApplication iwma = IWMainApplication.getIWMainApplication((HttpServletRequest)request);
+				SpringBeanLookup.getInstance().publishEvent(iwma.getServletContext(), new IWMainSlideStartedEvent(this));
 			}
 		}
 		else{
