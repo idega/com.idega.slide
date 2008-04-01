@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticator.java,v 1.26 2008/03/31 15:52:36 anton Exp $
+ * $Id: IWSlideAuthenticator.java,v 1.27 2008/04/01 17:49:08 anton Exp $
  * Created on 8.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -47,10 +47,10 @@ import com.idega.util.CoreConstants;
  * This filter is mapped before any request to the Slide WebdavServlet to make sure
  * a logged in user from idegaWeb is logged also into the Slide authentication system.
  * </p>
- *  Last modified: $Date: 2008/03/31 15:52:36 $ by $Author: anton $
+ *  Last modified: $Date: 2008/04/01 17:49:08 $ by $Author: anton $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.26 $
+ * @version $Revision: 1.27 $
  */
 public class IWSlideAuthenticator extends BaseFilter{
 
@@ -89,7 +89,7 @@ public class IWSlideAuthenticator extends BaseFilter{
 				
 				//fire slide started action
 				IWMainApplication iwma = IWMainApplication.getIWMainApplication((HttpServletRequest)request);
-				SpringBeanLookup.getInstance().publishEvent(iwma.getServletContext(), new IWMainSlideStartedEvent(this));
+				SpringBeanLookup.getInstance().publishEvent(iwma.getServletContext(), new IWMainSlideStartedEvent(iwma));
 			}
 		}
 		else{
