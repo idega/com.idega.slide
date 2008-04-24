@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.59 2008/02/22 02:28:28 eiki Exp $
+ * $Id: IWSlideServiceBean.java,v 1.60 2008/04/24 23:55:01 laddi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -68,10 +68,10 @@ import com.idega.util.StringHandler;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2008/02/22 02:28:28 $ by $Author: eiki $
+ *  Last modified: $Date: 2008/04/24 23:55:01 $ by $Author: laddi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.59 $
+ * @version $Revision: 1.60 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService, IWSlideChangeListener {
 
@@ -924,7 +924,6 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	/**
 	 * @param iwSlideChangeListeners The iwSlideChangeListeners to set. Overwrites the current list
 	 */
-	@SuppressWarnings("unchecked")
 	public void setIWSlideChangeListeners(List iwSlideChangeListeners) {
 		this.iwSlideChangeListeners = iwSlideChangeListeners;
 		this.iwSlideChangeListenersArray = (IWSlideChangeListener[]) iwSlideChangeListeners.toArray(new IWSlideChangeListener[0]);
@@ -1003,7 +1002,6 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @param folderURI
 	 * @return the count of "real" child resources, excluding folders and hidden files
 	 */
-	@SuppressWarnings("unchecked")
 	public List getChildPathsExcludingFoldersAndHiddenFiles(String folderURI) {
 		
 		Map cache = getChildPathsCacheMap();
@@ -1049,7 +1047,6 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @param folderURI
 	 * @return the paths of folder resources under the specified path, excluding files and hidden files
 	 */
-	@SuppressWarnings("unchecked")
 	public List getChildFolderPaths(String folderURI) {
 		
 		Map <String, List> cache = getChildFolderPathsCacheMap();
@@ -1093,7 +1090,6 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @param folderURI
 	 * @return the path of ALL child resources, including folders and hidden files. Null if no children
 	 */
-	@SuppressWarnings("unchecked")
 	public List getChildPaths(String folderURI) {
 		
 		Map <String, List> cache = getChildPathsCacheMap();

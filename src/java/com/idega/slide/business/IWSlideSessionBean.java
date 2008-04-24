@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.37 2008/02/17 13:23:47 eiki Exp $
+ * $Id: IWSlideSessionBean.java,v 1.38 2008/04/24 23:55:01 laddi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -43,16 +43,15 @@ import com.idega.slide.util.IWSlideConstants;
 import com.idega.slide.util.WebdavExtendedResource;
 import com.idega.slide.util.WebdavOutputStream;
 import com.idega.slide.util.WebdavRootResource;
-import com.idega.util.CoreConstants;
 import com.idega.util.StringHandler;
 
 
 /**
  * 
- *  Last modified: $Date: 2008/02/17 13:23:47 $ by $Author: eiki $
+ *  Last modified: $Date: 2008/04/24 23:55:01 $ by $Author: laddi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.37 $
+ * @version $Revision: 1.38 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 

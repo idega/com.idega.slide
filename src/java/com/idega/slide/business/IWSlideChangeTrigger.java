@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideChangeTrigger.java,v 1.5 2007/05/11 11:21:55 eiki Exp $ Created on Mar 24,
+ * $Id: IWSlideChangeTrigger.java,v 1.6 2008/04/24 23:55:01 laddi Exp $ Created on Mar 24,
  * 2006
  * 
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -27,10 +27,10 @@ import com.idega.idegaweb.IWMainApplication;
  * Listens for any change to the slide filesystem and notifies
  * IWSlideChangeListener classes. Useful for decaching stuff and more...
  * 
- * Last modified: $Date: 2007/05/11 11:21:55 $ by $Author: eiki $
+ * Last modified: $Date: 2008/04/24 23:55:01 $ by $Author: laddi $
  * 
  * @author <a href="mailto:eiki@idega.com">eiki</a>
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public class IWSlideChangeTrigger implements EventCollectionListener {
 
@@ -72,7 +72,7 @@ public class IWSlideChangeTrigger implements EventCollectionListener {
 					EventCollection.Event event = (EventCollection.Event) i.next();
 					AbstractEventMethod method = event.getMethod();
 					if(ContentEvent.REMOVE.equals(method) || ContentEvent.CREATE.equals(method) || ContentEvent.STORE.equals(method) ){
-						ContentEvent contentEvent = (ContentEvent)event.getEvent();
+						//ContentEvent contentEvent = (ContentEvent)event.getEvent();
 						IWContentEvent iwContentEvent = new IWContentEvent(event);
 						
 						for (int j = 0; j < listeners.length; j++) {
