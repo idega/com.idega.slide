@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.60 2008/04/24 23:55:01 laddi Exp $
+ * $Id: IWSlideServiceBean.java,v 1.61 2008/04/29 09:08:31 valdas Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -27,6 +27,8 @@ import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.servlet.ServletContext;
+
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.HttpsURL;
@@ -44,11 +46,12 @@ import org.apache.webdav.lib.WebdavResource;
 import org.apache.webdav.lib.WebdavResources;
 import org.apache.webdav.lib.properties.AclProperty;
 import org.apache.webdav.lib.util.WebdavStatus;
-import org.htmlcleaner.HtmlCleaner;
 
+import com.idega.builder.business.BuilderLogicWrapper;
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBORuntimeException;
 import com.idega.business.IBOServiceBean;
+import com.idega.business.SpringBeanLookup;
 import com.idega.io.ZipInstaller;
 import com.idega.slide.authentication.AuthenticationBusiness;
 import com.idega.slide.schema.SlideSchemaCreator;
@@ -68,10 +71,10 @@ import com.idega.util.StringHandler;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2008/04/24 23:55:01 $ by $Author: laddi $
+ *  Last modified: $Date: 2008/04/29 09:08:31 $ by $Author: valdas $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.60 $
+ * @version $Revision: 1.61 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService, IWSlideChangeListener {
 
@@ -1265,7 +1268,8 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		InputStream is = null;
 		String pathToFile = null;
 		String fileName = null;
-		HtmlCleaner cleaner = null;
+		ServletContext ctx = getIWApplicationContext().getIWMainApplication().getServletContext();
+		BuilderLogicWrapper builderLogic = (BuilderLogicWrapper) SpringBeanLookup.getInstance().getSpringBean(ctx, CoreConstants.SPRING_BEAN_NAME_BUILDER_LOGIC_WRAPPER);
 		if (filesToClean == null) { // To avoid NullPointerException
 			filesToClean = new ArrayList<String>();
 		}
@@ -1291,10 +1295,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 							if (fileName.indexOf(DOT) != -1 && (fileName.lastIndexOf(DOT) + 1) < fileName.length()) {
 								fileType = fileName.substring(fileName.lastIndexOf(DOT) + 1).toLowerCase();
 								if (filesToClean.contains(fileType)) { // Checking if current file needs to be cleaned
-									cleaner = new HtmlCleaner(is);
-									cleaner.setOmitDoctypeDeclaration(false);
-									cleaner.clean();
-									String content = cleaner.getPrettyXmlAsString();
+									String content = builderLogic.getBuilderService(getIWApplicationContext()).getCleanedHtmlContent(is, false, false, false);
 									is.close();
 									is = new ByteArrayInputStream(content.getBytes());
 								}
