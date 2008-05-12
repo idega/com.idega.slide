@@ -1,5 +1,5 @@
 /*
- * $Id: IWBundleStarter.java,v 1.11 2007/10/17 15:09:15 valdas Exp $
+ * $Id: IWBundleStarter.java,v 1.12 2008/05/12 20:35:30 eiki Exp $
  * Created on 15.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -22,10 +22,10 @@ import com.idega.slide.util.DirtyUnloader;
 
 /**
  * 
- *  Last modified: $Date: 2007/10/17 15:09:15 $ by $Author: valdas $
+ *  Last modified: $Date: 2008/05/12 20:35:30 $ by $Author: eiki $
  * 
  * @author <a href="mailto:aron@idega.com">aron</a>
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.12 $
  */
 public class IWBundleStarter implements IWBundleStartable {
 
@@ -43,6 +43,7 @@ public class IWBundleStarter implements IWBundleStartable {
         IWApplicationContext iwac = starterBundle.getApplication().getIWApplicationContext();
         try {
             IWSlideService service = (IWSlideService) IBOLookup.getServiceInstance(iwac,IWSlideService.class);
+            //TODO don't create unless using rdbms
             service.createSlideSchemas();
             
             //see com.idega.core.event
