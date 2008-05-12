@@ -225,6 +225,8 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 			String parentPath, String fileName, InputStream fileInputStream,
 			String contentType, boolean deletePredecessor)
 			throws RemoteException;
+	
+	public boolean uploadFile(String uploadPath, String fileName, InputStream fileInputStream);
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#uploadXMLFileAndCreateFoldersFromStringAsRoot

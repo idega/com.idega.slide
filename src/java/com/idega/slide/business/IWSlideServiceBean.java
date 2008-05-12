@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.61 2008/04/29 09:08:31 valdas Exp $
+ * $Id: IWSlideServiceBean.java,v 1.62 2008/05/12 20:31:31 valdas Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -53,6 +53,7 @@ import com.idega.business.IBORuntimeException;
 import com.idega.business.IBOServiceBean;
 import com.idega.business.SpringBeanLookup;
 import com.idega.io.ZipInstaller;
+import com.idega.slide.SlideConstants;
 import com.idega.slide.authentication.AuthenticationBusiness;
 import com.idega.slide.schema.SlideSchemaCreator;
 import com.idega.slide.util.AccessControlEntry;
@@ -71,10 +72,10 @@ import com.idega.util.StringHandler;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2008/04/29 09:08:31 $ by $Author: valdas $
+ *  Last modified: $Date: 2008/05/12 20:31:31 $ by $Author: valdas $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.61 $
+ * @version $Revision: 1.62 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService, IWSlideChangeListener {
 
@@ -821,10 +822,53 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		ByteArrayInputStream utf8stream;
 		try {
 			utf8stream = new ByteArrayInputStream(fileContentString.getBytes(CoreConstants.ENCODING_UTF8));
-			return	uploadFileAndCreateFoldersFromStringAsRoot(parentPath,fileName,utf8stream,contentType, deletePredecessor);
+			return uploadFileAndCreateFoldersFromStringAsRoot(parentPath,fileName,utf8stream,contentType, deletePredecessor);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}	
+		return false;
+	}
+	
+	private String createFoldersAndPreparedUploadPath(String uploadPath, boolean checkSlashes) {
+		if (checkSlashes) {
+			if (!uploadPath.startsWith(CoreConstants.SLASH)) {
+				uploadPath = CoreConstants.SLASH + uploadPath;
+			}
+			if (!uploadPath.endsWith(CoreConstants.SLASH)) {
+				uploadPath += CoreConstants.SLASH;
+			}
+		}
+		
+		try {
+			if (uploadPath.startsWith(CoreConstants.WEBDAV_SERVLET_URI)) {
+				//to avoid /content/content/
+				createAllFoldersInPathAsRoot(uploadPath.substring(CoreConstants.WEBDAV_SERVLET_URI.length()));
+			}
+			else {
+				createAllFoldersInPathAsRoot(uploadPath);
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		return uploadPath;
+	}
+	
+	public boolean uploadFile(String uploadPath, String fileName, InputStream fileInputStream) {
+		uploadPath = createFoldersAndPreparedUploadPath(uploadPath, true);
+		if (uploadPath == null) {
+			return false;
+		}
+		
+		ServletContext ctx = getIWApplicationContext().getIWMainApplication().getServletContext();
+		IWSimpleSlideServiceBean simpleService = (IWSimpleSlideServiceBean) SpringBeanLookup.getInstance().getSpringBean(ctx, SlideConstants.SIMPLE_SLIDE_SERVICE);
+		try {
+			return simpleService.upload(fileInputStream, uploadPath, fileName, null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		return false;
 	}
 	
@@ -832,16 +876,12 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 *
 	 * Creates the parent folder if needed and uploads the content of the file to Slide and sets the contenttype/mimetype you specify
 	 */
-	public boolean uploadFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName, InputStream fileInputStream, String contentType, boolean deletePredecessor){
+	public boolean uploadFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName, InputStream fileInputStream, String contentType, boolean deletePredecessor) {
 		boolean returnValue = true;
 		try {
-			
-			if(parentPath.startsWith(CoreConstants.WEBDAV_SERVLET_URI)){
-				//to avoid /content/content/
-				createAllFoldersInPathAsRoot(parentPath.substring(CoreConstants.WEBDAV_SERVLET_URI.length()));
-			}
-			else{
-				createAllFoldersInPathAsRoot(parentPath);
+			parentPath = createFoldersAndPreparedUploadPath(parentPath, false);
+			if (parentPath == null) {
+				return false;
 			}
 			
 			String filePath = parentPath+fileName;
@@ -1302,7 +1342,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 							}
 						}
 						
-						result = uploadFileAndCreateFoldersFromStringAsRoot(uploadPath + pathToFile, fileName, is, null, true);
+						result = uploadFile(uploadPath + pathToFile, fileName, is);
 						memory.close();
 						is.close();
 					}
@@ -1318,8 +1358,6 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		}
 		return result;
 	}
-	
-	
 	
 	/**
 	 * Gets an inputstream for reading the file on the given path as ROOT
