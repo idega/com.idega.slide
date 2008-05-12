@@ -131,6 +131,7 @@ public class IWSimpleSlideServiceBean {
 	
 	@SuppressWarnings({ "deprecation", "unchecked" })
 	private boolean doUploading(InputStream stream, SlideToken token, String uploadPath, User user) {
+		//	TODO: there is problem in uploadPath: API doesn't "see" different in case: /files/themes/ and /files/Themes/
 		try {
 			NodeRevisionNumber lastRevision = null;
 			try {
