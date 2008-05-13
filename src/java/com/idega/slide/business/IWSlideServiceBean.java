@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.62 2008/05/12 20:31:31 valdas Exp $
+ * $Id: IWSlideServiceBean.java,v 1.63 2008/05/13 12:37:19 valdas Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -72,10 +72,10 @@ import com.idega.util.StringHandler;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2008/05/12 20:31:31 $ by $Author: valdas $
+ *  Last modified: $Date: 2008/05/13 12:37:19 $ by $Author: valdas $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.62 $
+ * @version $Revision: 1.63 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService, IWSlideChangeListener {
 
@@ -855,7 +855,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		return uploadPath;
 	}
 	
-	public boolean uploadFile(String uploadPath, String fileName, InputStream fileInputStream) {
+	public boolean uploadFile(String uploadPath, String fileName, String contentType, InputStream fileInputStream) {
 		uploadPath = createFoldersAndPreparedUploadPath(uploadPath, true);
 		if (uploadPath == null) {
 			return false;
@@ -864,7 +864,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		ServletContext ctx = getIWApplicationContext().getIWMainApplication().getServletContext();
 		IWSimpleSlideServiceBean simpleService = (IWSimpleSlideServiceBean) SpringBeanLookup.getInstance().getSpringBean(ctx, SlideConstants.SIMPLE_SLIDE_SERVICE);
 		try {
-			return simpleService.upload(fileInputStream, uploadPath, fileName, null);
+			return simpleService.upload(fileInputStream, uploadPath, fileName, contentType, null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1342,7 +1342,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 							}
 						}
 						
-						result = uploadFile(uploadPath + pathToFile, fileName, is);
+						result = uploadFile(uploadPath + pathToFile, fileName, null, is);
 						memory.close();
 						is.close();
 					}

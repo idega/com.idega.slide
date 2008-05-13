@@ -130,7 +130,7 @@ public class IWSimpleSlideServiceBean {
 	}
 	
 	@SuppressWarnings({ "deprecation", "unchecked" })
-	private boolean doUploading(InputStream stream, SlideToken token, String uploadPath, User user) {
+	private boolean doUploading(InputStream stream, SlideToken token, String uploadPath, String contentType, User user) {
 		//	TODO: there is problem in uploadPath: API doesn't "see" different in case: /files/themes/ and /files/Themes/
 		try {
 			NodeRevisionNumber lastRevision = null;
@@ -164,8 +164,9 @@ public class IWSimpleSlideServiceBean {
 			String creator = ((SubjectNode)security.getPrincipal(token)).getPath().lastSegment();
 			revisionDescriptor.setCreationUser(creator);
 			revisionDescriptor.setOwner(creator);
-			String contentType = "text/plain";
-			revisionDescriptor.setContentType(contentType);
+			if (contentType != null) {
+				revisionDescriptor.setContentType(contentType);
+			}
 			
 			//	Properties (for now - just owner)
 			NodeProperty newProperty = new NodeProperty("authors", getAuthorsXML(user));
@@ -193,7 +194,7 @@ public class IWSimpleSlideServiceBean {
 		return false;
 	}
 	
-	protected boolean upload(InputStream stream, String uploadPath, String fileName, User user) throws Exception {
+	protected boolean upload(InputStream stream, String uploadPath, String fileName, String contentType, User user) throws Exception {
 		if (stream == null || uploadPath == null || fileName == null) {
 			return false;
 		}
@@ -211,7 +212,7 @@ public class IWSimpleSlideServiceBean {
 			return false;
 		}
 		
-		boolean uploadingResult = doUploading(stream, token, uploadPath + fileName, user);
+		boolean uploadingResult = doUploading(stream, token, uploadPath + fileName, contentType, user);
 		if (!uploadingResult) {
 			namespace.rollback();
 		}
