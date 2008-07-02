@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.63 2008/05/13 12:37:19 valdas Exp $
+ * $Id: IWSlideServiceBean.java,v 1.64 2008/07/02 19:28:56 civilis Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -51,7 +51,6 @@ import com.idega.builder.business.BuilderLogicWrapper;
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBORuntimeException;
 import com.idega.business.IBOServiceBean;
-import com.idega.business.SpringBeanLookup;
 import com.idega.io.ZipInstaller;
 import com.idega.slide.SlideConstants;
 import com.idega.slide.authentication.AuthenticationBusiness;
@@ -65,6 +64,7 @@ import com.idega.slide.util.WebdavRootResource;
 import com.idega.util.CoreConstants;
 import com.idega.util.IWTimestamp;
 import com.idega.util.StringHandler;
+import com.idega.util.expression.ELUtil;
 
 
 /**
@@ -72,10 +72,10 @@ import com.idega.util.StringHandler;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2008/05/13 12:37:19 $ by $Author: valdas $
+ *  Last modified: $Date: 2008/07/02 19:28:56 $ by $Author: civilis $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.63 $
+ * @version $Revision: 1.64 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService, IWSlideChangeListener {
 
@@ -862,7 +862,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		}
 		
 		ServletContext ctx = getIWApplicationContext().getIWMainApplication().getServletContext();
-		IWSimpleSlideServiceBean simpleService = (IWSimpleSlideServiceBean) SpringBeanLookup.getInstance().getSpringBean(ctx, SlideConstants.SIMPLE_SLIDE_SERVICE);
+		IWSimpleSlideServiceBean simpleService = ELUtil.getInstance().getBean(SlideConstants.SIMPLE_SLIDE_SERVICE);
 		try {
 			return simpleService.upload(fileInputStream, uploadPath, fileName, contentType, null);
 		} catch (Exception e) {
@@ -1309,7 +1309,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		String pathToFile = null;
 		String fileName = null;
 		ServletContext ctx = getIWApplicationContext().getIWMainApplication().getServletContext();
-		BuilderLogicWrapper builderLogic = (BuilderLogicWrapper) SpringBeanLookup.getInstance().getSpringBean(ctx, CoreConstants.SPRING_BEAN_NAME_BUILDER_LOGIC_WRAPPER);
+		BuilderLogicWrapper builderLogic = ELUtil.getInstance().getBean(CoreConstants.SPRING_BEAN_NAME_BUILDER_LOGIC_WRAPPER);
 		if (filesToClean == null) { // To avoid NullPointerException
 			filesToClean = new ArrayList<String>();
 		}

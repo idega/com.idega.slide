@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticator.java,v 1.27 2008/04/01 17:49:08 anton Exp $
+ * $Id: IWSlideAuthenticator.java,v 1.28 2008/07/02 19:28:57 civilis Exp $
  * Created on 8.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -27,7 +27,6 @@ import org.apache.slide.webdav.util.WebdavUtils;
 
 import com.idega.business.IBOLookup;
 import com.idega.business.IBOLookupException;
-import com.idega.business.SpringBeanLookup;
 import com.idega.core.accesscontrol.business.LoggedOnInfo;
 import com.idega.core.accesscontrol.business.LoginBusinessBean;
 import com.idega.core.accesscontrol.business.LoginSession;
@@ -40,6 +39,7 @@ import com.idega.slide.business.IWSlideService;
 import com.idega.slide.business.IWSlideSession;
 import com.idega.slide.util.AccessControlList;
 import com.idega.util.CoreConstants;
+import com.idega.util.expression.ELUtil;
 
 
 /**
@@ -47,10 +47,10 @@ import com.idega.util.CoreConstants;
  * This filter is mapped before any request to the Slide WebdavServlet to make sure
  * a logged in user from idegaWeb is logged also into the Slide authentication system.
  * </p>
- *  Last modified: $Date: 2008/04/01 17:49:08 $ by $Author: anton $
+ *  Last modified: $Date: 2008/07/02 19:28:57 $ by $Author: civilis $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.27 $
+ * @version $Revision: 1.28 $
  */
 public class IWSlideAuthenticator extends BaseFilter{
 
@@ -89,7 +89,7 @@ public class IWSlideAuthenticator extends BaseFilter{
 				
 				//fire slide started action
 				IWMainApplication iwma = IWMainApplication.getIWMainApplication((HttpServletRequest)request);
-				SpringBeanLookup.getInstance().publishEvent(iwma.getServletContext(), new IWMainSlideStartedEvent(iwma));
+				ELUtil.getInstance().publishEvent(new IWMainSlideStartedEvent(iwma));
 			}
 		}
 		else{
@@ -221,7 +221,7 @@ public class IWSlideAuthenticator extends BaseFilter{
 		HttpSession session = request.getSession();
 		LoginBusinessBean loginBusiness = getLoginBusiness(request);
 		if(loginBusiness.isLoggedOn(request)){	
-			LoginSession loginSession = SpringBeanLookup.getInstance().getSpringBean(request.getSession(), LoginSession.class);
+			LoginSession loginSession = ELUtil.getInstance().getBean(LoginSession.class);
 			if(loginSession.isSuperAdmin()){
 				String rootUserName = getAuthenticationBusiness(request).getRootUserCredentials().getUserName();
 				//iwc.setRequest(new IWSlideAuthenticatedRequest(iwc.getRequest(),rootUserName,Collections.singleton(rootUserName)));
