@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.64 2008/07/02 19:28:56 civilis Exp $
+ * $Id: IWSlideServiceBean.java,v 1.65 2008/07/16 15:02:10 valdas Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -47,7 +47,6 @@ import org.apache.webdav.lib.WebdavResources;
 import org.apache.webdav.lib.properties.AclProperty;
 import org.apache.webdav.lib.util.WebdavStatus;
 
-import com.idega.builder.business.BuilderLogicWrapper;
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBORuntimeException;
 import com.idega.business.IBOServiceBean;
@@ -72,10 +71,10 @@ import com.idega.util.expression.ELUtil;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2008/07/02 19:28:56 $ by $Author: civilis $
+ *  Last modified: $Date: 2008/07/16 15:02:10 $ by $Author: valdas $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.64 $
+ * @version $Revision: 1.65 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService, IWSlideChangeListener {
 
@@ -1290,7 +1289,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @param uploadPath: a path in slide where to store files (for example: "/files/public/")
 	 * @return result: success (true) or failure (false) while uploading file
 	 */
-	public boolean uploadZipFileContents(ZipInputStream zipInputStream, String uploadPath, List<String> filesToClean) {
+	public boolean uploadZipFileContents(ZipInputStream zipInputStream, String uploadPath) {
 		boolean result = (uploadPath == null || CoreConstants.EMPTY.equals(uploadPath)) ? false : true; // Checking if parameters are valid
 		if (!result) {
 			log.error("Invalid upload path!");
@@ -1308,12 +1307,6 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		InputStream is = null;
 		String pathToFile = null;
 		String fileName = null;
-		ServletContext ctx = getIWApplicationContext().getIWMainApplication().getServletContext();
-		BuilderLogicWrapper builderLogic = ELUtil.getInstance().getBean(CoreConstants.SPRING_BEAN_NAME_BUILDER_LOGIC_WRAPPER);
-		if (filesToClean == null) { // To avoid NullPointerException
-			filesToClean = new ArrayList<String>();
-		}
-		String fileType = null;
 		try {
 			while ((entry = zipInputStream.getNextEntry()) != null && result) {
 				if (!entry.isDirectory()) {
@@ -1330,18 +1323,6 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 						memory = new ByteArrayOutputStream();
 						zip.writeFromStreamToStream(zipInputStream, memory);
 						is = new ByteArrayInputStream(memory.toByteArray());
-						
-						if (filesToClean.size() > 0) { // If need to clean any file type
-							if (fileName.indexOf(DOT) != -1 && (fileName.lastIndexOf(DOT) + 1) < fileName.length()) {
-								fileType = fileName.substring(fileName.lastIndexOf(DOT) + 1).toLowerCase();
-								if (filesToClean.contains(fileType)) { // Checking if current file needs to be cleaned
-									String content = builderLogic.getBuilderService(getIWApplicationContext()).getCleanedHtmlContent(is, false, false, false);
-									is.close();
-									is = new ByteArrayInputStream(content.getBytes());
-								}
-							}
-						}
-						
 						result = uploadFile(uploadPath + pathToFile, fileName, null, is);
 						memory.close();
 						is.close();
