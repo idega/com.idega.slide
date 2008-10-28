@@ -335,7 +335,7 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 	
 	@Override
 	public Set<Object> getAllLocalisedKeys(String bundleIdentifier, Locale locale) {
-		if(bundleIdentifier.equals(MessageResource.NO_BUNDLE))
+		if(bundleIdentifier.equals(NO_BUNDLE))
 			bundleIdentifier = null;
 		setBundleIdentifier(bundleIdentifier);
 		setLocale(locale);
@@ -350,7 +350,7 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 	
 	@Override
 	public void removeMessage(Object key, String bundleIdentifier, Locale locale) {
-		if(bundleIdentifier.equals(MessageResource.NO_BUNDLE))
+		if(bundleIdentifier.equals(NO_BUNDLE))
 			bundleIdentifier = null;
 		setBundleIdentifier(bundleIdentifier);
 		setLocale(locale);
