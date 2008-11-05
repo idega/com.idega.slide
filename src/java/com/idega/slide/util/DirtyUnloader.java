@@ -27,16 +27,18 @@ import org.apache.slide.webdav.event.NotificationTrigger;
  */
 public class DirtyUnloader {
 	
+	java.util.logging.Logger logger = java.util.logging.Logger.getLogger(this.getClass().getName());
+	
 	public void reset()	{
-		System.out.println("["+DirtyUnloader.class.getName()+"] Reset NotificationTrigger");
+		logger.info("["+DirtyUnloader.class.getName()+"] Reset NotificationTrigger");
 		// is this class already loaded?
 		resetNotificationTrigger();
 	}
 		
 	public void unload()	{
-		System.out.println("["+DirtyUnloader.class.getName()+"] Unload NotificationTrigger");
+		logger.info("["+DirtyUnloader.class.getName()+"] Unload NotificationTrigger");
 		unloadNotificationTrigger();
-		System.out.println("["+ DirtyUnloader.class.getName()+"] Unload Domain");
+		logger.info("["+ DirtyUnloader.class.getName()+"] Unload Domain");
 		unloadDomain();
 	}
 	
@@ -94,7 +96,7 @@ public class DirtyUnloader {
 			timerField.set(null, null);
 		}
 		catch (Exception ex) {
-			System.out.println("[DirtyUnloader] Could not unload timer of NotificationTrigger");
+			logger.warning("[DirtyUnloader] Could not unload timer of NotificationTrigger");
 		}
 	}
 
@@ -106,7 +108,7 @@ public class DirtyUnloader {
 			timerField.set(null, timer);
 		}
 		catch (Exception ex) {
-			System.out.println("[DirtyUnloader] Could not reset timer of NotificationTrigger");
+			logger.warning("[DirtyUnloader] Could not reset timer of NotificationTrigger");
 		}
 	}
 
@@ -118,7 +120,7 @@ public class DirtyUnloader {
 			instanceField.set(null, null);
 		}
 		catch (Exception ex) {
-			System.out.println("[DirtyUnloader] Could not unload instance of NotificationTrigger");
+			logger.warning("[DirtyUnloader] Could not unload instance of NotificationTrigger");
 		}
 	}
 	
@@ -141,7 +143,7 @@ public class DirtyUnloader {
 			instanceField.set(null, trigger);
 		}
 		catch (Exception ex) {
-			System.out.println("[DirtyUnloader] Could not reload NotificationTrigger");
+			logger.warning("[DirtyUnloader] Could not reload NotificationTrigger");
 		}
 	}
 
@@ -152,7 +154,7 @@ public class DirtyUnloader {
 			embeddedDomainField.set(null, null);
 		}
 		catch (Exception ex) {
-			System.out.println("[DirtyUnloader] Could not unload embeddedDomain of Domain");
+			logger.warning("[DirtyUnloader] Could not unload embeddedDomain of Domain");
 		}
 	}
     
@@ -163,9 +165,7 @@ public class DirtyUnloader {
 			namespacesField.set(null, null);
 		}
 		catch (Exception ex) {
-			System.out.println("[DirtyUnloader] Could not unload namespaces of Domain");
+			logger.warning("[DirtyUnloader] Could not unload namespaces of Domain");
 		}
 	}
-    
-
 }
