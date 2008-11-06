@@ -312,7 +312,7 @@ public class SlideNode implements Node {
 	public void addMixin(String arg0) throws NoSuchNodeTypeException,
 			VersionException, ConstraintViolationException, LockException,
 			RepositoryException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
@@ -344,69 +344,61 @@ public class SlideNode implements Node {
 
 	public boolean canAddMixin(String arg0) throws NoSuchNodeTypeException,
 			RepositoryException {
-		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public void cancelMerge(Version arg0) throws VersionException,
 			InvalidItemStateException, UnsupportedRepositoryOperationException,
 			RepositoryException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
 	public Version checkin() throws VersionException,
 			UnsupportedRepositoryOperationException, InvalidItemStateException,
 			LockException, RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public void checkout() throws UnsupportedRepositoryOperationException,
 			LockException, RepositoryException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
 	public void doneMerge(Version arg0) throws VersionException,
 			InvalidItemStateException, UnsupportedRepositoryOperationException,
 			RepositoryException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
 	public Version getBaseVersion()
 			throws UnsupportedRepositoryOperationException, RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public String getCorrespondingNodePath(String arg0)
 			throws ItemNotFoundException, NoSuchWorkspaceException,
 			AccessDeniedException, RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public NodeDefinition getDefinition() throws RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public int getIndex() throws RepositoryException {
-		// TODO Auto-generated method stub
-		return 0;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public Lock getLock() throws UnsupportedRepositoryOperationException,
 			LockException, AccessDeniedException, RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public NodeType[] getMixinNodeTypes() throws RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public Node getNode(String path) throws PathNotFoundException,
@@ -465,14 +457,12 @@ public class SlideNode implements Node {
 	}
 
 	public NodeIterator getNodes(String arg0) throws RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public Item getPrimaryItem() throws ItemNotFoundException,
 			RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public NodeType getPrimaryNodeType() throws RepositoryException {
@@ -505,8 +495,7 @@ public class SlideNode implements Node {
 	
 	public PropertyIterator getProperties(String arg0)
 			throws RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public Property getProperty(String name) throws PathNotFoundException,RepositoryException{
@@ -537,14 +526,12 @@ public class SlideNode implements Node {
 	}
 
 	public PropertyIterator getReferences() throws RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public String getUUID() throws UnsupportedRepositoryOperationException,
 			RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public VersionHistory getVersionHistory()
@@ -556,87 +543,77 @@ public class SlideNode implements Node {
 	}
 
 	public boolean hasNode(String arg0) throws RepositoryException {
-		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public boolean hasNodes() throws RepositoryException {
-		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public boolean hasProperties() throws RepositoryException {
-		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public boolean hasProperty(String arg0) throws RepositoryException {
-		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public boolean holdsLock() throws RepositoryException {
-		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public boolean isCheckedOut() throws RepositoryException {
-		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public boolean isLocked() throws RepositoryException {
-		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public boolean isNodeType(String arg0) throws RepositoryException {
-		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public Lock lock(boolean arg0, boolean arg1)
 			throws UnsupportedRepositoryOperationException, LockException,
 			AccessDeniedException, InvalidItemStateException,
 			RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public NodeIterator merge(String arg0, boolean arg1)
 			throws NoSuchWorkspaceException, AccessDeniedException,
 			MergeException, LockException, InvalidItemStateException,
 			RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public void orderBefore(String arg0, String arg1)
 			throws UnsupportedRepositoryOperationException, VersionException,
 			ConstraintViolationException, ItemNotFoundException, LockException,
 			RepositoryException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
 	public void removeMixin(String arg0) throws NoSuchNodeTypeException,
 			VersionException, ConstraintViolationException, LockException,
 			RepositoryException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
 	public void restore(String arg0, boolean arg1) throws VersionException,
 			ItemExistsException, UnsupportedRepositoryOperationException,
 			LockException, InvalidItemStateException, RepositoryException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
 	public void restore(Version arg0, boolean arg1) throws VersionException,
 			ItemExistsException, UnsupportedRepositoryOperationException,
 			LockException, RepositoryException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
@@ -645,7 +622,7 @@ public class SlideNode implements Node {
 			VersionException, ConstraintViolationException,
 			UnsupportedRepositoryOperationException, LockException,
 			InvalidItemStateException, RepositoryException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
@@ -653,7 +630,7 @@ public class SlideNode implements Node {
 			throws VersionException, ItemExistsException,
 			UnsupportedRepositoryOperationException, LockException,
 			InvalidItemStateException, RepositoryException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
@@ -776,77 +753,67 @@ public class SlideNode implements Node {
 	public void unlock() throws UnsupportedRepositoryOperationException,
 			LockException, AccessDeniedException, InvalidItemStateException,
 			RepositoryException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
 	public void update(String arg0) throws NoSuchWorkspaceException,
 			AccessDeniedException, LockException, InvalidItemStateException,
 			RepositoryException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
 	public void accept(ItemVisitor arg0) throws RepositoryException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
 	public Item getAncestor(int arg0) throws ItemNotFoundException,
 			AccessDeniedException, RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public int getDepth() throws RepositoryException {
-		// TODO Auto-generated method stub
-		return 0;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public String getName() throws RepositoryException {
-		// TODO Auto-generated method stub
 		return name;
 	}
 
 	public Node getParent() throws ItemNotFoundException,
 			AccessDeniedException, RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public String getPath() throws RepositoryException {
-		// TODO Auto-generated method stub
 		return path;
 	}
 
 	public Session getSession() throws RepositoryException {
-		// TODO Auto-generated method stub
 		return getSlideSession();
 	}
 
 	public boolean isModified() {
-		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public boolean isNew() {
-		// TODO Auto-generated method stub
 		return this.isNew;
 	}
 
 	public boolean isNode() {
-		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public boolean isSame(Item arg0) throws RepositoryException {
-		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public void refresh(boolean arg0) throws InvalidItemStateException,
 			RepositoryException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 

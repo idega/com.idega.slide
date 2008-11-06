@@ -16,8 +16,6 @@ import org.apache.slide.content.Content;
 import org.apache.slide.security.Security;
 import org.apache.slide.structure.Structure;
 
-import com.idega.util.CoreConstants;
-
 public class SlideRepository implements Repository {
 
 	private boolean initialized;
@@ -90,13 +88,11 @@ public class SlideRepository implements Repository {
 	}
 
 	public String getDescriptor(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public String[] getDescriptorKeys() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public Session login() throws LoginException, RepositoryException {

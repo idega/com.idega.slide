@@ -17,36 +17,39 @@ public class SlideQuery implements Query {
 	private SlideQueryManager slideQueryManager;
 
 	public SlideQuery(SlideQueryManager slideQueryManager) {
-		this.slideQueryManager=slideQueryManager;
+		this.setSlideQueryManager(slideQueryManager);
 	}
 
 	public QueryResult execute() throws RepositoryException {
-		// TODO Auto-generated method stub
 		return new SlideQueryResult(this);
 	}
 
 	public String getLanguage() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public String getStatement() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public String getStoredQueryPath() throws ItemNotFoundException,
 			RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public Node storeAsNode(String arg0) throws ItemExistsException,
 			PathNotFoundException, VersionException,
 			ConstraintViolationException, LockException,
 			UnsupportedRepositoryOperationException, RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
+	}
+
+	public void setSlideQueryManager(SlideQueryManager slideQueryManager) {
+		this.slideQueryManager = slideQueryManager;
+	}
+
+	public SlideQueryManager getSlideQueryManager() {
+		return slideQueryManager;
 	}
 
 }

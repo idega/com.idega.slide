@@ -22,8 +22,6 @@ import javax.jcr.SimpleCredentials;
 import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 
-import com.idega.util.FileUtil;
-
 public class RepositoryTest {
 
 	/**
@@ -47,7 +45,7 @@ public class RepositoryTest {
 		//session.getN
 		Node rootNode = session.getRootNode();
 		
-		NodeIterator nodeIterator = rootNode.getNodes();
+		//NodeIterator nodeIterator = rootNode.getNodes();
 		//dumpNodeInfo(nodeIterator);
 		
 		Node filesNode;

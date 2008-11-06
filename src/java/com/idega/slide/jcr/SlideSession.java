@@ -69,169 +69,151 @@ public class SlideSession implements Session {
 	}
 
 	public void addLockToken(String arg0) {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
 	public void checkPermission(String arg0, String arg1)
 			throws AccessControlException, RepositoryException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
 	public void exportDocumentView(String arg0, ContentHandler arg1,
 			boolean arg2, boolean arg3) throws PathNotFoundException,
 			SAXException, RepositoryException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
 	public void exportDocumentView(String arg0, OutputStream arg1,
 			boolean arg2, boolean arg3) throws IOException,
 			PathNotFoundException, RepositoryException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
 	public void exportSystemView(String arg0, ContentHandler arg1,
 			boolean arg2, boolean arg3) throws PathNotFoundException,
 			SAXException, RepositoryException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
 	public void exportSystemView(String arg0, OutputStream arg1, boolean arg2,
 			boolean arg3) throws IOException, PathNotFoundException,
 			RepositoryException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
 	public Object getAttribute(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public String[] getAttributeNames() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public ContentHandler getImportContentHandler(String arg0, int arg1)
 			throws PathNotFoundException, ConstraintViolationException,
 			VersionException, LockException, RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public Item getItem(String arg0) throws PathNotFoundException,
 			RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public String[] getLockTokens() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public String getNamespacePrefix(String arg0) throws NamespaceException,
 			RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public String[] getNamespacePrefixes() throws RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public String getNamespaceURI(String arg0) throws NamespaceException,
 			RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public Node getNodeByUUID(String arg0) throws ItemNotFoundException,
 			RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public Repository getRepository() {
-		// TODO Auto-generated method stub
 		return this.slideRepository;
 	}
 
 	public Node getRootNode() throws RepositoryException {
-		// TODO Auto-generated method stub
 		return new SlideNode(this,"/",false);
 	}
 
 	public String getUserID() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public ValueFactory getValueFactory()
 			throws UnsupportedRepositoryOperationException, RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public Workspace getWorkspace() {
-		// TODO Auto-generated method stub
 		return new SlideWorkspace(this);
 	}
 
 	public boolean hasPendingChanges() throws RepositoryException {
-		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public Session impersonate(Credentials arg0) throws LoginException,
 			RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public void importXML(String arg0, InputStream arg1, int arg2)
 			throws IOException, PathNotFoundException, ItemExistsException,
 			ConstraintViolationException, VersionException,
 			InvalidSerializedDataException, LockException, RepositoryException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
 	public boolean isLive() {
-		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public boolean itemExists(String arg0) throws RepositoryException {
-		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	public void logout() {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
 	public void move(String arg0, String arg1) throws ItemExistsException,
 			PathNotFoundException, VersionException,
 			ConstraintViolationException, LockException, RepositoryException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
 	public void refresh(boolean arg0) throws RepositoryException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
 	public void removeLockToken(String arg0) {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
@@ -265,7 +247,7 @@ public class SlideSession implements Session {
 
 	public void setNamespacePrefix(String arg0, String arg1)
 			throws NamespaceException, RepositoryException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
