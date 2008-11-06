@@ -968,8 +968,10 @@ public class SlideNode implements Node {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (RevisionNotFoundException e) {
-				if(LOGLEVEL==LOGLEVEL_DEBUG){
-					e.printStackTrace();
+				if(!this.isNew()){
+					if(LOGLEVEL==LOGLEVEL_DEBUG){
+						e.printStackTrace();
+					}
 				}
 				revisionContent = new NodeRevisionContent();
 			} catch (LinkedObjectNotFoundException e) {
