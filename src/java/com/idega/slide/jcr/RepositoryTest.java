@@ -61,27 +61,49 @@ public class RepositoryTest {
 			filesNode.save();
 			System.out.println("Node="+filesNode.getName()+" not found - created");
 		}
-		Node testerNode;
+		Node testFolder;
 		try{
-			testerNode = filesNode.getNode("testerNode20");
-			System.out.println("Node="+testerNode.getName()+" found");
+			testFolder = filesNode.getNode("testFolder");
+			System.out.println("Node="+testFolder.getName()+" found");
 		}
 		catch(PathNotFoundException ne){
-			testerNode = filesNode.addNode("testerNode20", "nt:folder");
-			testerNode.save();
-			System.out.println("Node="+testerNode.getName()+" not found - created");
+			testFolder = filesNode.addNode("testFolder", "nt:folder");
+			testFolder.save();
+			System.out.println("Node="+testFolder.getName()+" not found - created");
 		}
 		Node fileNode;
 		Node contentNode;
 		try{
-			
-			//fileNode = rootNode.getNode("/files/cms/themes/Multi_FreeStyle_III/Multi_FreeStyle_III.rwtheme/Contents/css/font/font1.css");
-			fileNode = testerNode.getNode("myfile.pdf");
-			fileNode.save();
-			contentNode = fileNode.getNode("jcr:content");
-			System.out.println("Node="+fileNode.getName()+" not found - created");
-			
 
+			//try{
+				//fileNode = rootNode.getNode("/files/cms/themes/Multi_FreeStyle_III/Multi_FreeStyle_III.rwtheme/Contents/css/font/font1.css");
+				fileNode = testFolder.getNode("testfile.pdf");
+				System.out.println("Node="+fileNode.getName()+" found");
+				String nodeType = fileNode.getPrimaryNodeType().getName();
+				if(nodeType.equals("nt:file")){
+					System.out.println("NodeType of "+fileNode.getName()+" is "+nodeType);
+				}
+				else{
+					System.err.println("Error: NodeType of "+fileNode.getName()+" is "+nodeType);
+				}
+			/*}
+			catch(PathNotFoundException ne){
+				fileNode = testFolder.addNode("testfile.pdf", "nt:file");
+				System.out.println("Node="+fileNode.getName()+" not found - created");
+				fileNode.save();
+			}*/
+			
+			
+			try{
+				//fileNode = rootNode.getNode("/files/cms/themes/Multi_FreeStyle_III/Multi_FreeStyle_III.rwtheme/Contents/css/font/font1.css");
+				contentNode = fileNode.getNode("jcr:content");
+				System.out.println("Node="+contentNode.getName()+" found");
+			}
+			catch(PathNotFoundException ne){
+				contentNode = fileNode.addNode("jcr:content","nt:unstructured");
+				System.out.println("Node="+contentNode.getName()+" not found - created");
+			}
+			
 			FileInputStream fileinstream = new FileInputStream(new File("testfile.pdf"));
 			contentNode.setProperty("jcr:data",fileinstream);
 			contentNode.setProperty("jcr:mimetype","application/pdf");
@@ -92,12 +114,15 @@ public class RepositoryTest {
 				String testproperty = fileNode.getProperty("testprop").getString();
 				int iTestProp = Integer.parseInt(testproperty);
 				fileNode.setProperty("testprop",Integer.toString(++iTestProp));
-				fileNode.save();
+				//fileNode.save();
 			}
 			catch(PathNotFoundException pe){
 				fileNode.setProperty("testprop","1");
-				fileNode.save();
+				//fileNode.save();
 			}
+			
+			fileNode.save();
+			
 			
 			contentNode = fileNode.getNode("jcr:content");
 			System.out.println("Node="+fileNode.getName()+" found");
@@ -119,8 +144,9 @@ public class RepositoryTest {
 
 		}
 		catch(PathNotFoundException ne){
-			fileNode = testerNode.addNode("myfile.pdf", "nt:file");
-			fileNode.save();
+			//Create the file if it does not exist:
+			fileNode = testFolder.addNode("testfile.pdf", "nt:file");
+			//fileNode.save();
 			contentNode = fileNode.addNode("jcr:content","nt:unstructured");
 			System.out.println("Node="+fileNode.getName()+" not found - created");
 			
@@ -130,6 +156,8 @@ public class RepositoryTest {
 			contentNode.setProperty("jcr:mimetype","application/pdf");
 			contentNode.save();
 			
+			//fileNode.save();
+			
 		}
 		
 		//node.setProperty("jcr:primaryType", "nt:folder");
@@ -137,7 +165,7 @@ public class RepositoryTest {
 		
 		session.save();
 		
-		dumpNodeInfo(testerNode.getNodes());
+		dumpNodeInfo(testFolder.getNodes());
 		
 		System.exit(0);
 	}

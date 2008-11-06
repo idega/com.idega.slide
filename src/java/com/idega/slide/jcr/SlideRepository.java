@@ -37,7 +37,7 @@ public class SlideRepository implements Repository {
 		
 		initialized = true;
 		try {
-			namespace = Domain.accessNamespace(new SecurityToken(CoreConstants.EMPTY), Domain.getDefaultNamespace());
+			namespace = Domain.accessNamespace(new SecurityToken(""), Domain.getDefaultNamespace());
 			structure = namespace.getStructureHelper();
 			content = namespace.getContentHelper();
 			security = namespace.getSecurityHelper();

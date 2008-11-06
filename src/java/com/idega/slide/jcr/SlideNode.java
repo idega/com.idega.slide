@@ -96,6 +96,12 @@ public class SlideNode implements Node {
 	private String name;
 	boolean isNew=false;
 	private SlideVersionHistory slideVersionHistory;
+	
+	int LOGLEVEL_INFO=0;
+	int LOGLEVEL_DEBUG=1;
+	
+	int LOGLEVEL=LOGLEVEL_DEBUG;
+	
 
 	
 	/*public SlideNode(SlideSession slideSession, ObjectNode objectNode) {
@@ -249,7 +255,9 @@ public class SlideNode implements Node {
 					this.revisionDescriptor = content.retrieve(token, revisions, lastRevision);
 				} catch (RevisionDescriptorNotFoundException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					if(LOGLEVEL==LOGLEVEL_DEBUG){
+						e.printStackTrace();
+					}
 					IWTimestamp now = IWTimestamp.RightNow();
 					revisionDescriptor = new NodeRevisionDescriptor(lastRevision,
 							NodeRevisionDescriptors.MAIN_BRANCH, new Vector(),
@@ -406,13 +414,14 @@ public class SlideNode implements Node {
 		//Specific handling for a slide content (file) node
 		if(this.type.equals(PRIMARY_NODETYPE_FILE)){
 			if(path.equals(NODE_NAME_CONTENT)){
-				Enumeration revisionNumbers = this.revisions.enumerateRevisionNumbers();
-				System.out.println("RevisionNumbers for "+getName()+": ");
-				while(revisionNumbers.hasMoreElements()){
-					NodeRevisionNumber revisionNumber = (NodeRevisionNumber) revisionNumbers.nextElement();
-					System.out.println(revisionNumber.toString()+", ");
+				if(this.revisions!=null){
+					Enumeration revisionNumbers = this.revisions.enumerateRevisionNumbers();
+					System.out.println("RevisionNumbers for "+getName()+": ");
+					while(revisionNumbers.hasMoreElements()){
+						NodeRevisionNumber revisionNumber = (NodeRevisionNumber) revisionNumbers.nextElement();
+						System.out.println(revisionNumber.toString()+", ");
+					}
 				}
-				
 				return getContentNode();
 			}
 		}
@@ -467,7 +476,9 @@ public class SlideNode implements Node {
 	}
 
 	public NodeType getPrimaryNodeType() throws RepositoryException {
-		// TODO Auto-generated method stub
+		if(primaryNodeType==null){
+			primaryNodeType= new SlideNodeType(this);
+		}
 		return primaryNodeType;
 	}
 
@@ -874,14 +885,22 @@ public class SlideNode implements Node {
 			// Important to create NodeRevisionDescriptors separately to be
 			// able to tell it to use versioning
 			try {
-				String path = getPath();
-				if (lastRevision.toString().equals("1.0")) {
-						content.create(token, path, true);	
-				}
-	            content.create(token, path, revisionDescriptor, getRevisionContent());
+					String path = getPath();
+					if (lastRevision.toString().equals("1.0")) {
+							content.create(token, path, true);	
+					}
+					if(isContentNode()){
+						content.create(token, path, revisionDescriptor, getRevisionContent());
+					}
+					else{
+						content.create(token, path, revisionDescriptor, null);
+					}
+				
 			} catch (ObjectNotFoundException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				if(LOGLEVEL==LOGLEVEL_DEBUG){
+					e.printStackTrace();
+				}
 			} catch (org.apache.slide.security.AccessDeniedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -928,6 +947,16 @@ public class SlideNode implements Node {
 
 	}
 
+	protected boolean isContentNode() throws RepositoryException {
+		NodeType myType = this.getPrimaryNodeType();
+		if(myType!=null){
+			if(myType.getName().equals(PRIMARY_NODETYPE_FOLDER)){
+				return false;
+			}
+		}
+		return true;
+	}
+
 	private NodeRevisionContent getRevisionContent() {
 		if(this.revisionContent==null){
 			try {
@@ -939,7 +968,9 @@ public class SlideNode implements Node {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (RevisionNotFoundException e) {
-				e.printStackTrace();
+				if(LOGLEVEL==LOGLEVEL_DEBUG){
+					e.printStackTrace();
+				}
 				revisionContent = new NodeRevisionContent();
 			} catch (LinkedObjectNotFoundException e) {
 				// TODO Auto-generated catch block
