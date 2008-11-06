@@ -503,7 +503,10 @@ public class SlideContentNode implements Node{
 			ConstraintViolationException, InvalidItemStateException,
 			ReferentialIntegrityException, VersionException, LockException,
 			NoSuchNodeTypeException, RepositoryException {
-		// TODO Auto-generated method stub
+		
+		if(!this.fileNode.isNew()){
+			this.fileNode.incrementRevisionNumber();
+		}
 		this.fileNode.save();
 	}
 

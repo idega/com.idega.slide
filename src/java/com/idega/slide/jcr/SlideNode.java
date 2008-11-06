@@ -1007,11 +1007,11 @@ public class SlideNode implements Node {
 					NodeRevisionDescriptors.MAIN_BRANCH, new Vector(),
 					new Hashtable());
 			
-			/*Enumeration properties = revisionDescriptor.enumerateProperties();
+			Enumeration properties = revisionDescriptor.enumerateProperties();
 			while(properties.hasMoreElements()){
 				NodeProperty property = (NodeProperty) properties.nextElement();
 				newRevisionDescriptor.setProperty(property);
-			}*/
+			}
 			newRevisionDescriptor.setResourceType(revisionDescriptor.getResourceType());
 			revisionDescriptor=newRevisionDescriptor;
 			

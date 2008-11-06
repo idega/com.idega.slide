@@ -109,7 +109,7 @@ public class RepositoryTest {
 			contentNode.setProperty("jcr:mimetype","application/pdf");
 			contentNode.save();
 			
-			//fileNode.setProperty("testprop2","blabla");
+			/*//fileNode.setProperty("testprop2","blabla");
 			try{
 				String testproperty = fileNode.getProperty("testprop").getString();
 				int iTestProp = Integer.parseInt(testproperty);
@@ -121,7 +121,7 @@ public class RepositoryTest {
 				//fileNode.save();
 			}
 			
-			fileNode.save();
+			fileNode.save();*/
 			
 			
 			contentNode = fileNode.getNode("jcr:content");
@@ -165,7 +165,10 @@ public class RepositoryTest {
 		
 		session.save();
 		
-		dumpNodeInfo(testFolder.getNodes());
+		testFolder = filesNode.getNode("testFolder");
+		NodeIterator testFolderChildren = testFolder.getNodes();
+		
+		dumpNodeInfo(testFolderChildren);
 		
 		System.exit(0);
 	}
