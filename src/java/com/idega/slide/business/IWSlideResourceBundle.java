@@ -46,7 +46,7 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 	private final Logger logger;
 	private String bundleIdentifier;
 	private Level usagePriorityLevel = MessageResourceImportanceLevel.FIRST_ORDER;
-	private boolean autoInsert = false;
+	private boolean autoInsert = true;
 	
 	private static final String LOCALISATION_PATH = "/files/public/localisation/";
 	private static final String NON_BUNDLE_LOCALISATION_FILE_NAME = "Localizable_no_bundle";
