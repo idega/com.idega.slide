@@ -25,6 +25,7 @@ import com.idega.idegaweb.IWResourceBundle;
 import com.idega.presentation.IWContext;
 import com.idega.slide.util.WebdavExtendedResource;
 import com.idega.util.CoreConstants;
+import com.idega.util.SortedProperties;
 import com.idega.util.StringUtil;
 import com.idega.util.messages.MessageResource;
 import com.idega.util.messages.MessageResourceImportanceLevel;
@@ -89,8 +90,7 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 	@Override
 	public synchronized void storeState() {
 
-		Properties props = getProperties();
-		props.clear();
+		Properties props = new SortedProperties();
 		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
 		if (getLookup() != null) {
@@ -125,7 +125,7 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 	}
 	
 	@Override
-	public String getLocalizedString(String key, String returnValueIfNotFound) {
+	public String getLocalizedString(String key) {
 		Object returnObj = getLookup().get(key);
 		if(returnObj != null) {
 			return String.valueOf(returnObj);
@@ -224,12 +224,11 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 
 	/**
 	 * @param key - message key
-	 * @param autoInsertValue - value to be inserted in case if nothing is found and autoInsert is enabled
 	 * @param bundleIdentifier - bundle in which messages should be located
 	 * @return object that was found in resource or set to it, null - if there are no values with specified key
 	 */
 	@Override
-	public Object getMessage(Object key, Object autoInsertValue, String bundleIdentifier) {
+	public Object getMessage(Object key, String bundleIdentifier) {
 		setBundleIdentifier(bundleIdentifier);
 		
 		IWContext iwc = IWContext.getCurrentInstance();
@@ -239,21 +238,20 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 			logger.log(Level.WARNING, "Exception initialising resource with current locale: " + iwc.getCurrentLocale(), e);
 		}
 
-		String returnStr =  getLocalizedString(String.valueOf(key), String.valueOf(autoInsertValue));
-		if(returnStr == null && isAutoInsert()) {
-			return setMessage(key, autoInsertValue, bundleIdentifier);
-		} else 
+		String returnStr =  getLocalizedString(String.valueOf(key));
+//		if(returnStr == null && isAutoInsert()) {
+//			return setMessage(key, autoInsertValue, bundleIdentifier);
+//		} else 
 			return returnStr;
 	}
 	
 	/**
 	 * @param key - message key
-	 * @param autoInsertValue - value to be inserted in case if nothing is found and autoInsert is enabled
 	 * @param bundleIdentifier - bundle in which messages should be located
 	 * @return object that was found in resource or set to it, null - if there are no values with specified key
 	 */
 	@Override
-	public Object getMessage(Object key, Object valueIfNotFound, String bundleIdentifier, Locale locale) {
+	public Object getMessage(Object key, String bundleIdentifier, Locale locale) {
 		setBundleIdentifier(bundleIdentifier);
 		
 		IWContext iwc = IWContext.getCurrentInstance();
@@ -263,10 +261,10 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 			logger.log(Level.WARNING, "Exception initialising resource with current locale: " + iwc.getCurrentLocale(), e);
 		}
 
-		String returnStr =  getLocalizedString(String.valueOf(key), String.valueOf(valueIfNotFound));
-		if(returnStr == null && isAutoInsert()) {
-			return setMessage(key, valueIfNotFound, bundleIdentifier);
-		} else 
+		String returnStr =  getLocalizedString(String.valueOf(key));
+//		if(returnStr == null && isAutoInsert()) {
+//			return setMessage(key, valueIfNotFound, bundleIdentifier);
+//		} else 
 			return returnStr;
 	}
 
