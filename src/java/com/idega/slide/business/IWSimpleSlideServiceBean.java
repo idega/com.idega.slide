@@ -36,7 +36,7 @@ import com.idega.util.CoreConstants;
 import com.idega.util.IWTimestamp;
 
 /**
- * Uploads file using Sample API of Slide
+ * Uploads file using Simple API of Slide
  * @author valdas
  *
  */
