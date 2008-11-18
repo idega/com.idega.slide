@@ -3,7 +3,7 @@ package com.idega.slide.business;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.rmi.RemoteException;
+import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
@@ -23,7 +23,6 @@ import com.idega.idegaweb.IWApplicationContext;
 import com.idega.idegaweb.IWMainApplication;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.presentation.IWContext;
-import com.idega.slide.util.WebdavExtendedResource;
 import com.idega.util.CoreConstants;
 import com.idega.util.SortedProperties;
 import com.idega.util.StringUtil;
@@ -49,11 +48,11 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 	private Level usagePriorityLevel = MessageResourceImportanceLevel.FIRST_ORDER;
 	private boolean autoInsert = true;
 	
-	private static final String LOCALISATION_PATH = "/files/public/localisation/";
+	private static final String LOCALISATION_PATH = "/files/cms/bundles/";
 	private static final String NON_BUNDLE_LOCALISATION_FILE_NAME = "Localizable_no_bundle";
 	private static final String BUNDLE_LOCALISATION_FILE_NAME = "Localizable";
 	private static final String NON_BUNDLE_LOCALISATION_FILE_EXTENSION = ".strings";
-	private static final String LOCALISATION_MIME_TYPE = "text/plain";
+	private static final String LOCALIZATION_MIME_TYPE = "text/plain";
 	
 	public static final String RESOURCE_IDENTIFIER = "slide_resource";
 
@@ -65,23 +64,19 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 	protected void initialize(Locale locale) throws IOException {
 		setLocale(locale);
 		
-		InputStream slideSourceStream = getResourseInputStream(getLocalisableFilePath());
+		InputStream slideSourceStream = getResourceInputStream(getLocalizableFilePath());
 		
-		Properties localisationProps = new Properties();
-		localisationProps.load(slideSourceStream);
+		Properties localizationProps = new Properties();
+		localizationProps.load(slideSourceStream);
 
-		setLookup(new TreeMap(localisationProps));
+		setLookup(new TreeMap(localizationProps));
 	}
 
-	protected InputStream getResourseInputStream(String resourcePath) {
+	protected InputStream getResourceInputStream(String resourcePath) {
 		try {
-			WebdavExtendedResource resource = getWebdavExtendedResource(resourcePath);
-		
-			InputStream is = resource.getMethodData();
-			return is;
+			IWSlideService service = getIWSlideService(resourcePath);
+			return service.getInputStream(resourcePath);
 			
-		} catch (RuntimeException e) {
-			throw e;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -92,6 +87,7 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 
 		Properties props = new SortedProperties();
 		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+		OutputStream out = null;
 
 		if (getLookup() != null) {
 			Iterator iter = getLookup().keySet().iterator();
@@ -113,14 +109,20 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 		}
 		
 		try {
-			WebdavExtendedResource resource = getWebdavExtendedResource(getLocalisableFilePath());
-			resource.putMethod(byteStream.toByteArray());
-
-		} catch (RuntimeException e) {
-			logger.log(Level.WARNING, "Can't save localisation file to repository", e);
+//			WebdavExtendedResource resource = getWebdavExtendedResource(getLocalizableFilePath());
+//			resource.putMethod(byteStream.toByteArray());
+			
+			IWSlideService service = getIWSlideService(getLocalizableFilePath());
+			out = service.getOutputStream(getLocalizableFilePath());
+			out.write(byteStream.toByteArray());
 		} catch (Exception e) {
-			logger.log(Level.WARNING, "Can't save localisation file to repository");
+			logger.log(Level.WARNING, "Can't save localization file to repository");
 			throw new RuntimeException(e);
+		} finally {
+			try {
+				out.close();
+				byteStream.close();
+			} catch (IOException e) {}
 		}
 	}
 	
@@ -153,7 +155,7 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 		}
 	}
 	
-	private String getLocalisableFilePath() {
+	private String getLocalizableFilePath() {
 		return getLocalisableFolderPath() + getLocalisableFileName();
 	}
 	
@@ -191,6 +193,20 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 			throw e;
 		}
 	}
+	
+	private IWSlideService getIWSlideService(String filePath) throws IBOLookupException {
+		try {
+			IWSlideService service = getIWSlideService();
+			
+			if(!service.getExistence(filePath)) {
+				service.uploadFileAndCreateFoldersFromStringAsRoot(getLocalisableFolderPath(), getLocalisableFileName(), CoreConstants.EMPTY, LOCALIZATION_MIME_TYPE, false);
+			}
+			
+			return service;
+		} catch (Exception e) {
+			return null;
+		}
+	}
 
 	private IWApplicationContext getIWApplicationContext() {
 		IWApplicationContext iwac = IWMainApplication
@@ -198,16 +214,16 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 		return iwac;
 	}
 
-	private WebdavExtendedResource getWebdavExtendedResource(String path) throws IOException, RemoteException, IBOLookupException {
-		IWSlideService service = getIWSlideService();
-
-		if(!service.getExistence(path)) {
-			service.uploadFileAndCreateFoldersFromStringAsRoot(getLocalisableFolderPath(), getLocalisableFileName(), CoreConstants.EMPTY, LOCALISATION_MIME_TYPE, false);
-		}
-		
-		WebdavExtendedResource resource = service.getWebdavExtendedResource(path, service.getRootUserCredentials());
-		return resource;
-	}
+//	private WebdavExtendedResource getWebdavExtendedResource(String path) throws IOException, RemoteException, IBOLookupException {
+//		IWSlideService service = getIWSlideService();
+//
+//		if(!service.getExistence(path)) {
+//			service.uploadFileAndCreateFoldersFromStringAsRoot(getLocalisableFolderPath(), getLocalisableFileName(), CoreConstants.EMPTY, LOCALISATION_MIME_TYPE, false);
+//		}
+//		
+//		WebdavExtendedResource resource = service.getWebdavExtendedResource(path, service.getRootUserCredentials());
+//		return resource;
+//	}
 
 	public String getBundleIdentifier() {
 		return bundleIdentifier;
