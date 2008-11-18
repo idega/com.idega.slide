@@ -1,10 +1,11 @@
 package com.idega.slide.business;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.slide.authenticate.CredentialsToken;
@@ -33,10 +34,12 @@ import com.idega.slide.SlideConstants;
 import com.idega.slide.authentication.AuthenticationBusiness;
 import com.idega.user.data.User;
 import com.idega.util.CoreConstants;
+import com.idega.util.IOUtil;
 import com.idega.util.IWTimestamp;
+import com.idega.util.StringUtil;
 
 /**
- * Uploads file using Simple API of Slide
+ * Simple API of Slide implementation
  * @author valdas
  *
  */
@@ -46,7 +49,8 @@ import com.idega.util.IWTimestamp;
 public class IWSimpleSlideServiceBean {
 
 	private static final long serialVersionUID = 8065146986117553218L;
-
+	private static final Logger LOGGER = Logger.getLogger(IWSimpleSlideServiceBean.class.getName());
+	
 	private NamespaceAccessToken namespace;
 	private Structure structure;
 	private Content content;
@@ -76,7 +80,8 @@ public class IWSimpleSlideServiceBean {
 	private AuthenticationBusiness getAuthenticationBusiness() {
 		if (authenticationBusiness == null) {
 			try {
-				authenticationBusiness = (AuthenticationBusiness) IBOLookup.getServiceInstance(IWMainApplication.getDefaultIWApplicationContext(), AuthenticationBusiness.class);
+				authenticationBusiness = (AuthenticationBusiness) IBOLookup.getServiceInstance(IWMainApplication.getDefaultIWApplicationContext(),
+																																AuthenticationBusiness.class);
 			} catch (IBOLookupException e) {
 				e.printStackTrace();
 			}
@@ -84,7 +89,7 @@ public class IWSimpleSlideServiceBean {
 		return authenticationBusiness;
 	}
 	
-	private SlideToken getSlideToken(User user) {
+	private SlideToken getSlideToken() {
 		String userPrincipals = null;
 		
 		try {
@@ -108,29 +113,19 @@ public class IWSimpleSlideServiceBean {
 			lastName = user.getLastName();
 		}
 		
-		String authors = "<authors><author><firstname>"+ firstName == null ? unknown : firstName +"</firstname><lastname>"+ lastName == null ? unknown : lastName +
-				"</lastname></author></authors>";
+		String authors = new StringBuilder("<authors><author><firstname>").append(firstName == null ? unknown : firstName).append("</firstname><lastname>")
+						.append(lastName == null ? unknown : lastName).append("</lastname></author></authors>").toString();
 		return authors;
 	}
 	
 	private String computeEtag(String uri, NodeRevisionDescriptor nrd) throws Exception {
-		StringBuffer result = new StringBuffer(String.valueOf(System.currentTimeMillis())).append(CoreConstants.UNDER).append(uri.hashCode()).append(CoreConstants.UNDER);
-		result.append(nrd.getLastModified()).append(CoreConstants.UNDER).append(nrd.getContentLength());
+		StringBuffer result = new StringBuffer(String.valueOf(System.currentTimeMillis())).append(CoreConstants.UNDER).append(uri.hashCode())
+			.append(CoreConstants.UNDER).append(nrd.getLastModified()).append(CoreConstants.UNDER).append(nrd.getContentLength());
 		return DigestUtils.md5Hex(result.toString());
 	}
 	
-	private void closeInputStream(InputStream stream) {
-		if (stream == null) {
-			return;
-		}
-		
-		try {
-			stream.close();
-		} catch (IOException e) {}
-	}
-	
 	@SuppressWarnings({ "deprecation", "unchecked" })
-	private boolean doUploading(InputStream stream, SlideToken token, String uploadPath, String contentType, User user) {
+	private boolean doUploading(InputStream stream, SlideToken token, String uploadPath, String contentType, User user, boolean closeStream) {
 		//	TODO: there is problem in uploadPath: API doesn't "see" different in case: /files/themes/ and /files/Themes/
 		try {
 			NodeRevisionNumber lastRevision = null;
@@ -182,19 +177,21 @@ public class IWSimpleSlideServiceBean {
 			}
 			
 			content.create(token, uploadPath, revisionDescriptor, revisionContent);
-			namespace.commit();
 			return true;
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
 		finally {
-			closeInputStream(stream);
+			if (closeStream) {
+				IOUtil.closeInputStream(stream);
+			}
+			finishTransaction();
 		}
 		
 		return false;
 	}
 	
-	protected boolean upload(InputStream stream, String uploadPath, String fileName, String contentType, User user) throws Exception {
+	protected boolean upload(InputStream stream, String uploadPath, String fileName, String contentType, User user, boolean closeStream) throws Exception {
 		if (stream == null || uploadPath == null || fileName == null) {
 			return false;
 		}
@@ -204,20 +201,91 @@ public class IWSimpleSlideServiceBean {
 			return false;
 		}
 		
-		SlideToken token = getSlideToken(user);
-		try {
-			namespace.begin();
-		} catch(Exception e) {
-			e.printStackTrace();
+		SlideToken token = getSlideToken();
+		if (!startTransaction()) {
 			return false;
 		}
 		
-		boolean uploadingResult = doUploading(stream, token, uploadPath + fileName, contentType, user);
+		boolean uploadingResult = doUploading(stream, token, uploadPath + fileName, contentType, user, closeStream);
 		if (!uploadingResult) {
 			namespace.rollback();
 		}
 		
 		return uploadingResult;
 	}
+	
+	protected boolean upload(InputStream stream, String uploadPath, String fileName, String contentType, User user) throws Exception {
+		return upload(stream, uploadPath, fileName, contentType, user, true);
+	}
 
+	protected InputStream getInputStream(String pathToFile) {
+		if (StringUtil.isEmpty(pathToFile)) {
+			return null;
+		}
+		
+		initializeSimpleSlideServiceBean();
+		if (!initialized) {
+			return null;
+		}
+		
+		SlideToken rootToken = getSlideToken();
+		if (rootToken == null) {
+			return null;
+		}
+		
+		if (!startTransaction()) {
+			return null;
+		}
+		
+		NodeRevisionDescriptors revisionDescriptors = null;
+		try {
+			revisionDescriptors = content.retrieve(rootToken, pathToFile);
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, "Error retrieving revision descriptors", e);
+		}
+		if (revisionDescriptors == null || !revisionDescriptors.hasRevisions()) {
+			LOGGER.log(Level.SEVERE, "There are no revision descriptors or no revisions for: " + pathToFile);
+			return null;
+		}
+		
+		NodeRevisionDescriptor revisionDescriptor = null;
+		try {
+			revisionDescriptor = content.retrieve(rootToken, revisionDescriptors);
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, "Error retrieving revision descriptor", e);
+		}
+		if (revisionDescriptor != null) {
+			try {
+				return content.retrieve(rootToken, revisionDescriptors, revisionDescriptor).streamContent();
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, "Error getting InputStream for: " + pathToFile, e);
+			} finally {
+				finishTransaction();
+			}
+		}
+		
+		return null;
+	}
+	
+	private boolean startTransaction() {
+		try {
+			namespace.begin();
+		} catch(Exception e) {
+			LOGGER.log(Level.SEVERE, "Cannot start user transaction", e);
+			return false;
+		}
+		
+		return true;
+	}
+	
+	private boolean finishTransaction() {
+		try {
+			namespace.commit();
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, "Cannot finish user transaction", e);
+			return false;
+		}
+		return true;
+	}
+	
 }

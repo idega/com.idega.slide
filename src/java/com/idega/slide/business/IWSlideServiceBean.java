@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.65 2008/07/16 15:02:10 valdas Exp $
+ * $Id: IWSlideServiceBean.java,v 1.66 2008/11/18 14:56:28 valdas Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -26,8 +26,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
-import javax.servlet.ServletContext;
 
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpURL;
@@ -71,10 +69,10 @@ import com.idega.util.expression.ELUtil;
  * This is the main bean for accessing system wide information about the slide store.
  * </p>
  * 
- *  Last modified: $Date: 2008/07/16 15:02:10 $ by $Author: valdas $
+ *  Last modified: $Date: 2008/11/18 14:56:28 $ by $Author: valdas $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.65 $
+ * @version $Revision: 1.66 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService, IWSlideChangeListener {
 
@@ -855,15 +853,18 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	}
 	
 	public boolean uploadFile(String uploadPath, String fileName, String contentType, InputStream fileInputStream) {
+		return uploadFile(uploadPath, fileName, contentType, fileInputStream, true);
+	}
+	
+	private boolean uploadFile(String uploadPath, String fileName, String contentType, InputStream fileInputStream, boolean closeStream) {
 		uploadPath = createFoldersAndPreparedUploadPath(uploadPath, true);
 		if (uploadPath == null) {
 			return false;
 		}
-		
-		ServletContext ctx = getIWApplicationContext().getIWMainApplication().getServletContext();
+
 		IWSimpleSlideServiceBean simpleService = ELUtil.getInstance().getBean(SlideConstants.SIMPLE_SLIDE_SERVICE);
 		try {
-			return simpleService.upload(fileInputStream, uploadPath, fileName, contentType, null);
+			return simpleService.upload(fileInputStream, uploadPath, fileName, contentType, null, closeStream);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -876,7 +877,11 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * Creates the parent folder if needed and uploads the content of the file to Slide and sets the contenttype/mimetype you specify
 	 */
 	public boolean uploadFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName, InputStream fileInputStream, String contentType, boolean deletePredecessor) {
-		boolean returnValue = true;
+		if (uploadFile(parentPath, fileName, contentType, fileInputStream, false)) {	//	Trying with Slide API firstly
+			return true;
+		}
+		
+		//	Slide API failed - using old way to do it
 		try {
 			parentPath = createFoldersAndPreparedUploadPath(parentPath, false);
 			if (parentPath == null) {
@@ -923,11 +928,10 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			returnValue = false;
+			return false;
 		}
-	
 		
-		return returnValue;
+		return true;
 	}
 	
 	/**
@@ -1345,9 +1349,19 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @throws IOException 
 	 * @throws  
 	 */
-	public InputStream getInputStream(String path)throws IOException{
-		WebdavResource resource = getWebdavResourceAuthenticatedAsRoot(path);
-		return resource.getMethodData();
+	public InputStream getInputStream(String path) throws IOException {
+		IWSimpleSlideServiceBean slideAPI = ELUtil.getInstance().getBean(SlideConstants.SIMPLE_SLIDE_SERVICE);
+		InputStream stream = null;
+		if (slideAPI != null) {
+			stream = slideAPI.getInputStream(path);
+		}
+		
+		if (stream == null) {
+			WebdavResource resource = getWebdavResourceAuthenticatedAsRoot(path);
+			return resource.getMethodData();
+		}
+		
+		return stream;
 	}
 
 	public OutputStream getOutputStream(File file)throws IOException{
