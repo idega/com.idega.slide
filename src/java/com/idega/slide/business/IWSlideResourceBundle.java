@@ -64,7 +64,15 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 	protected void initialize(Locale locale) throws IOException {
 		setLocale(locale);
 		
-		InputStream slideSourceStream = getResourceInputStream(getLocalizableFilePath());
+		InputStream slideSourceStream = null;
+		try {
+			slideSourceStream = getResourceInputStream(getLocalizableFilePath());
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		if (slideSourceStream == null) {
+			return;
+		}
 		
 		Properties localizationProps = new Properties();
 		localizationProps.load(slideSourceStream);
