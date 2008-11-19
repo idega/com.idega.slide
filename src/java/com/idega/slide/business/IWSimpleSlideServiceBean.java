@@ -208,7 +208,7 @@ public class IWSimpleSlideServiceBean {
 		
 		boolean uploadingResult = doUploading(stream, token, uploadPath + fileName, contentType, user, closeStream);
 		if (!uploadingResult) {
-			namespace.rollback();
+			rollbackTransaction();
 		}
 		
 		return uploadingResult;
@@ -245,6 +245,7 @@ public class IWSimpleSlideServiceBean {
 		}
 		if (revisionDescriptors == null || !revisionDescriptors.hasRevisions()) {
 			LOGGER.log(Level.SEVERE, "There are no revision descriptors or no revisions for: " + pathToFile);
+			rollbackTransaction();
 			return null;
 		}
 		
@@ -254,14 +255,16 @@ public class IWSimpleSlideServiceBean {
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Error retrieving revision descriptor", e);
 		}
-		if (revisionDescriptor != null) {
-			try {
-				return content.retrieve(rootToken, revisionDescriptors, revisionDescriptor).streamContent();
-			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE, "Error getting InputStream for: " + pathToFile, e);
-			} finally {
-				finishTransaction();
-			}
+		if (revisionDescriptor == null) {
+			rollbackTransaction();
+		}
+		
+		try {
+			return content.retrieve(rootToken, revisionDescriptors, revisionDescriptor).streamContent();
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, "Error getting InputStream for: " + pathToFile, e);
+		} finally {
+			finishTransaction();
 		}
 		
 		return null;
@@ -275,6 +278,16 @@ public class IWSimpleSlideServiceBean {
 			return false;
 		}
 		
+		return true;
+	}
+	
+	private boolean rollbackTransaction() {
+		try {
+			namespace.rollback();
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, "Cannot rollback user transaction", e);
+			return false;
+		}
 		return true;
 	}
 	
