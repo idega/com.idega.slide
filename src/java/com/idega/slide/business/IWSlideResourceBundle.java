@@ -22,7 +22,6 @@ import com.idega.business.IBOLookupException;
 import com.idega.idegaweb.IWApplicationContext;
 import com.idega.idegaweb.IWMainApplication;
 import com.idega.idegaweb.IWResourceBundle;
-import com.idega.presentation.IWContext;
 import com.idega.util.CoreConstants;
 import com.idega.util.SortedProperties;
 import com.idega.util.StringUtil;
@@ -39,8 +38,8 @@ import com.idega.util.messages.MessageResourceImportanceLevel;
  *
  */
 
-@Service
-@Scope(BeanDefinition.SCOPE_SINGLETON)
+@Service(IWSlideResourceBundle.RESOURCE_IDENTIFIER)
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class IWSlideResourceBundle extends IWResourceBundle implements MessageResource {
 	
 	private final Logger logger;
@@ -60,9 +59,11 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 		logger = Logger.getLogger(getClass().getName());
 	}
 	
-	@SuppressWarnings("unchecked")
-	protected void initialize(Locale locale) throws IOException {
+	@Override
+
+	public void initialize(String bundleIdentifier, Locale locale) throws IOException {
 		setLocale(locale);
+		setBundleIdentifier(bundleIdentifier);
 		
 		InputStream slideSourceStream = null;
 		try {
@@ -130,7 +131,9 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 			try {
 				out.close();
 				byteStream.close();
-			} catch (IOException e) {}
+			} catch (IOException e) {
+				logger.log(Level.WARNING, "Can't close streams after saving data to slide");
+			}
 		}
 	}
 	
@@ -248,48 +251,13 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 
 	/**
 	 * @param key - message key
-	 * @param bundleIdentifier - bundle in which messages should be located
 	 * @return object that was found in resource or set to it, null - if there are no values with specified key
 	 */
 	@Override
-	public Object getMessage(Object key, String bundleIdentifier) {
-		setBundleIdentifier(bundleIdentifier);
-		
-		IWContext iwc = IWContext.getCurrentInstance();
-		try {
-			initialize(iwc.getCurrentLocale());
-		} catch (IOException e) {
-			logger.log(Level.WARNING, "Exception initialising resource with current locale: " + iwc.getCurrentLocale(), e);
-		}
+	public Object getMessage(Object key) {
 
-		String returnStr =  getLocalizedString(String.valueOf(key));
-//		if(returnStr == null && isAutoInsert()) {
-//			return setMessage(key, autoInsertValue, bundleIdentifier);
-//		} else 
-			return returnStr;
-	}
-	
-	/**
-	 * @param key - message key
-	 * @param bundleIdentifier - bundle in which messages should be located
-	 * @return object that was found in resource or set to it, null - if there are no values with specified key
-	 */
-	@Override
-	public Object getMessage(Object key, String bundleIdentifier, Locale locale) {
-		setBundleIdentifier(bundleIdentifier);
-		
-		IWContext iwc = IWContext.getCurrentInstance();
-		try {
-			initialize(locale);
-		} catch (IOException e) {
-			logger.log(Level.WARNING, "Exception initialising resource with current locale: " + iwc.getCurrentLocale(), e);
-		}
+		return getLocalizedString(String.valueOf(key));
 
-		String returnStr =  getLocalizedString(String.valueOf(key));
-//		if(returnStr == null && isAutoInsert()) {
-//			return setMessage(key, valueIfNotFound, bundleIdentifier);
-//		} else 
-			return returnStr;
 	}
 
 	@Override
@@ -302,88 +270,31 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 	 * @return object that was set or null if there was a failure setting object
 	 */
 	@Override
-	public Object setMessage(Object key, Object value, String bundleIdentifier) {
-		setBundleIdentifier(bundleIdentifier);
-		
-		IWContext iwc = IWContext.getCurrentInstance();
-		try {
-			if(getLocale() == null) {
-				initialize(iwc.getCurrentLocale());
-			} else {
-				initialize(getLocale());
-			}
-		} catch (IOException e) {
-			logger.log(Level.WARNING, "Exception initialising resource with locale: " + iwc.getCurrentLocale(), e);
-			return null;
-		}
-		
-		setString(String.valueOf(key), String.valueOf(value));
-		this.storeState();
+	public Object setMessage(Object key, Object value) {
+		getLookup().put(key, value);
+		storeState();
 		return value;
 	}
 	
-
-	/**
-	 * @return object that was set or null if there was a failure setting object
-	 */
 	@Override
-	public Object setMessage(Object key, Object value, String bundleIdentifier, Locale locale) {
-		setLocale(locale);
-		return setMessage(key, value, bundleIdentifier);
-	}
-	
-	@Override
-	public void setMessages(Map<Object, Object> values, String bundleIdentifier, Locale locale) {
-		setBundleIdentifier(bundleIdentifier);
-		setLocale(locale);
-		
-		IWContext iwc = IWContext.getCurrentInstance();
-		try {
-			if(getLocale() == null) {
-				initialize(iwc.getCurrentLocale());
-			} else {
-				initialize(getLocale());
-			}
-		} catch (IOException e) {
-			logger.log(Level.WARNING, "Exception initialising resource with locale: " + locale, e);
-		}
+	public void setMessages(Map<Object, Object> values) {
 		
 		for(Object key : values.keySet()) {
 			setString(String.valueOf(key), String.valueOf(values.get(key)));
 		}
 		
-		this.storeState();
+		storeState();
 	}
 	
 	@Override
-	public Set<Object> getAllLocalisedKeys(String bundleIdentifier, Locale locale) {
-		if(bundleIdentifier.equals(NO_BUNDLE))
-			bundleIdentifier = null;
-		setBundleIdentifier(bundleIdentifier);
-		setLocale(locale);
-		
-		try {
-			initialize(getLocale());
-		} catch (IOException e) {
-			logger.log(Level.WARNING, "Exception initialising resource with locale: " + locale, e);
-		}
+	public Set<Object> getAllLocalisedKeys() {
 		return getLookup().keySet();
 	}
 	
 	@Override
-	public void removeMessage(Object key, String bundleIdentifier, Locale locale) {
-		if(bundleIdentifier.equals(NO_BUNDLE))
-			bundleIdentifier = null;
-		setBundleIdentifier(bundleIdentifier);
-		setLocale(locale);
-		
-		try {
-			initialize(getLocale());
-		} catch (IOException e) {
-			logger.log(Level.WARNING, "Exception initialising resource with locale: " + locale, e);
-		}
+	public void removeMessage(Object key) {
 		getLookup().remove(key);
-		this.storeState();
+		storeState();
 	}
 
 	@Override
