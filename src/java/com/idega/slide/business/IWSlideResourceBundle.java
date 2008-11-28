@@ -22,7 +22,9 @@ import com.idega.business.IBOLookupException;
 import com.idega.idegaweb.IWApplicationContext;
 import com.idega.idegaweb.IWMainApplication;
 import com.idega.idegaweb.IWResourceBundle;
+import com.idega.presentation.IWContext;
 import com.idega.util.CoreConstants;
+import com.idega.util.CoreUtil;
 import com.idega.util.SortedProperties;
 import com.idega.util.StringUtil;
 import com.idega.util.messages.MessageResource;
@@ -38,14 +40,14 @@ import com.idega.util.messages.MessageResourceImportanceLevel;
  *
  */
 
-@Service(IWSlideResourceBundle.RESOURCE_IDENTIFIER)
+@Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class IWSlideResourceBundle extends IWResourceBundle implements MessageResource {
 	
 	private final Logger logger;
 	private String bundleIdentifier;
 	private Level usagePriorityLevel = MessageResourceImportanceLevel.FIRST_ORDER;
-	private boolean autoInsert = true;
+	private boolean autoInsert;
 	
 	private static final String LOCALISATION_PATH = "/files/cms/bundles/";
 	private static final String NON_BUNDLE_LOCALISATION_FILE_NAME = "Localizable_no_bundle";
@@ -54,6 +56,11 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 	private static final String LOCALIZATION_MIME_TYPE = "text/plain";
 	
 	public static final String RESOURCE_IDENTIFIER = "slide_resource";
+	
+	private static final String AUTO_INSERT_PROPERTY = RESOURCE_IDENTIFIER + "_autoinsert";
+	private static final String PRIORITY_PROPERTY = RESOURCE_IDENTIFIER + "_property";
+	
+	private String identifier = RESOURCE_IDENTIFIER;
 
 	public IWSlideResourceBundle() throws IOException {
 		logger = Logger.getLogger(getClass().getName());
@@ -79,6 +86,10 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 		localizationProps.load(slideSourceStream);
 
 		setLookup(new TreeMap(localizationProps));
+		
+		IWContext iwc = CoreUtil.getIWContext();
+		setAutoInsert(iwc.getApplicationSettings().getBoolean(AUTO_INSERT_PROPERTY, true));
+//		setLevel(iwc.getApplicationSettings().getBoolean(PRIORITY_PROPERTY, true));
 	}
 
 	protected InputStream getResourceInputStream(String resourcePath) {
@@ -308,7 +319,12 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 	}
 	
 	@Override
+	public void setIdentifier(String identifier) {
+		this.identifier = identifier;
+	}
+	
+	@Override
 	public String getIdentifier() {
-		return RESOURCE_IDENTIFIER;
+		return identifier;
 	}
 }
