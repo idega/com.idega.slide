@@ -151,7 +151,7 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 	@Override
 	public String getLocalizedString(String key) {
 		Object returnObj = getLookup().get(key);
-		if(returnObj != null) {
+		if(returnObj != null && !"null".equals(returnObj)) {
 			return String.valueOf(returnObj);
 		} else {
 			return null;
