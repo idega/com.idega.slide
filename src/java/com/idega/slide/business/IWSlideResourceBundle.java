@@ -22,9 +22,7 @@ import com.idega.business.IBOLookupException;
 import com.idega.idegaweb.IWApplicationContext;
 import com.idega.idegaweb.IWMainApplication;
 import com.idega.idegaweb.IWResourceBundle;
-import com.idega.presentation.IWContext;
 import com.idega.util.CoreConstants;
-import com.idega.util.CoreUtil;
 import com.idega.util.SortedProperties;
 import com.idega.util.StringUtil;
 import com.idega.util.messages.MessageResource;
@@ -87,8 +85,10 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 
 		setLookup(new TreeMap(localizationProps));
 		
-		IWContext iwc = CoreUtil.getIWContext();
-		setAutoInsert(iwc.getApplicationSettings().getBoolean(AUTO_INSERT_PROPERTY, true));
+//		IWContext iwc = CoreUtil.getIWContext();
+		
+//TODO create system properties
+//		setAutoInsert(iwc.getApplicationSettings().getBoolean(AUTO_INSERT_PROPERTY, true));
 //		setLevel(iwc.getApplicationSettings().getBoolean(PRIORITY_PROPERTY, true));
 	}
 
@@ -148,6 +148,7 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 		}
 	}
 	
+	//TODO check "null" value
 	@Override
 	public String getLocalizedString(String key) {
 		Object returnObj = getLookup().get(key);
@@ -266,9 +267,7 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 	 */
 	@Override
 	public Object getMessage(Object key) {
-
 		return getLocalizedString(String.valueOf(key));
-
 	}
 
 	@Override
