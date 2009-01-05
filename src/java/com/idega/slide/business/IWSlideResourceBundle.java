@@ -43,9 +43,9 @@ import com.idega.util.messages.MessageResourceImportanceLevel;
 public class IWSlideResourceBundle extends IWResourceBundle implements MessageResource {
 	
 	private final Logger logger;
-	private String bundleIdentifier;
-	private Level usagePriorityLevel = MessageResourceImportanceLevel.FIRST_ORDER;
-	private boolean autoInsert;
+//	private String bundleIdentifier;
+//	private Level usagePriorityLevel = MessageResourceImportanceLevel.FIRST_ORDER;
+//	private boolean autoInsert = true;
 	
 	private static final String LOCALISATION_PATH = "/files/cms/bundles/";
 	private static final String NON_BUNDLE_LOCALISATION_FILE_NAME = "Localizable_no_bundle";
@@ -55,17 +55,24 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 	
 	public static final String RESOURCE_IDENTIFIER = "slide_resource";
 	
-	private static final String AUTO_INSERT_PROPERTY = RESOURCE_IDENTIFIER + "_autoinsert";
-	private static final String PRIORITY_PROPERTY = RESOURCE_IDENTIFIER + "_property";
+//	private static final String AUTO_INSERT_PROPERTY = RESOURCE_IDENTIFIER + "_autoinsert";
+//	private static final String PRIORITY_PROPERTY = RESOURCE_IDENTIFIER + "_property";
 	
-	private String identifier = RESOURCE_IDENTIFIER;
+//	private String identifier = RESOURCE_IDENTIFIER;
 
 	public IWSlideResourceBundle() throws IOException {
+		super();
 		logger = Logger.getLogger(getClass().getName());
 	}
 	
 	@Override
-
+	protected void initProperities() {
+		setIdentifier(RESOURCE_IDENTIFIER);
+		setLevel(MessageResourceImportanceLevel.FIRST_ORDER);
+		setAutoInsert(true);
+	}
+	
+	@Override
 	public void initialize(String bundleIdentifier, Locale locale) throws IOException {
 		setLocale(locale);
 		setBundleIdentifier(bundleIdentifier);
@@ -248,18 +255,20 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 //		return resource;
 //	}
 
-	public String getBundleIdentifier() {
-		return bundleIdentifier;
-	}
-
-	public void setBundleIdentifier(String bundleIdentifier) {
-		this.bundleIdentifier = bundleIdentifier;
-	}
-
-	@Override
-	public Level getLevel() {
-		return this.usagePriorityLevel;
-	}
+//	@Override
+//	public String getBundleIdentifier() {
+//		return bundleIdentifier;
+//	}
+//
+//	@Override
+//	public void setBundleIdentifier(String bundleIdentifier) {
+//		this.bundleIdentifier = bundleIdentifier;
+//	}
+//
+//	@Override
+//	public Level getLevel() {
+//		return this.usagePriorityLevel;
+//	}
 
 	/**
 	 * @param key - message key
@@ -270,10 +279,10 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 		return getLocalizedString(String.valueOf(key));
 	}
 
-	@Override
-	public void setLevel(Level priorityLevel) {
-		usagePriorityLevel = priorityLevel;
-	}
+//	@Override
+//	public void setLevel(Level priorityLevel) {
+//		usagePriorityLevel = priorityLevel;
+//	}
 
 
 	/**
@@ -307,23 +316,23 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 		storeState();
 	}
 
-	@Override
-	public boolean isAutoInsert() {
-		return autoInsert;
-	}
-
-	@Override
-	public void setAutoInsert(boolean autoInsert) {
-		this.autoInsert = autoInsert;
-	}
-	
-	@Override
-	public void setIdentifier(String identifier) {
-		this.identifier = identifier;
-	}
-	
-	@Override
-	public String getIdentifier() {
-		return identifier;
-	}
+//	@Override
+//	public boolean isAutoInsert() {
+//		return autoInsert;
+//	}
+//
+//	@Override
+//	public void setAutoInsert(boolean autoInsert) {
+//		this.autoInsert = autoInsert;
+//	}
+//	
+//	@Override
+//	public void setIdentifier(String identifier) {
+//		this.identifier = identifier;
+//	}
+//	
+//	@Override
+//	public String getIdentifier() {
+//		return identifier;
+//	}
 }
