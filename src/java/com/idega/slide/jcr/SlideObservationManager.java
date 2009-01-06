@@ -8,13 +8,23 @@ import javax.jcr.observation.EventListener;
 import javax.jcr.observation.EventListenerIterator;
 import javax.jcr.observation.ObservationManager;
 
+/**
+ * <p>
+ * Imlpementation of the JCR Observation manager for Slide
+ * </p>
+ *  Last modified: $Date: 2009/01/06 15:17:20 $ by $Author: tryggvil $
+ * 
+ * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
+ * @version $Revision: 1.2 $
+ */
 public class SlideObservationManager implements ObservationManager {
 
-	SlideWorkspace slideWorkspace;
+	//SlideWorkspace slideWorkspace;
+	SlideRepository slideRepository;
 	List<EventListener> listeners= new ArrayList<EventListener>();
 	
-	public SlideObservationManager(SlideWorkspace slideWorkspace) {
-		this.slideWorkspace=slideWorkspace;
+	public SlideObservationManager(SlideRepository slideRepository) {
+		this.slideRepository=slideRepository;
 	}
 
 	public void addEventListener(EventListener listener, int eventTypes,

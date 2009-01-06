@@ -22,6 +22,15 @@ import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.nodetype.PropertyDefinition;
 import javax.jcr.version.VersionException;
 
+/**
+ * <p>
+ * Special JCR transient property
+ * </p>
+ *  Last modified: $Date: 2009/01/06 15:17:20 $ by $Author: tryggvil $
+ * 
+ * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
+ * @version $Revision: 1.2 $
+ */
 public class SlideTransientProperty implements Property {
 
 	private SlideNode slideNode;

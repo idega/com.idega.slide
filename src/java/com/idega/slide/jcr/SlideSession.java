@@ -29,6 +29,7 @@ import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.version.VersionException;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
+import javax.transaction.NotSupportedException;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 
@@ -38,6 +39,15 @@ import org.apache.slide.common.SlideTokenImpl;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
+/**
+ * <p>
+ * Main implementation of the JCR Session object to Slide
+ * </p>
+ *  Last modified: $Date: 2009/01/06 15:17:20 $ by $Author: tryggvil $
+ * 
+ * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
+ * @version $Revision: 1.3 $
+ */
 public class SlideSession implements Session {
 
 	private SlideRepository slideRepository;
@@ -58,6 +68,16 @@ public class SlideSession implements Session {
 		this.slideRepository=slideRepository;
 		this.credentials=credentials;
 		this.workspaceName=workspaceName;
+		try {
+			this.slideRepository.getNamespace().begin();
+		} catch (NotSupportedException e) {
+			if(SlideNode.LOGLEVEL==SlideNode.LOGLEVEL_DEBUG){
+				e.printStackTrace();
+			}
+		} catch (SystemException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public SlideRepository getSlideRepository() {
@@ -224,6 +244,7 @@ public class SlideSession implements Session {
 		
 		try {
 			getSlideRepository().getNamespace().commit();
+			getSlideRepository().getNamespace().begin();
 		} catch (SecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -240,6 +261,9 @@ public class SlideSession implements Session {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (SystemException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NotSupportedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

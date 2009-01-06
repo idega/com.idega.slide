@@ -7,16 +7,23 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 
 import org.apache.slide.search.Search;
-import org.apache.slide.webdav.util.ComputedPropertyProvider;
-
+/**
+ * <p>
+ * Implementation for the JCR Search mechanism against Slide - Not finished
+ * </p>
+ *  Last modified: $Date: 2009/01/06 15:17:20 $ by $Author: tryggvil $
+ * 
+ * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
+ * @version $Revision: 1.2 $
+ */
 public class SlideQueryManager implements QueryManager {
 
-	private SlideWorkspace slideWorkspace;
+	private SlideRepository slideRepository;
 	private Search searchHelper;
 	
-	public SlideQueryManager(SlideWorkspace slideWorkspace) {
-		this.slideWorkspace=slideWorkspace;
-		searchHelper = slideWorkspace.getSlideSession().getSlideRepository().getNamespace().getSearchHelper();
+	public SlideQueryManager(SlideRepository slideRepository) {
+		this.slideRepository=slideRepository;
+		searchHelper = slideRepository.getNamespace().getSearchHelper();
 	}
 
 	public Query createQuery(String arg0, String arg1)

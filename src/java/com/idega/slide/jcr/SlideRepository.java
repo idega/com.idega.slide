@@ -6,86 +6,98 @@ import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.transaction.NotSupportedException;
-import javax.transaction.SystemException;
+import javax.jcr.observation.ObservationManager;
+import javax.jcr.query.QueryManager;
 
-import org.apache.slide.authenticate.SecurityToken;
-import org.apache.slide.common.Domain;
 import org.apache.slide.common.NamespaceAccessToken;
 import org.apache.slide.content.Content;
 import org.apache.slide.security.Security;
 import org.apache.slide.structure.Structure;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
+import com.idega.slide.webdavservlet.DomainConfig;
+
+/**
+ * <p>
+ * Main implementation of the JCR Repository object to Slide
+ * </p>
+ *  Last modified: $Date: 2009/01/06 15:17:20 $ by $Author: tryggvil $
+ * 
+ * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
+ * @version $Revision: 1.4 $
+ */
+@Scope("singleton")
+@Service(SlideRepository.SPRING_BEAN_IDENTIFIER)
 public class SlideRepository implements Repository {
 
-	private boolean initialized;
+	public static final String SPRING_BEAN_IDENTIFIER="slideRepository";
+	
+	/*private boolean initialized;
 	private NamespaceAccessToken namespace;
 	private Structure structure;
 	private Content content;
 	private Security security;
-
+	private URL configurationURL*/
+	
+	private QueryManager defaultQueryManager;
+	private ObservationManager defaultObservationManager;
+	
+	@Autowired 
+	protected DomainConfig domainConfig;
+	
 	public SlideRepository(){
-		initialize();
+		//initialize();
 	}
 	
-	private synchronized void initialize() {
-		if (initialized) {
-			return;
-		}
-		
-		initialized = true;
-		try {
-			namespace = Domain.accessNamespace(new SecurityToken(""), Domain.getDefaultNamespace());
-			structure = namespace.getStructureHelper();
-			content = namespace.getContentHelper();
-			security = namespace.getSecurityHelper();
-		} catch(Exception e) {
-			initialized = false;
-			e.printStackTrace();
-		}
+	protected void initialize(){
+		getDomainConfig().initialize();
 	}
 	
-	
-	
-	public boolean isInitialized() {
+	/*public boolean isInitialized() {
 		return initialized;
 	}
 
 	public void setInitialized(boolean initialized) {
 		this.initialized = initialized;
-	}
+	}*/
 
 	public NamespaceAccessToken getNamespace() {
-		return namespace;
+		//return namespace;
+		return getDomainConfig().getNamespace();
 	}
 
-	public void setNamespace(NamespaceAccessToken namespace) {
+	/*public void setNamespace(NamespaceAccessToken namespace) {
 		this.namespace = namespace;
-	}
+	}*/
 
 	public Structure getStructure() {
-		return structure;
+		//return structure;
+		return getDomainConfig().getStructure();
 	}
 
-	public void setStructure(Structure structure) {
+	/*public void setStructure(Structure structure) {
 		this.structure = structure;
-	}
+	}*/
 
 	public Content getContent() {
-		return content;
+		//return content;
+		return getDomainConfig().getContent();
 	}
 
-	public void setContent(Content content) {
+	/*public void setContent(Content content) {
 		this.content = content;
-	}
+	}*/
 
 	public Security getSecurity() {
-		return security;
+		//return security;
+		return getDomainConfig().getSecurity();
 	}
 
-	public void setSecurity(Security security) {
+	/*public void setSecurity(Security security) {
 		this.security = security;
-	}
+	}*/
 
 	public String getDescriptor(String arg0) {
 		throw new UnsupportedOperationException("Method not implemented");
@@ -96,62 +108,61 @@ public class SlideRepository implements Repository {
 	}
 
 	public Session login() throws LoginException, RepositoryException {
+		initialize();
 		Session session =  new SlideSession(this,(String)null);
-		try {
-			this.namespace.begin();
-		} catch (NotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SystemException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		return session;
 	}
 
 	public Session login(Credentials arg0) throws LoginException,
 			RepositoryException {
+		initialize();
 		Session session =  new SlideSession(this,arg0);
-		try {
-			this.namespace.begin();
-		} catch (NotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SystemException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		return session;
 	}
 
 	public Session login(String workspaceName) throws LoginException,
 			NoSuchWorkspaceException, RepositoryException {
+		initialize();
 		Session session =  new SlideSession(this,workspaceName);
-		try {
-			this.namespace.begin();
-		} catch (NotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SystemException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		return session;
 	}
 
 	public Session login(Credentials credentials, String workspaceName) throws LoginException,
 			NoSuchWorkspaceException, RepositoryException {
+		initialize();
 		Session session =  new SlideSession(this,credentials,workspaceName);
-		try {
-			this.namespace.begin();
-		} catch (NotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SystemException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		return session;
+	}
+
+	public DomainConfig getDomainConfig() {
+		return domainConfig;
+	}
+
+	public void setDomainConfig(DomainConfig domainConfig) {
+		this.domainConfig = domainConfig;
+	}
+
+	public QueryManager getDefaultQueryManager() {
+		if(defaultQueryManager==null){
+			this.defaultQueryManager=new SlideQueryManager(this);
+		}
+		return defaultQueryManager;
+	}
+
+	public void setDefaultQueryManager(QueryManager defaultQueryManager) {
+		this.defaultQueryManager = defaultQueryManager;
+	}
+
+	public ObservationManager getDefaultObservationManager() {
+		if(defaultObservationManager==null){
+			defaultObservationManager = new SlideObservationManager(this);
+		}
+		return defaultObservationManager;
+	}
+
+	public void setDefaultObservationManager(
+			ObservationManager defaultObservationManager) {
+		this.defaultObservationManager = defaultObservationManager;
 	}
 
 }

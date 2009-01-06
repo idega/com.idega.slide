@@ -4,7 +4,15 @@ import javax.jcr.Value;
 import javax.jcr.nodetype.NodeDefinition;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.PropertyDefinition;
-
+/**
+ * <p>
+ * Main implementation for the JCR node type in Slide
+ * </p>
+ *  Last modified: $Date: 2009/01/06 15:17:20 $ by $Author: tryggvil $
+ * 
+ * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
+ * @version $Revision: 1.2 $
+ */
 public class SlideNodeType implements NodeType {
 
 	SlideNode node;
@@ -21,22 +29,22 @@ public class SlideNodeType implements NodeType {
 
 	public boolean canAddChildNode(String childNodeName, String nodeTypeName) {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	public boolean canRemoveItem(String itemName) {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	public boolean canSetProperty(String propertyName, Value value) {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	public boolean canSetProperty(String propertyName, Value[] values) {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	public NodeDefinition[] getChildNodeDefinitions() {
@@ -91,7 +99,7 @@ public class SlideNodeType implements NodeType {
 
 	public boolean isNodeType(String nodeTypeName) {
 		// TODO Auto-generated method stub
-		return false;
+		return this.node.type.equals(nodeTypeName);
 	}
 
 }

@@ -36,6 +36,16 @@ import javax.jcr.version.VersionException;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 
+/**
+ * <p>
+ * JCR Version implementation for Slide - NOT FINISHED
+ * </p>
+ *  Last modified: $Date: 2009/01/06 15:17:20 $ by $Author: tryggvil $
+ * 
+ * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
+ * @version $Revision: 1.2 $
+ */
+
 public class SlideVersionHistory implements VersionHistory {
 
 	

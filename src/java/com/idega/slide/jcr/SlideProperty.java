@@ -24,6 +24,15 @@ import javax.jcr.version.VersionException;
 
 import org.apache.slide.content.NodeProperty;
 
+/**
+ * <p>
+ * Main implementation for the JCR Node Property object in Slide
+ * </p>
+ *  Last modified: $Date: 2009/01/06 15:17:20 $ by $Author: tryggvil $
+ * 
+ * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
+ * @version $Revision: 1.2 $
+ */
 public class SlideProperty implements Property {
 
 	

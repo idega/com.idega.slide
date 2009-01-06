@@ -24,11 +24,21 @@ import javax.jcr.version.VersionException;
 
 import org.xml.sax.ContentHandler;
 
+/**
+ * <p>
+ * JCR Workspace implementation for Slide - NOT FINISHED
+ * </p>
+ *  Last modified: $Date: 2009/01/06 15:17:20 $ by $Author: tryggvil $
+ * 
+ * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
+ * @version $Revision: 1.2 $
+ */
+
 public class SlideWorkspace implements Workspace {
 
 	private SlideSession slideSession;
-	private QueryManager queryManager;
-	private ObservationManager observationManager;
+	//private QueryManager queryManager;
+	//private ObservationManager observationManager;
 
 	public SlideWorkspace(SlideSession slideSession) {
 		this.slideSession=slideSession;
@@ -88,17 +98,19 @@ public class SlideWorkspace implements Workspace {
 
 	public ObservationManager getObservationManager()
 			throws UnsupportedRepositoryOperationException, RepositoryException {
-		if(observationManager==null){
+		/*if(observationManager==null){
 			observationManager = new SlideObservationManager(this);
 		}
-		return observationManager;
+		return observationManager;*/
+		return this.slideSession.getSlideRepository().getDefaultObservationManager();
 	}
 
 	public QueryManager getQueryManager() throws RepositoryException {
-		if(queryManager==null){
+		/*if(queryManager==null){
 			queryManager=new SlideQueryManager(this);
 		}
-		return queryManager;
+		return queryManager;*/
+		return this.slideSession.getSlideRepository().getDefaultQueryManager();
 	}
 
 	public Session getSession() {

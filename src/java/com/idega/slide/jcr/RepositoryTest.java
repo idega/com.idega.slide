@@ -21,7 +21,15 @@ import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
-
+/**
+ * <p>
+ * TODO tryggvil Describe Type RepositoryTest
+ * </p>
+ *  Last modified: $Date: 2009/01/06 15:17:20 $ by $Author: tryggvil $
+ * 
+ * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
+ * @version $Revision: 1.5 $
+ */
 public class RepositoryTest {
 
 	/**
@@ -121,7 +129,7 @@ public class RepositoryTest {
 			
 			fileNode.save();*/
 			
-			
+
 			contentNode = fileNode.getNode("jcr:content");
 			System.out.println("Node="+fileNode.getName()+" found");
 			
@@ -158,6 +166,32 @@ public class RepositoryTest {
 			
 		}
 		
+		
+		Node testFolder2=session.getRootNode().getNode("files").addNode("testFolder2","nt:folder");
+		testFolder2.save();
+		//session.save();
+		
+		testFolder2=session.getRootNode().getNode("files").getNode("testFolder2");
+		testFolder2.remove();
+		//getSession().save();
+		filesNode = session.getRootNode().getNode("files");
+		boolean deleted=false;
+		try{
+			testFolder2 = filesNode.getNode("testFolder2");
+			System.err.println("Node "+testFolder2.getName()+" was found but should be deleted");
+		}
+		catch(PathNotFoundException pe){
+			//testFolder = filesNode.addNode("testFolder","nt:folder");
+			deleted=true;
+			System.out.println("Delete of "+testFolder2.getName()+" was successful");
+		}
+		
+		
+		if(!deleted){
+			throw new RuntimeException("Remote failed");
+		}
+		
+		
 		//node.setProperty("jcr:primaryType", "nt:folder");
 		//node.save();
 		
@@ -166,7 +200,10 @@ public class RepositoryTest {
 		testFolder = filesNode.getNode("testFolder");
 		NodeIterator testFolderChildren = testFolder.getNodes();
 		
-		dumpNodeInfo(testFolderChildren);
+		filesNode = session.getRootNode().getNode("files");
+		NodeIterator filesNodeChildren = testFolder.getNodes();
+		
+		dumpNodeInfo(filesNodeChildren);
 		
 		System.exit(0);
 	}

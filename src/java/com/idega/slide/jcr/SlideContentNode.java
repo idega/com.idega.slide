@@ -34,7 +34,15 @@ import javax.jcr.version.VersionException;
 import javax.jcr.version.VersionHistory;
 
 import org.apache.slide.content.NodeRevisionContent;
-
+/**
+ * <p>
+ * Wrapper for the specific jcr:content node against Slide
+ * </p>
+ *  Last modified: $Date: 2009/01/06 15:17:20 $ by $Author: tryggvil $
+ * 
+ * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
+ * @version $Revision: 1.4 $
+ */
 public class SlideContentNode implements Node{
 
 	SlideNode fileNode;
@@ -452,9 +460,7 @@ public class SlideContentNode implements Node{
 			ReferentialIntegrityException, VersionException, LockException,
 			NoSuchNodeTypeException, RepositoryException {
 		
-		if(!this.fileNode.isNew()){
-			this.fileNode.incrementRevisionNumber();
-		}
+
 		this.fileNode.save();
 	}
 

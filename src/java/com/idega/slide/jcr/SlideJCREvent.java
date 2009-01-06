@@ -6,6 +6,15 @@ import javax.jcr.observation.Event;
 import org.apache.slide.event.AbstractEventMethod;
 import org.apache.slide.event.ContentEvent;
 
+/**
+ * <p>
+ * Event to map against the JCR Observation mechanism - not finished
+ * </p>
+ *  Last modified: $Date: 2009/01/06 15:17:20 $ by $Author: tryggvil $
+ * 
+ * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
+ * @version $Revision: 1.2 $
+ */
 public class SlideJCREvent implements Event {
 
 	String path;

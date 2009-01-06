@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
-import javax.jcr.Session;
 import javax.jcr.UnsupportedRepositoryOperationException;
 import javax.jcr.observation.EventIterator;
 import javax.jcr.observation.EventListener;
@@ -19,9 +17,19 @@ import org.apache.slide.event.EventCollection;
 import org.apache.slide.event.EventCollectionListener;
 import org.apache.slide.event.VetoException;
 
-
+/**
+ * <p>
+ * Trigger to map against the JCR Observation mechanism - not finished
+ * </p>
+ *  Last modified: $Date: 2009/01/06 15:17:20 $ by $Author: tryggvil $
+ * 
+ * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
+ * @version $Revision: 1.2 $
+ */
 public class SlideJCRChangeTrigger implements EventCollectionListener {
 
+	private SlideRepository slideRepository;
+	
 	public void collected(EventCollection events) {
 		List collectedEvents = events.getCollection();
 		List jcrEvents = new ArrayList();
@@ -39,12 +47,13 @@ public class SlideJCRChangeTrigger implements EventCollectionListener {
 		}
 		
 		//Repository repository = getRepository();
-		Session session = getSession();
+		//Session session = getSession();
+		SlideRepository slideRepo=getSlideRepository();
 		
 		ObservationManager observationManager;
 		try {
-			if(session!=null){
-				observationManager = session.getWorkspace().getObservationManager();
+			if(slideRepo!=null){
+				observationManager = slideRepo.getDefaultObservationManager();
 	
 				EventListenerIterator iterator = observationManager.getRegisteredEventListeners();
 				while(iterator.hasNext()){
@@ -64,20 +73,28 @@ public class SlideJCRChangeTrigger implements EventCollectionListener {
 		
 	}
 
-	private Session getSession() {
+	/*private Session getSession() {
 		// TODO Auto-generated method stub
-		return null;
+		return getRepository().l;
 	}
 
 	private Repository getRepository() {
 		// TODO Auto-generated method stub
 		return null;
-	}
+	}*/
 
 	public void vetoableCollected(EventCollection collection)
 			throws VetoException {
 		// TODO Auto-generated method stub
 		
+	}
+
+	private void setSlideRepository(SlideRepository slideRepository) {
+		this.slideRepository = slideRepository;
+	}
+
+	private SlideRepository getSlideRepository() {
+		return slideRepository;
 	}
 
 }

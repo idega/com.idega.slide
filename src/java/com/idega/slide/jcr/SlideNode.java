@@ -65,9 +65,19 @@ import org.apache.slide.structure.SubjectNode;
 import com.idega.util.CoreConstants;
 import com.idega.util.IWTimestamp;
 
+/**
+ * <p>
+ * Main implementation for the JCR node object in Slide
+ * </p>
+ *  Last modified: $Date: 2009/01/06 15:17:20 $ by $Author: tryggvil $
+ * 
+ * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
+ * @version $Revision: 1.6 $
+ */
 public class SlideNode implements Node {
 
 	
+	private static final String SLASH = "/";
 	public static String PRIMARY_NODETYPE_FOLDER="nt:folder";
 	public static String PRIMARY_NODETYPE_FILE="nt:file";
 	public static String PRIMARY_NODETYPE_UNSTRUCTURED="nt:unstructured";
@@ -97,10 +107,10 @@ public class SlideNode implements Node {
 	boolean isNew=false;
 	private SlideVersionHistory slideVersionHistory;
 	
-	int LOGLEVEL_INFO=0;
-	int LOGLEVEL_DEBUG=1;
+	public static int LOGLEVEL_INFO=0;
+	public static int LOGLEVEL_DEBUG=1;
 	
-	int LOGLEVEL=LOGLEVEL_DEBUG;
+	public static int LOGLEVEL=LOGLEVEL_INFO;
 	
 
 	
@@ -110,11 +120,11 @@ public class SlideNode implements Node {
 		this.objectNode=objectNode;
 	}*/
 	
-	public SlideNode(SlideSession slideSession, String absolutePath, boolean create) throws PathNotFoundException {
+	public SlideNode(SlideSession slideSession, String absolutePath, boolean create) throws PathNotFoundException, ItemExistsException {
 		this(slideSession,absolutePath,create,null);
 	}
 	
-	public SlideNode(SlideSession slideSession, String absolutePath, boolean create, String type) throws PathNotFoundException {
+	public SlideNode(SlideSession slideSession, String absolutePath, boolean create, String type) throws PathNotFoundException, ItemExistsException {
 		this.slideSession=slideSession;
 		this.path = absolutePath;
 		if(type!=null){
@@ -144,17 +154,17 @@ public class SlideNode implements Node {
 		content = this.getSlideSession().getSlideRepository()
 				.getContent();
 		
-		this.name=path.substring(path.lastIndexOf("/")+1);
+		this.name=path.substring(path.lastIndexOf(SLASH)+1);
 
 	}
 
-	private void create(String nodePath,String type) {
+	private void create(String nodePath,String type) throws ItemExistsException{
 		try{
-			try {
-				objectNode = structure.retrieve(token, nodePath);
-				revisions = content.retrieve(token, nodePath);
-				lastRevision = revisions.getLatestRevision();
-			} catch (ObjectNotFoundException e) {
+			//try {
+			//	objectNode = structure.retrieve(token, nodePath);
+			//	revisions = content.retrieve(token, nodePath);
+			//	lastRevision = revisions.getLatestRevision();
+			//} catch (ObjectNotFoundException e) {
 				SubjectNode subject = new SubjectNode();
 				// Create object
 				try {
@@ -162,9 +172,10 @@ public class SlideNode implements Node {
 					objectNode = structure.retrieve(token, nodePath);
 				} catch (ObjectAlreadyExistsException e1) {
 					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					//e1.printStackTrace();
+					throw new ItemExistsException(e1);
 				}
-			}
+			//}
 			
 
 			if (lastRevision == null) {
@@ -320,7 +331,7 @@ public class SlideNode implements Node {
 			PathNotFoundException, VersionException,
 			ConstraintViolationException, LockException, RepositoryException {
 		//return new SlideNode(this.getSlideSession(),getPath()+path,true);
-		return addNode(path,null);
+		return addNode(path,"nt:unstructured");
 	}
 
 	public Node addNode(String path, String type) throws ItemExistsException,
@@ -331,13 +342,8 @@ public class SlideNode implements Node {
 				return getContentNode();
 			}
 		}
-		String subPath;
-		if(path.startsWith("/")){
-			subPath=getPath()+path;
-		}
-		else{
-			subPath=getPath()+"/"+path;
-		}
+		String myPath = getPath();
+		String subPath = parseChildNodePath(path, myPath);
 		Node node = new SlideNode(this.getSlideSession(),subPath,true,type);
 		return node;
 	}
@@ -419,13 +425,33 @@ public class SlideNode implements Node {
 		}
 		String thisPath = getPath();
 		String nodePath=null;
-		if(thisPath.endsWith("/")){
-			nodePath = getPath()+path;
+		nodePath = parseChildNodePath(path, thisPath);
+		return new SlideNode(this.getSlideSession(),nodePath,false);
+	}
+
+	private String parseChildNodePath(String childPath, String thisPath) {
+		String nodePath;
+		if(childPath.startsWith(SLASH)){
+			//When we have a / starting on the childurl then we are most likely the root node
+			if(thisPath.equals(SLASH)){
+				nodePath = childPath;
+			}
+			//else if(thisPath.endsWith("/")){
+			//	nodePath = thisPath+path;
+			//}
+			else{
+				nodePath = thisPath+SLASH+childPath;
+			}
 		}
 		else{
-			nodePath = getPath()+"/"+path;
+			if(thisPath.endsWith(SLASH)){
+				nodePath = thisPath+childPath;
+			}
+			else{
+				nodePath = thisPath+SLASH+childPath;
+			}
 		}
-		return new SlideNode(this.getSlideSession(),nodePath,false);
+		return nodePath;
 	}
 
 	public NodeIterator getNodes() throws RepositoryException {
@@ -447,7 +473,11 @@ public class SlideNode implements Node {
 				} catch (PathNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+				} catch (ItemExistsException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
+				
 			}
 			if(this.type.equals(PRIMARY_NODETYPE_FILE)){
 				this.nodes.add(getContentNode());
@@ -821,15 +851,12 @@ public class SlideNode implements Node {
 			ConstraintViolationException, RepositoryException {
 		
 		try {
-			content.remove(token, getPath(), revisionDescriptor);
 			structure.remove(token, this.objectNode);
 		} catch (ObjectNotFoundException e) {
 			throw new RepositoryException(e);
 		} catch (org.apache.slide.security.AccessDeniedException e) {
 			throw new RepositoryException(e);
 		} catch (LinkedObjectNotFoundException e) {
-			throw new RepositoryException(e);
-		} catch (RevisionDescriptorNotFoundException e) {
 			throw new RepositoryException(e);
 		} catch (ObjectLockedException e) {
 			throw new RepositoryException(e);
@@ -841,6 +868,33 @@ public class SlideNode implements Node {
 			throw new RepositoryException(e);
 		}
 
+		try {
+			content.remove(token, getPath(), revisionDescriptor);
+		} catch (ObjectNotFoundException e) {
+			// TODO Auto-generated catch block
+			if(LOGLEVEL==LOGLEVEL_DEBUG){
+				e.printStackTrace();
+			}
+		} catch (org.apache.slide.security.AccessDeniedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (LinkedObjectNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (RevisionDescriptorNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ObjectLockedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ServiceAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (VetoException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	public void save() throws AccessDeniedException, ItemExistsException,
@@ -849,15 +903,32 @@ public class SlideNode implements Node {
 			NoSuchNodeTypeException, RepositoryException {
 		
 		//if(this.isNew()){
-			// Important to create NodeRevisionDescriptors separately to be
-			// able to tell it to use versioning
+			
 			try {
 					String path = getPath();
-					if (lastRevision.toString().equals("1.0")) {
-							content.create(token, path, true);	
-					}
+					// Important to create NodeRevisionDescriptors separately to be
+					// able to tell it to use versioning
+					//if(lastRevision!=null){
+						if(isNew()){
+							if (lastRevision.toString().equals("1.0")) {
+									content.create(token, path, true);	
+							}
+						}
+					//}
 					if(isContentNode()){
-						content.create(token, path, revisionDescriptor, getRevisionContent());
+						//if(!isNew()){
+						//	incrementRevisionNumber();
+						//}
+						//NodeRevisionContent content = getRevisionContent();
+						NodeRevisionContent cnt = getRevisionContent();
+						if(isNew()){
+							content.create(token, path, revisionDescriptor, cnt);
+						}
+						else{
+							incrementRevisionNumber();
+							content.create(token, path, revisionDescriptor, cnt);
+							//content.store(token, path, revisionDescriptor, cnt);
+						}
 					}
 					else{
 						content.create(token, path, revisionDescriptor, null);
@@ -920,6 +991,9 @@ public class SlideNode implements Node {
 			if(myType.getName().equals(PRIMARY_NODETYPE_FOLDER)){
 				return false;
 			}
+			else if(myType.getName().equals(PRIMARY_NODETYPE_UNSTRUCTURED)){
+				return false;
+			}
 		}
 		return true;
 	}
@@ -966,7 +1040,9 @@ public class SlideNode implements Node {
 	}
 
 	public void incrementRevisionNumber() {
-
+		//String strUri = getPath();
+		//Uri objectUri = this.getSlideSession().getSlideRepository().getNamespace().getUri(token, strUri);
+		
 			lastRevision = new NodeRevisionNumber(lastRevision, false);
 			// Node revision descriptor
 			IWTimestamp now = IWTimestamp.RightNow();
@@ -981,7 +1057,6 @@ public class SlideNode implements Node {
 			}
 			newRevisionDescriptor.setResourceType(revisionDescriptor.getResourceType());
 			revisionDescriptor=newRevisionDescriptor;
-			
 	}
 
 	public SlideSession getSlideSession() {
@@ -992,4 +1067,13 @@ public class SlideNode implements Node {
 		this.slideSession = slideSession;
 	}
 
+	public String toString(){
+		try {
+			return "SlideNode: "+getPath()+" "+getPrimaryNodeType().getName();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return super.toString();
+	}
 }

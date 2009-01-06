@@ -1,5 +1,5 @@
 /*
- * $Id: WebdavExtendedServlet.java,v 1.6 2008/03/31 15:55:03 anton Exp $
+ * $Id: WebdavExtendedServlet.java,v 1.7 2009/01/06 15:17:20 tryggvil Exp $
  * Created on 31.5.2006 in project com.idega.slide
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -18,16 +18,17 @@ import com.idega.idegaweb.IWMainApplication;
 import com.idega.servlet.ServletConfigWrapper;
 import com.idega.servlet.ServletWrapper;
 import com.idega.servlet.filter.IWBundleResourceFilter;
+import com.idega.util.expression.ELUtil;
 
 
 /**
  * <p>
  * TODO tryggvil Describe Type WebavExtendedServlet
  * </p>
- *  Last modified: $Date: 2008/03/31 15:55:03 $ by $Author: anton $
+ *  Last modified: $Date: 2009/01/06 15:17:20 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 public class WebdavExtendedServlet extends ServletWrapper {
 	
@@ -35,9 +36,7 @@ public class WebdavExtendedServlet extends ServletWrapper {
 	 * Comment for <code>serialVersionUID</code>
 	 */
 	private static final long serialVersionUID = 8066220379268246523L;
-	public static final String SLIDE_STORE_TYPE = "slide.store.type";
-	public static final String TYPE_TXFILE = "txfile";
-	public static final String TYPE_RDBMS = "rdbms";
+
 	
 	
 	protected void initializeServletWrapper(ServletConfig config) {
@@ -60,72 +59,22 @@ public class WebdavExtendedServlet extends ServletWrapper {
 		String domainparam = newConfig.getInitParameter("domain");
 		if(domainparam==null||domainparam.equals("autodetect")){
 
-			domainparam = getDomainPath(newConfig);
-			newConfig.setInitParameter("domain", domainparam);
+			//domainparam = getDomainPath(newConfig);
+			/*
+			DomainConfig domainConfig = new DomainConfig(newConfig);
+			String domainConfigPath = domainConfig.getConfigPath();
+			domainparam=domainConfigPath;
+			//newConfig.setInitParameter("domain", domainparam);
 			
-			//Temporary workaround to copy config file to webapp
-
-			IWBundleResourceFilter.copyResourceFromJarToWebapp(iwma, domainparam);			
+			*/
+			DomainConfig domainConfig = ELUtil.getInstance().getBean(DomainConfig.SPRING_BEAN_IDENTIFIER);
+			domainConfig.setServletConfig(newConfig);
+			domainConfig.initialize();
+			
 			setDefaultConfig(newConfig);
 		}
 		//setServletConfig(newConfig);*/
 		super.init(newConfig);
-	}
-
-	/**
-	 * <p>
-	 * Gets the path to the Domain.xml file that is used to initialize Slide
-	 * </p>
-	 * @return
-	 */
-	protected String getDomainPath(ServletConfig config) {
-		String domainparam;
-		String domainTxPath = "/idegaweb/bundles/org.apache.slide.bundle/properties/Domain-FileStore.xml";
-		String domainRdbmsPath = "/idegaweb/bundles/org.apache.slide.bundle/properties/Domain.xml";
-		IWMainApplication iwma = IWMainApplication.getIWMainApplication(config.getServletContext());
-		domainparam=domainTxPath;
-		try {
-			//First check if a written application property is set:
-			String prop = iwma.getSettings().getProperty(SLIDE_STORE_TYPE);
-			if(prop!=null){
-				if(prop.equals(TYPE_TXFILE)){
-					domainparam=domainTxPath;
-				}
-				else if(prop.equals(TYPE_RDBMS)){
-					domainparam=domainRdbmsPath;
-				}
-			}
-			else{
-				domainparam=domainTxPath;
-			}
-			
-			//Register the usage for future reference
-			if(domainparam.equals(domainTxPath)){
-				iwma.getSettings().setProperty(SLIDE_STORE_TYPE, TYPE_TXFILE);
-			}
-			else if(domainparam.equals(domainRdbmsPath)){
-				iwma.getSettings().setProperty(SLIDE_STORE_TYPE, TYPE_RDBMS);
-			}
-			
-
-			//THE DEFAULT WILL NOW BE TXFILE!!
-			//Eiki
-			//Secondly check the database if it supports slide:
-//		    Connection conn = ConnectionBroker.getConnection();
-//		    String datastoreType = SQLSchemaAdapter.detectDataStoreType(conn);
-//		    ConnectionBroker.freeConnection(conn);
-//		    SQLSchemaAdapter adapter = SQLSchemaAdapter.getInstance(datastoreType);
-//		    if(adapter.getSupportsSlide()){
-//		    	domainparam=domainRdbmsPath;
-//		    }
-		    
-		    
-		    
-		} catch (Exception e) {
-		    e.printStackTrace();
-		}
-	
-		return domainparam;
 	}
 
 

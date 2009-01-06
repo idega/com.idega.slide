@@ -5,6 +5,11 @@
  http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
 	version="2.4">
 
+	<env-entry>
+	    <env-entry-name>properties/slide.basepath</env-entry-name>
+	    <env-entry-type>java.lang.String</env-entry-type>
+	</env-entry>
+
 	<!-- The IWSlideAuthenticator Filter -->
 	<filter>
 		<filter-name>IWSlideAuthenticator</filter-name>
