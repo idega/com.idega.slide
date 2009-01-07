@@ -1,5 +1,5 @@
 /*
- * $Id: WebdavExtendedServlet.java,v 1.7 2009/01/06 15:17:20 tryggvil Exp $
+ * $Id: WebdavExtendedServlet.java,v 1.8 2009/01/07 11:41:27 tryggvil Exp $
  * Created on 31.5.2006 in project com.idega.slide
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -25,10 +25,10 @@ import com.idega.util.expression.ELUtil;
  * <p>
  * TODO tryggvil Describe Type WebavExtendedServlet
  * </p>
- *  Last modified: $Date: 2009/01/06 15:17:20 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2009/01/07 11:41:27 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public class WebdavExtendedServlet extends ServletWrapper {
 	
@@ -53,12 +53,14 @@ public class WebdavExtendedServlet extends ServletWrapper {
 	 */
 	public void init(ServletConfig config) throws ServletException {
 		
-		ServletConfigWrapper newConfig = new ServletConfigWrapper(config);
 		IWMainApplication iwma = IWMainApplication.getIWMainApplication(config.getServletContext());
+		ServletConfig newConfig=config;
 		
-		String domainparam = newConfig.getInitParameter("domain");
+		String domainparam = config.getInitParameter("domain");
 		if(domainparam==null||domainparam.equals("autodetect")){
 
+			ServletConfigWrapper wrapperConfig = new ServletConfigWrapper(config.getServletContext(),config.getServletName());
+			
 			//domainparam = getDomainPath(newConfig);
 			/*
 			DomainConfig domainConfig = new DomainConfig(newConfig);
@@ -71,7 +73,14 @@ public class WebdavExtendedServlet extends ServletWrapper {
 			domainConfig.setServletConfig(newConfig);
 			domainConfig.initialize();
 			
-			setDefaultConfig(newConfig);
+			setDefaultConfig(wrapperConfig);
+			newConfig=wrapperConfig;
+		}
+		else{
+
+			ServletConfigWrapper wrapperConfig = new ServletConfigWrapper(config);
+			setDefaultConfig(wrapperConfig);
+			newConfig=wrapperConfig;
 		}
 		//setServletConfig(newConfig);*/
 		super.init(newConfig);

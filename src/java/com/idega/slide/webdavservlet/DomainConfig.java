@@ -1,5 +1,5 @@
 /**
- * $Id: DomainConfig.java,v 1.1 2009/01/06 15:17:21 tryggvil Exp $
+ * $Id: DomainConfig.java,v 1.2 2009/01/07 11:41:27 tryggvil Exp $
  * Created in 2009 by tryggvil
  *
  * Copyright (C) 2000-2009 Idega Software hf. All Rights Reserved.
@@ -55,10 +55,10 @@ import com.idega.servlet.filter.IWBundleResourceFilter;
  * e.g. manages what Domain xml config file is read to initialize Slide.
  * </p>
  * 
- * Last modified: $Date: 2009/01/06 15:17:21 $ by $Author: tryggvil $
+ * Last modified: $Date: 2009/01/07 11:41:27 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:tryggvil@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 @Scope("singleton")
 @Service(DomainConfig.SPRING_BEAN_IDENTIFIER)
@@ -233,7 +233,8 @@ public class DomainConfig {
 			return path;
 		} catch (NamingException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
+			System.err.println("Error looking up from JNDI: "+e.getMessage());
 		}
 		return null;
 	}
