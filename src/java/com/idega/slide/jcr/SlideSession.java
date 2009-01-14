@@ -43,10 +43,10 @@ import org.xml.sax.SAXException;
  * <p>
  * Main implementation of the JCR Session object to Slide
  * </p>
- *  Last modified: $Date: 2009/01/06 15:17:20 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2009/01/14 13:56:12 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class SlideSession implements Session {
 
@@ -68,6 +68,10 @@ public class SlideSession implements Session {
 		this.slideRepository=slideRepository;
 		this.credentials=credentials;
 		this.workspaceName=workspaceName;
+		beginTransaction();
+	}
+
+	private void beginTransaction() {
 		try {
 			this.slideRepository.getNamespace().begin();
 		} catch (NotSupportedException e) {
