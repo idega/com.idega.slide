@@ -1,4 +1,4 @@
-    <document>
+    <document xmlns="http://maven.apache.org/changes/1.0.0">
   <properties>
     <title>Slide changes</title>
     <author email='tryggvi@idega.com'>Tryggvi Larusson</author>
@@ -17,7 +17,8 @@
 	<release date='2007-10-13' version='3.1.9'>
       		<action type='update' dev='tryggvil'>
       			Updated handling of authentication to let Slide be able to run on a separate server and authenticate correctly.
-      			<br/>This was done for the golf application.
+      			
+This was done for the golf application.
       		</action>
 	</release>
   
