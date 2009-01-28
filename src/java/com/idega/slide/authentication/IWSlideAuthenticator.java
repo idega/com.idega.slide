@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideAuthenticator.java,v 1.28 2008/07/02 19:28:57 civilis Exp $
+ * $Id: IWSlideAuthenticator.java,v 1.29 2009/01/28 16:05:38 eiki Exp $
  * Created on 8.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -47,10 +47,10 @@ import com.idega.util.expression.ELUtil;
  * This filter is mapped before any request to the Slide WebdavServlet to make sure
  * a logged in user from idegaWeb is logged also into the Slide authentication system.
  * </p>
- *  Last modified: $Date: 2008/07/02 19:28:57 $ by $Author: civilis $
+ *  Last modified: $Date: 2009/01/28 16:05:38 $ by $Author: eiki $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.28 $
+ * @version $Revision: 1.29 $
  */
 public class IWSlideAuthenticator extends BaseFilter{
 
@@ -260,7 +260,7 @@ public class IWSlideAuthenticator extends BaseFilter{
 	private void updateRolesForUser(HttpServletRequest request, LoggedOnInfo lInfo) throws HttpException, RemoteException, IOException {
 		boolean doUpdateRoles = true;
 		IWMainApplication iwma = getIWMainApplication(request);
-		String prop = iwma.getSettings().getProperty(PROPERTY_UPDATE_ROLES);
+		String prop = iwma.getSettings().getProperty(PROPERTY_UPDATE_ROLES,"true");
 		if(prop!=null){
 			doUpdateRoles=Boolean.valueOf(prop).booleanValue();
 		}
