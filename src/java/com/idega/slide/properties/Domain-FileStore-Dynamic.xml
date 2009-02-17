@@ -10,7 +10,7 @@
 			    <parameter name="lock-cache-size">10000</parameter>
 			    <parameter name="descriptors-cache-size">10000</parameter>
 			    <parameter name="descriptor-cache-size">10000</parameter>
-			    <!--  timeout the cache every 60 minutes, MUST BE HERE BECAUSE OF LEAKS-->
+			    <!--  timeout the cache every 60 minutes, MUST BE HERE BECAUSE OF SUSPECTED LEAKS-->
 			    <parameter name="cache-timeout">3600</parameter>
 			    <parameter name="enable-content-caching">true</parameter>
 			    <parameter name="content-cache-size">10000</parameter>
