@@ -3,11 +3,25 @@
 	<namespace name="slide">
 		<definition>
             <store name="tx">
-            		<!--Enable content cache and up the cache size from the default (in bytes) -->
-				<parameter name="enable-content-caching">true</parameter>
-           		<parameter name="max-content-bytes-per-entry">300000</parameter>
-           		<parameter name="tx-content-cache-bytes">10000000</parameter>
-           		<parameter name="content-cache-bytes">30000000</parameter>      
+            	<!--Caching, DISABLED content cache and up the cache size from the default (in bytes) -->
+            	<!--not sure what this does parameter name="cache-mode">full</parameter -->
+			    <parameter name="object-cache-size">10000</parameter>
+			    <parameter name="permission-cache-size">10000</parameter>
+			    <parameter name="lock-cache-size">10000</parameter>
+			    <parameter name="descriptors-cache-size">10000</parameter>
+			    <parameter name="descriptor-cache-size">10000</parameter>
+			    <!--  timeout the cache every 60 minutes -->
+			    <parameter name="cache-timeout">3600</parameter>
+			    <!--  Disabled, was growing way beyond allowed, must be a bug -->
+			    <parameter name="enable-content-caching">false</parameter>
+			    <parameter name="content-cache-size">10000</parameter>
+			    <!-- 1 MB content cache per transaction -->
+			    <parameter name="tx-content-cache-size">1000</parameter>
+			    <parameter name="content-cache-bytes">10000000</parameter>
+			    <!-- 10 MB global content cache-->
+			    <parameter name="tx-content-cache-bytes">1000000</parameter>
+			    <parameter name="max-content-bytes-per-entry">500000</parameter>
+			    <!-- 500 KB maximum size per cache entry -->    
            	            
                 <parameter name="tlock-timeout">120</parameter>
                 <nodestore classname="org.apache.slide.store.txfile.TxXMLFileDescriptorsStore">
