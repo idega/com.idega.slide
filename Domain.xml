@@ -4,13 +4,14 @@
 		<definition>
             <store name="tx">
             	<!--Caching, DISABLED content cache and up the cache size from the default (in bytes) -->
-            	<parameter name="cache-mode">full</parameter>
+            	<!--not sure what this does parameter name="cache-mode">full</parameter -->
 			    <parameter name="object-cache-size">10000</parameter>
 			    <parameter name="permission-cache-size">10000</parameter>
-			    <parameter name="lock-cache-size">100</parameter>
+			    <parameter name="lock-cache-size">10000</parameter>
 			    <parameter name="descriptors-cache-size">10000</parameter>
 			    <parameter name="descriptor-cache-size">10000</parameter>
-			    
+			    <!--  timeout the cache every 60 minutes -->
+			    <parameter name="cache-timeout">3600</parameter>
 			    <!--  Disabled, was growing way beyond allowed, must be a bug -->
 			    <parameter name="enable-content-caching">false</parameter>
 			    <parameter name="content-cache-size">10000</parameter>
