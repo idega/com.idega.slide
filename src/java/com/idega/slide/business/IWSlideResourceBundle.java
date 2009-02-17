@@ -78,22 +78,16 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 		setBundleIdentifier(bundleIdentifier);
 		
 		InputStream slideSourceStream = null;
-		try {
-			slideSourceStream = getResourceInputStream(getLocalizableFilePath());
-		} catch(Exception e) {
-			e.printStackTrace();
-			return;
-		}
-		if (slideSourceStream == null) {
-			return;
-		}
+
+		slideSourceStream = getResourceInputStream(getLocalizableFilePath());
 		
 		Properties localizationProps = new Properties();
-		localizationProps.load(slideSourceStream);
-
-		setLookup(new TreeMap(localizationProps));
-
+		if (slideSourceStream != null) {
+			localizationProps.load(slideSourceStream);
+		}
 		
+		setLookup(new TreeMap(localizationProps));
+			
 //		IWContext iwc = CoreUtil.getIWContext();
 		
 //TODO create system properties
