@@ -82,6 +82,7 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 			slideSourceStream = getResourceInputStream(getLocalizableFilePath());
 		} catch(Exception e) {
 			e.printStackTrace();
+			return;
 		}
 		if (slideSourceStream == null) {
 			return;
@@ -91,6 +92,7 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 		localizationProps.load(slideSourceStream);
 
 		setLookup(new TreeMap(localizationProps));
+
 		
 //		IWContext iwc = CoreUtil.getIWContext();
 		
