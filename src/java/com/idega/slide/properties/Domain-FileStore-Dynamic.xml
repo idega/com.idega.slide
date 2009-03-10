@@ -5,13 +5,14 @@
             <store name="tx">
             	<!-- Caching -->
             	<parameter name="cache-mode">full</parameter>
-			    <parameter name="object-cache-size">10000</parameter>
+            	<!--  Cannot turn off the object cache because of errors, almost same effect of having this very little-->
+			    <parameter name="object-cache-size">100</parameter>
 			    <parameter name="permission-cache-size">10000</parameter>
 			    <parameter name="lock-cache-size">10000</parameter>
 			    <parameter name="descriptors-cache-size">10000</parameter>
 			    <parameter name="descriptor-cache-size">10000</parameter>
-			    <!--  timeout the cache every 60 minutes, MUST BE HERE BECAUSE OF SUSPECTED LEAKS-->
-			    <parameter name="cache-timeout">3600</parameter>
+			    <!--  timeout the cache every 30 minutes, MUST BE HERE BECAUSE OF SUSPECTED LEAKS-->
+			    <parameter name="cache-timeout">1800</parameter>
 			    <parameter name="enable-content-caching">true</parameter>
 			    <parameter name="content-cache-size">10000</parameter>
 			    <!-- 1 Mb content cache per transaction -->
