@@ -101,8 +101,9 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 			return service.getInputStream(resourcePath);
 			
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			logger.log(Level.WARNING, "Error getting InputStream for: " + resourcePath, e);
 		}
+		return null;
 	}
 	
 	@Override
