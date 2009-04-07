@@ -1,26 +1,24 @@
 package com.idega.slide.business;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.rmi.RemoteException;
-
-import javax.servlet.http.HttpSessionBindingEvent;
-
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpURL;
-import org.apache.commons.httpclient.URIException;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.webdav.lib.Privilege;
-
-import com.idega.business.IBOService;
-import com.idega.slide.util.AccessControlList;
 import com.idega.slide.util.WebdavExtendedResource;
+import javax.servlet.http.HttpSessionBindingEvent;
+import com.idega.slide.util.AccessControlList;
+import com.idega.business.IBOSession;
+import java.rmi.RemoteException;
+import org.apache.commons.httpclient.URIException;
 import com.idega.slide.util.WebdavRootResource;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.HttpException;
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.File;
+import org.apache.commons.httpclient.HttpURL;
 
-public interface IWSlideSession extends IBOService {
+public interface IWSlideSession extends IBOSession {
+
 	/**
 	 * @see com.idega.slide.business.IWSlideSessionBean#valueBound
 	 */
@@ -62,6 +60,11 @@ public interface IWSlideSession extends IBOService {
 	public WebdavExtendedResource getWebdavResource(String path) throws HttpException, IOException, RemoteException, RemoteException;
 
 	/**
+	 * @see com.idega.slide.business.IWSlideSessionBean#getWebdavResource
+	 */
+	public WebdavExtendedResource getWebdavResource(String path, boolean useRootCredentials) throws HttpException, IOException, RemoteException, RemoteException;
+
+	/**
 	 * @see com.idega.slide.business.IWSlideSessionBean#getURL
 	 */
 	public HttpURL getURL(String path) throws RemoteException;
@@ -75,6 +78,11 @@ public interface IWSlideSession extends IBOService {
 	 * @see com.idega.slide.business.IWSlideSessionBean#getInputStream
 	 */
 	public InputStream getInputStream(String path) throws IOException, RemoteException;
+
+	/**
+	 * @see com.idega.slide.business.IWSlideSessionBean#getInputStream
+	 */
+	public InputStream getInputStream(String path, boolean useRootCredentials) throws IOException, RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideSessionBean#getOutputStream

@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideSessionBean.java,v 1.39 2009/01/12 14:42:34 valdas Exp $
+ * $Id: IWSlideSessionBean.java,v 1.40 2009/04/07 12:15:58 laddi Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -49,10 +49,10 @@ import com.idega.util.StringUtil;
 
 /**
  * 
- *  Last modified: $Date: 2009/01/12 14:42:34 $ by $Author: valdas $
+ *  Last modified: $Date: 2009/04/07 12:15:58 $ by $Author: laddi $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.39 $
+ * @version $Revision: 1.40 $
  */
 public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession { //, HttpSessionBindingListener {
 
@@ -199,13 +199,16 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		return this.webdavRootResource;
 	}
 
-
 	public WebdavExtendedResource getWebdavResource(String path) throws HttpException, IOException, RemoteException {
+		return getWebdavResource(path, false);
+	}
+	
+	public WebdavExtendedResource getWebdavResource(String path, boolean useRootCredentials) throws HttpException, IOException, RemoteException {
 		WebdavExtendedResource resource;
 //		if(getUserContext().isLoggedOn()){
 			//resource = new WebdavExtendedResource(getIWSlideService().getWebdavServerURL(getUserCredentials(),getPath(path)));
 			IWSlideService service = getIWSlideService();
-			resource = service.getWebdavExtendedResource(path,getUserCredentials());
+			resource = service.getWebdavExtendedResource(path, useRootCredentials ? service.getRootUserCredentials() : getUserCredentials());
 //		} else {
 //			resource = new WebdavExtendedResource(getIWSlideService().getWebdavServerURL(path));
 //		}
@@ -248,7 +251,12 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 		WebdavResource resource = getWebdavResource(path);
 		return resource.getMethodData();
 	}
-
+	
+	public InputStream getInputStream(String path, boolean useRootCredentials) throws IOException{
+		WebdavResource resource = getWebdavResource(path, useRootCredentials);
+		return resource.getMethodData();
+	}
+	
 	public OutputStream getOutputStream(File file)throws IOException{
 		return getOutputStream(file.getAbsolutePath());
 	}
