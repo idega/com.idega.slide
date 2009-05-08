@@ -42,9 +42,9 @@ import com.idega.util.StringUtil;
 * Simple API of Slide implementation. It improves performance without breaking business logic.
 * 
 * @author <a href="mailto:valdas@idega.com">Valdas Žemaitis</a>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 *
-* Last modified: $Date: 2009/05/08 08:08:46 $ by: $Author: valdas $
+* Last modified: $Date: 2009/05/08 08:10:02 $ by: $Author: valdas $
 */
 
 @Service
@@ -59,9 +59,9 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 	private Content content;
 	private Security security;
 	
-	private AuthenticationBusiness authenticationBusiness = null;
+	private AuthenticationBusiness authenticationBusiness;
 	
-	private boolean initialized = false;
+	private boolean initialized;
 	
 	private synchronized void initializeSimpleSlideServiceBean() {
 		if (initialized) {
