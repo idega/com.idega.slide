@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.67 2009/01/05 10:28:27 anton Exp $
+ * $Id: IWSlideServiceBean.java,v 1.68 2009/05/08 08:08:46 valdas Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -44,12 +44,12 @@ import org.apache.webdav.lib.WebdavResource;
 import org.apache.webdav.lib.WebdavResources;
 import org.apache.webdav.lib.properties.AclProperty;
 import org.apache.webdav.lib.util.WebdavStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBORuntimeException;
 import com.idega.business.IBOServiceBean;
 import com.idega.io.ZipInstaller;
-import com.idega.slide.SlideConstants;
 import com.idega.slide.authentication.AuthenticationBusiness;
 import com.idega.slide.schema.SlideSchemaCreator;
 import com.idega.slide.util.AccessControlEntry;
@@ -69,11 +69,11 @@ import com.idega.util.expression.ELUtil;
  * store.
  * </p>
  * 
- * Last modified: $Date: 2009/01/05 10:28:27 $ by $Author: anton $
+ * Last modified: $Date: 2009/05/08 08:08:46 $ by $Author: valdas $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a
  *         href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.67 $
+ * @version $Revision: 1.68 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements
 		IWSlideService, IWSlideChangeListener {
@@ -119,6 +119,9 @@ public class IWSlideServiceBean extends IBOServiceBean implements
 
 	private static final Log log = LogFactory.getLog(IWSlideServiceBean.class);
 
+	@Autowired
+	private IWSimpleSlideService simpleSlideService;
+	
 	public IWSlideServiceBean() {
 		super();
 	}
@@ -962,18 +965,19 @@ public class IWSlideServiceBean extends IBOServiceBean implements
 				true);
 	}
 
-	private boolean uploadFile(String uploadPath, String fileName,
-			String contentType, InputStream fileInputStream, boolean closeStream) {
+	private boolean uploadFile(String uploadPath, String fileName, String contentType, InputStream fileInputStream, boolean closeStream) {
 		uploadPath = createFoldersAndPreparedUploadPath(uploadPath, true);
 		if (uploadPath == null) {
 			return false;
 		}
 
-		IWSimpleSlideServiceBean simpleService = ELUtil.getInstance().getBean(
-				SlideConstants.SIMPLE_SLIDE_SERVICE);
+		IWSimpleSlideService simpleSlideService = getSimpleSlideService();
+		if (simpleSlideService == null) {
+			return false;
+		}
+		
 		try {
-			return simpleService.upload(fileInputStream, uploadPath, fileName,
-					contentType, null, closeStream);
+			return simpleSlideService.upload(fileInputStream, uploadPath, fileName, contentType, null, closeStream);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1492,11 +1496,10 @@ public class IWSlideServiceBean extends IBOServiceBean implements
 	 * @throws
 	 */
 	public InputStream getInputStream(String path) throws IOException {
-		IWSimpleSlideServiceBean slideAPI = ELUtil.getInstance().getBean(
-				SlideConstants.SIMPLE_SLIDE_SERVICE);
+		IWSimpleSlideService simpleSlideService = getSimpleSlideService();
 		InputStream stream = null;
-		if (slideAPI != null) {
-			stream = slideAPI.getInputStream(path);
+		if (simpleSlideService != null) {
+			stream = simpleSlideService.getInputStream(path);
 		}
 
 		if (stream == null) {
@@ -1505,6 +1508,13 @@ public class IWSlideServiceBean extends IBOServiceBean implements
 		}
 
 		return stream;
+	}
+	
+	private IWSimpleSlideService getSimpleSlideService() {
+		if (simpleSlideService == null) {
+			ELUtil.getInstance().autowire(this);
+		}
+		return simpleSlideService;
 	}
 
 	public OutputStream getOutputStream(File file) throws IOException {

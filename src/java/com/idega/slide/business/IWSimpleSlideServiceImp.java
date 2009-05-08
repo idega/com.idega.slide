@@ -24,13 +24,13 @@ import org.apache.slide.security.Security;
 import org.apache.slide.structure.ObjectNotFoundException;
 import org.apache.slide.structure.Structure;
 import org.apache.slide.structure.SubjectNode;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import com.idega.business.IBOLookup;
 import com.idega.business.IBOLookupException;
 import com.idega.idegaweb.IWMainApplication;
-import com.idega.slide.SlideConstants;
 import com.idega.slide.authentication.AuthenticationBusiness;
 import com.idega.user.data.User;
 import com.idega.util.CoreConstants;
@@ -39,17 +39,20 @@ import com.idega.util.IWTimestamp;
 import com.idega.util.StringUtil;
 
 /**
- * Simple API of Slide implementation
- * @author valdas
- *
- */
+* Simple API of Slide implementation. It improves performance without breaking business logic.
+* 
+* @author <a href="mailto:valdas@idega.com">Valdas Žemaitis</a>
+* @version $Revision: 1.1 $
+*
+* Last modified: $Date: 2009/05/08 08:08:46 $ by: $Author: valdas $
+*/
 
-@Service(SlideConstants.SIMPLE_SLIDE_SERVICE)
-@Scope("singleton")
-public class IWSimpleSlideServiceBean {
+@Service
+@Scope(BeanDefinition.SCOPE_SINGLETON)
+public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 
 	private static final long serialVersionUID = 8065146986117553218L;
-	private static final Logger LOGGER = Logger.getLogger(IWSimpleSlideServiceBean.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(IWSimpleSlideServiceImp.class.getName());
 	
 	private NamespaceAccessToken namespace;
 	private Structure structure;
@@ -73,7 +76,7 @@ public class IWSimpleSlideServiceBean {
 			security = namespace.getSecurityHelper();
 		} catch(Exception e) {
 			initialized = false;
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, "Error while initializing Simple Slide API", e);
 		}
 	}
 	
@@ -83,7 +86,7 @@ public class IWSimpleSlideServiceBean {
 				authenticationBusiness = (AuthenticationBusiness) IBOLookup.getServiceInstance(IWMainApplication.getDefaultIWApplicationContext(),
 																																AuthenticationBusiness.class);
 			} catch (IBOLookupException e) {
-				e.printStackTrace();
+				LOGGER.log(Level.WARNING, "Error getting EJB bean:" + AuthenticationBusiness.class, e);
 			}
 		}
 		return authenticationBusiness;
@@ -96,7 +99,7 @@ public class IWSimpleSlideServiceBean {
 			AuthenticationBusiness ab = getAuthenticationBusiness();
 			userPrincipals = ab.getRootUserCredentials().getUserName();
 		} catch(Exception e) {
-			e.printStackTrace();
+			LOGGER.log(Level.WARNING, "Error getting user's principals", e);
 		}
 		
 		SlideToken token = new SlideTokenImpl(new CredentialsToken(userPrincipals));
@@ -147,7 +150,8 @@ public class IWSimpleSlideServiceBean {
 			
 			//	Node revision descriptor
 			IWTimestamp now = IWTimestamp.RightNow();
-			NodeRevisionDescriptor revisionDescriptor = new NodeRevisionDescriptor(lastRevision, NodeRevisionDescriptors.MAIN_BRANCH, new Vector(), new Hashtable());
+			NodeRevisionDescriptor revisionDescriptor = new NodeRevisionDescriptor(lastRevision, NodeRevisionDescriptors.MAIN_BRANCH, new Vector(),
+					new Hashtable());
 			revisionDescriptor.setResourceType(CoreConstants.EMPTY);
 			revisionDescriptor.setSource(CoreConstants.EMPTY);
 			revisionDescriptor.setContentLanguage(Locale.ENGLISH.getLanguage());
@@ -179,7 +183,7 @@ public class IWSimpleSlideServiceBean {
 			content.create(token, uploadPath, revisionDescriptor, revisionContent);
 			return true;
 		} catch(Exception e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, "Error while uploading!", e);
 		}
 		finally {
 			if (closeStream) {
@@ -191,7 +195,7 @@ public class IWSimpleSlideServiceBean {
 		return false;
 	}
 	
-	protected boolean upload(InputStream stream, String uploadPath, String fileName, String contentType, User user, boolean closeStream) throws Exception {
+	public boolean upload(InputStream stream, String uploadPath, String fileName, String contentType, User user, boolean closeStream) throws Exception {
 		if (stream == null || uploadPath == null || fileName == null) {
 			return false;
 		}
@@ -214,11 +218,11 @@ public class IWSimpleSlideServiceBean {
 		return uploadingResult;
 	}
 	
-	protected boolean upload(InputStream stream, String uploadPath, String fileName, String contentType, User user) throws Exception {
+	public boolean upload(InputStream stream, String uploadPath, String fileName, String contentType, User user) throws Exception {
 		return upload(stream, uploadPath, fileName, contentType, user, true);
 	}
 
-	protected InputStream getInputStream(String pathToFile) {
+	public InputStream getInputStream(String pathToFile) {
 		if (StringUtil.isEmpty(pathToFile)) {
 			return null;
 		}
