@@ -1,5 +1,5 @@
 /*
- * $Id: AccessControlList.java,v 1.5 2006/04/09 11:44:15 laddi Exp $
+ * $Id: AccessControlList.java,v 1.6 2009/05/19 13:19:27 valdas Exp $
  * Created on 28.12.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -14,15 +14,17 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.logging.Logger;
+
 import org.apache.webdav.lib.Ace;
 
 
 /**
  * 
- *  Last modified: $Date: 2006/04/09 11:44:15 $ by $Author: laddi $
+ *  Last modified: $Date: 2009/05/19 13:19:27 $ by $Author: valdas $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public class AccessControlList {
 	
@@ -203,7 +205,7 @@ public class AccessControlList {
 			}
 		}
 		if(!containsPositiveRootACE){
-			System.err.println("[Warning]["+this.getClass().getName()+"]: list does not contain positive ace for root role.");
+			Logger.getLogger(this.getClass().getName()).warning("List " +this.aceList+ " does not contain positive ace for root role.");
 		}
 		//System.out.println("Size of aceList is "+aceList.size());
 		return (Ace[])l.toArray(new Ace[l.size()]);
