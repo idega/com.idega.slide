@@ -1,5 +1,5 @@
 /*
- * $Id: IWSlideServiceBean.java,v 1.68 2009/05/08 08:08:46 valdas Exp $
+ * $Id: IWSlideServiceBean.java,v 1.69 2009/05/20 14:18:49 valdas Exp $
  * Created on 23.10.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -59,6 +58,7 @@ import com.idega.slide.util.WebdavExtendedResource;
 import com.idega.slide.util.WebdavOutputStream;
 import com.idega.slide.util.WebdavRootResource;
 import com.idega.util.CoreConstants;
+import com.idega.util.IOUtil;
 import com.idega.util.IWTimestamp;
 import com.idega.util.StringHandler;
 import com.idega.util.expression.ELUtil;
@@ -69,11 +69,11 @@ import com.idega.util.expression.ELUtil;
  * store.
  * </p>
  * 
- * Last modified: $Date: 2009/05/08 08:08:46 $ by $Author: valdas $
+ * Last modified: $Date: 2009/05/20 14:18:49 $ by $Author: valdas $
  * 
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>,<a
  *         href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.68 $
+ * @version $Revision: 1.69 $
  */
 public class IWSlideServiceBean extends IBOServiceBean implements
 		IWSlideService, IWSlideChangeListener {
@@ -917,17 +917,17 @@ public class IWSlideServiceBean extends IBOServiceBean implements
 	 * as a utf8 encoded file of the contenttype/mimetype you specify
 	 * 
 	 */
-	public boolean uploadFileAndCreateFoldersFromStringAsRoot(
-			String parentPath, String fileName, String fileContentString,
-			String contentType, boolean deletePredecessor) {
-		ByteArrayInputStream utf8stream;
+	public boolean uploadFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName, String fileContentString, String contentType,
+			boolean deletePredecessor) {
+		
+		InputStream stream = null;
 		try {
-			utf8stream = new ByteArrayInputStream(fileContentString
-					.getBytes(CoreConstants.ENCODING_UTF8));
-			return uploadFileAndCreateFoldersFromStringAsRoot(parentPath,
-					fileName, utf8stream, contentType, deletePredecessor);
-		} catch (UnsupportedEncodingException e) {
+			stream = StringHandler.getStreamFromString(fileContentString);
+			return uploadFileAndCreateFoldersFromStringAsRoot(parentPath, fileName, stream, contentType, deletePredecessor);
+		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			IOUtil.closeInputStream(stream);
 		}
 		return false;
 	}
