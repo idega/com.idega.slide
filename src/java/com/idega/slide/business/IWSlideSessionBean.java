@@ -200,20 +200,21 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	}
 
 	public WebdavExtendedResource getWebdavResource(String path) throws HttpException, IOException, RemoteException {
-		return getWebdavResource(path, false);
+		return getWebdavResource(path, Boolean.FALSE);
+	}
+	
+	public WebdavExtendedResource getResource(String path, boolean localResource) throws HttpException, IOException, RemoteException, RemoteException {
+		return getWebdavResource(path, Boolean.FALSE, localResource);
 	}
 	
 	public WebdavExtendedResource getWebdavResource(String path, boolean useRootCredentials) throws HttpException, IOException, RemoteException {
-		WebdavExtendedResource resource;
-//		if(getUserContext().isLoggedOn()){
-			//resource = new WebdavExtendedResource(getIWSlideService().getWebdavServerURL(getUserCredentials(),getPath(path)));
-			IWSlideService service = getIWSlideService();
-			resource = service.getWebdavExtendedResource(path, useRootCredentials ? service.getRootUserCredentials() : getUserCredentials());
-//		} else {
-//			resource = new WebdavExtendedResource(getIWSlideService().getWebdavServerURL(path));
-//		}
-		
-		return resource;
+		return getWebdavResource(path, useRootCredentials, Boolean.TRUE);
+	}
+	
+	private WebdavExtendedResource getWebdavResource(String path, boolean useRootCredentials, boolean localResource) throws HttpException, IOException,
+		RemoteException {
+		IWSlideService service = getIWSlideService();
+		return service.getWebdavExtendedResource(path, useRootCredentials ? service.getRootUserCredentials() : getUserCredentials(), localResource);
 	}
 	
 	/**

@@ -22,4 +22,5 @@ public interface IWSimpleSlideService {
 	
 	public boolean upload(InputStream stream, String uploadPath, String fileName, String contentType, User user, boolean closeStream) throws Exception;
 	
+	public boolean setContent(String pathToFile, InputStream contentStream);
 }

@@ -40,6 +40,7 @@ import org.apache.tools.ant.filters.ReplaceTokens;
 import org.apache.tools.ant.filters.util.ChainReaderHelper;
 import org.apache.tools.ant.types.FilterChain;
 import org.apache.tools.ant.util.FileUtils;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -47,7 +48,6 @@ import com.idega.idegaweb.IWMainApplication;
 import com.idega.io.MemoryFileBuffer;
 import com.idega.io.MemoryInputStream;
 import com.idega.io.MemoryOutputStream;
-import com.idega.servlet.filter.IWBundleResourceFilter;
 
 /**
  * <p>
@@ -60,7 +60,7 @@ import com.idega.servlet.filter.IWBundleResourceFilter;
  * @author <a href="mailto:tryggvil@idega.com">Tryggvi Larusson</a>
  * @version $Revision: 1.2 $
  */
-@Scope("singleton")
+@Scope(BeanDefinition.SCOPE_SINGLETON)
 @Service(DomainConfig.SPRING_BEAN_IDENTIFIER)
 public class DomainConfig {
 	
@@ -243,38 +243,38 @@ public class DomainConfig {
 		return System.getProperty(SLIDE_BASEPATH_PROPERTY);
 	}
 	
-	public static void main(String[] args){
-		
-		DomainConfig config = new DomainConfig();
-		//config.domainConfigPath="C:\\Documents and Settings\\Tryggvi\\idega\\lucid\\org.apache.slide\\properties\\Domain-FileStore.xml";
-		config.domainConfigPath="/Users/tryggvil/Documents/idega/Development/slide/org.apache.slide/properties/Domain-FileStore-Dynamic.xml";
-		config.setBasePath("/Users/tryggvil/Documents/idega/Development/stores/pga-bin");
-		config.parseAndReplaceConfigFile();
-		
-	}
-	
-	private void createDomainFile(ServletConfig config) {
-		
-		//Temporary workaround to copy config file to webapp
-		if(config!=null){
-			IWMainApplication iwma = IWMainApplication.getIWMainApplication(config.getServletContext());
-			IWBundleResourceFilter.copyResourceFromJarToWebapp(iwma, this.domainConfigPath);
-		}
-		if(usingVariableBase) {
-			parseAndReplaceConfigFile();
-		}
-		
-	}
-
-	private void parseAndReplaceConfigFile() {
-        FilterChain filterChain = new FilterChain();
-        
-        // add all the token specified in the containers configuration into the filterchain
-        addTokensToFilterChain(filterChain, getProperties());
-
-        //configureFiles(filterChain);
-        copyFileAndReplace(this.domainConfigPath,this.domainConfigPath+"-parsed",filterChain);
-	}
+//	public static void main(String[] args){
+//		
+//		DomainConfig config = new DomainConfig();
+//		//config.domainConfigPath="C:\\Documents and Settings\\Tryggvi\\idega\\lucid\\org.apache.slide\\properties\\Domain-FileStore.xml";
+//		config.domainConfigPath="/Users/tryggvil/Documents/idega/Development/slide/org.apache.slide/properties/Domain-FileStore-Dynamic.xml";
+//		config.setBasePath("/Users/tryggvil/Documents/idega/Development/stores/pga-bin");
+//		config.parseAndReplaceConfigFile();
+//		
+//	}
+//	
+//	private void createDomainFile(ServletConfig config) {
+//		
+//		//Temporary workaround to copy config file to webapp
+//		if(config!=null){
+//			IWMainApplication iwma = IWMainApplication.getIWMainApplication(config.getServletContext());
+//			IWBundleResourceFilter.copyResourceFromJarToWebapp(iwma, this.domainConfigPath);
+//		}
+//		if(usingVariableBase) {
+//			parseAndReplaceConfigFile();
+//		}
+//		
+//	}
+//
+//	private void parseAndReplaceConfigFile() {
+//        FilterChain filterChain = new FilterChain();
+//        
+//        // add all the token specified in the containers configuration into the filterchain
+//        addTokensToFilterChain(filterChain, getProperties());
+//
+//        //configureFiles(filterChain);
+//        copyFileAndReplace(this.domainConfigPath,this.domainConfigPath+"-parsed",filterChain);
+//	}
 	
 	protected void parseAndReplaceConfigInputStream(InputStream input,Writer outConfigWriter) throws IOException{
         FilterChain filterChain = new FilterChain();

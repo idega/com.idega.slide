@@ -14,10 +14,8 @@ import javax.servlet.ServletException;
 
 import org.apache.slide.webdav.WebdavServlet;
 
-import com.idega.idegaweb.IWMainApplication;
 import com.idega.servlet.ServletConfigWrapper;
 import com.idega.servlet.ServletWrapper;
-import com.idega.servlet.filter.IWBundleResourceFilter;
 import com.idega.util.expression.ELUtil;
 
 
@@ -39,11 +37,13 @@ public class WebdavExtendedServlet extends ServletWrapper {
 
 	
 	
+	@Override
 	protected void initializeServletWrapper(ServletConfig config) {
 		setServlet(new WebdavServlet());
 	}
 	
 	
+	@Override
 	public void init() throws ServletException{
 		super.init();
 	}
@@ -51,24 +51,13 @@ public class WebdavExtendedServlet extends ServletWrapper {
 	/* (non-Javadoc)
 	 * @see com.idega.slide.webdavservlet.ServletWrapper#init(javax.servlet.ServletConfig)
 	 */
+	@Override
 	public void init(ServletConfig config) throws ServletException {
-		
-		IWMainApplication iwma = IWMainApplication.getIWMainApplication(config.getServletContext());
 		ServletConfig newConfig=config;
 		
 		String domainparam = config.getInitParameter("domain");
-		if(domainparam==null||domainparam.equals("autodetect")){
-
+		if (domainparam == null || domainparam.equals("autodetect")) {
 			ServletConfigWrapper wrapperConfig = new ServletConfigWrapper(config.getServletContext(),config.getServletName());
-			
-			//domainparam = getDomainPath(newConfig);
-			/*
-			DomainConfig domainConfig = new DomainConfig(newConfig);
-			String domainConfigPath = domainConfig.getConfigPath();
-			domainparam=domainConfigPath;
-			//newConfig.setInitParameter("domain", domainparam);
-			
-			*/
 			DomainConfig domainConfig = ELUtil.getInstance().getBean(DomainConfig.SPRING_BEAN_IDENTIFIER);
 			domainConfig.setServletConfig(newConfig);
 			domainConfig.initialize();
@@ -76,13 +65,11 @@ public class WebdavExtendedServlet extends ServletWrapper {
 			setDefaultConfig(wrapperConfig);
 			newConfig=wrapperConfig;
 		}
-		else{
-
+		else {
 			ServletConfigWrapper wrapperConfig = new ServletConfigWrapper(config);
 			setDefaultConfig(wrapperConfig);
 			newConfig=wrapperConfig;
 		}
-		//setServletConfig(newConfig);*/
 		super.init(newConfig);
 	}
 

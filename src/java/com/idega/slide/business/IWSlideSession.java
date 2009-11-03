@@ -58,7 +58,8 @@ public interface IWSlideSession extends IBOSession {
 	 * @see com.idega.slide.business.IWSlideSessionBean#getWebdavResource
 	 */
 	public WebdavExtendedResource getWebdavResource(String path) throws HttpException, IOException, RemoteException, RemoteException;
-
+	public WebdavExtendedResource getResource(String path, boolean localResource) throws HttpException, IOException, RemoteException, RemoteException;
+	
 	/**
 	 * @see com.idega.slide.business.IWSlideSessionBean#getWebdavResource
 	 */

@@ -101,6 +101,10 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 	public WebdavExtendedResource getWebdavExtendedResource(String path,
 			UsernamePasswordCredentials credentials) throws HttpException,
 			IOException, RemoteException, RemoteException;
+	
+	public WebdavExtendedResource getWebdavExtendedResource(String path,
+			UsernamePasswordCredentials credentials, boolean localResource) throws HttpException,
+			IOException, RemoteException, RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavResourceAuthenticatedAsRoot

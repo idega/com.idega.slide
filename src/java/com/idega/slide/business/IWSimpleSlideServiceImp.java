@@ -272,7 +272,7 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 		return revisionDescriptors == null ? Boolean.FALSE : Boolean.TRUE;
 	}
 	
-	public InputStream getInputStream(String pathToFile) {
+	private NodeRevisionContent getNodeContent(String pathToFile) {
 		NodeRevisionDescriptors revisionDescriptors = getNodeRevisionDescriptors(pathToFile);
 		if (revisionDescriptors == null || !revisionDescriptors.hasRevisions()) {
 			return null;
@@ -298,7 +298,7 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 		}
 		
 		try {
-			return content.retrieve(rootToken, revisionDescriptors, revisionDescriptor).streamContent();
+			return content.retrieve(rootToken, revisionDescriptors, revisionDescriptor);
 		} catch (Throwable e) {
 			LOGGER.log(Level.SEVERE, "Error getting InputStream for: " + pathToFile, e);
 		} finally {
@@ -306,6 +306,51 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 		}
 		
 		return null;
+	}
+	
+	public InputStream getInputStream(String pathToFile) {
+		NodeRevisionContent nodeContent = getNodeContent(pathToFile);
+		
+		if (nodeContent == null) {
+			return null;
+		}
+		
+		if (!startTransaction()) {
+			return null;
+		}
+		
+		try {
+			return nodeContent.streamContent();
+		} catch (Throwable e) {
+			LOGGER.log(Level.SEVERE, "Error getting InputStream for: " + pathToFile, e);
+		} finally {
+			finishTransaction();
+		}
+		
+		return null;
+	}
+	
+	public boolean setContent(String pathToFile, InputStream contentStream) {
+		NodeRevisionContent nodeContent = getNodeContent(pathToFile);
+		
+		if (nodeContent == null) {
+			return Boolean.FALSE;
+		}
+		
+		if (!startTransaction()) {
+			return Boolean.FALSE;
+		}
+		
+		try {
+			nodeContent.setContent(contentStream);
+			return Boolean.TRUE;
+		} catch (Throwable e) {
+			LOGGER.log(Level.SEVERE, "Error setting content InputStream for: " + pathToFile, e);
+		} finally {
+			finishTransaction();
+		}
+		
+		return Boolean.FALSE;
 	}
 	
 	private boolean startTransaction() {

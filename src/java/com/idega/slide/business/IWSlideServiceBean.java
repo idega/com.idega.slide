@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -26,13 +27,23 @@ import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.servlet.http.HttpSession;
+
+import org.apache.commons.httpclient.Cookie;
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.HostConfiguration;
+import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.HttpsURL;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.slide.common.Domain;
 import org.apache.slide.common.NamespaceAccessToken;
 import org.apache.slide.security.Security;
 import org.apache.slide.webdav.WebdavServlet;
@@ -41,6 +52,7 @@ import org.apache.webdav.lib.PropertyName;
 import org.apache.webdav.lib.WebdavFile;
 import org.apache.webdav.lib.WebdavResource;
 import org.apache.webdav.lib.WebdavResources;
+import org.apache.webdav.lib.WebdavState;
 import org.apache.webdav.lib.properties.AclProperty;
 import org.apache.webdav.lib.util.WebdavStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,14 +61,17 @@ import com.idega.business.IBOLookupException;
 import com.idega.business.IBORuntimeException;
 import com.idega.business.IBOServiceBean;
 import com.idega.io.ZipInstaller;
+import com.idega.servlet.filter.RequestProvider;
 import com.idega.slide.authentication.AuthenticationBusiness;
 import com.idega.slide.schema.SlideSchemaCreator;
 import com.idega.slide.util.AccessControlEntry;
 import com.idega.slide.util.AccessControlList;
 import com.idega.slide.util.IWSlideConstants;
 import com.idega.slide.util.WebdavExtendedResource;
+import com.idega.slide.util.WebdavLocalResource;
 import com.idega.slide.util.WebdavOutputStream;
 import com.idega.slide.util.WebdavRootResource;
+import com.idega.slide.webdavservlet.DomainConfig;
 import com.idega.util.CoreConstants;
 import com.idega.util.IOUtil;
 import com.idega.util.IWTimestamp;
@@ -140,8 +155,8 @@ public class IWSlideServiceBean extends IBOServiceBean implements
 	 */
 	public String getWebdavServerURI() {
 		String appContext = getIWMainApplication().getApplicationContextURI();
-		if (appContext.endsWith("/")) {
-			appContext = appContext.substring(0, appContext.lastIndexOf("/"));
+		if (appContext.endsWith(CoreConstants.SLASH)) {
+			appContext = appContext.substring(0, appContext.lastIndexOf(CoreConstants.SLASH));
 		}
 		return appContext + CoreConstants.WEBDAV_SERVLET_URI;
 	}
@@ -157,20 +172,19 @@ public class IWSlideServiceBean extends IBOServiceBean implements
 	 * @return
 	 */
 	public HttpURL getWebdavServerURL(String path) {
-		return getWebdavServerURL(null, path, getWebdavServerURI());
+		return getWebdavServerURL(null, path);
 	}
 
 	public HttpURL getWebdavServerURL() {
-		return getWebdavServerURL(null, null, getWebdavServerURI());
+		return getWebdavServerURL(null, null);
 	}
 
 	public HttpURL getWebdavServerURL(UsernamePasswordCredentials credential) {
-		return getWebdavServerURL(credential, null, getWebdavServerURI());
+		return getWebdavServerURL(credential, null);
 	}
 
-	public HttpURL getWebdavServerURL(UsernamePasswordCredentials credential,
-			String path) {
-		return getWebdavServerURL(credential, path, getWebdavServerURI());
+	public HttpURL getWebdavServerURL(UsernamePasswordCredentials credential, String path) {
+		return getWebdavServerURL(credential, path, getWebdavServerURI(), Boolean.TRUE);
 	}
 
 	/**
@@ -178,59 +192,53 @@ public class IWSlideServiceBean extends IBOServiceBean implements
 	 * 
 	 * @return
 	 */
-	private HttpURL getWebdavServerURL(UsernamePasswordCredentials credential,
-			String path, String servletPath) {
-
+	private HttpURL getWebdavServerURL(UsernamePasswordCredentials credential, String path, String servletPath, boolean addSessionId) {
 		try {
-			// String server =
-			// getIWApplicationContext().getDomain().getServerName();
 			String server = getIWApplicationContext().getDomain().getURL();
-			if (server != null) {
-				int port = 80;
-				boolean https = false;
-				if (server.endsWith("/")) {
-					server = server.substring(0, server.lastIndexOf("/"));
-				}
-				if (server.startsWith("http://")) {
-					server = server.substring(7, server.length());
-				}
-				if (server.startsWith("https://")) {
-					if (getIWMainApplication().getSettings().getBoolean(
-							"slide.allow.local.https")) {
-						// https protocol when to slide is only enabled when
-						// this property is set
-						https = true;
-					}
-					server = server.substring(8, server.length());
-				}
-				if (server.indexOf(":") != -1) {
-					String sPort = server.substring(server.indexOf(":") + 1,
-							server.length());
-					port = Integer.parseInt(sPort);
-					server = server.substring(0, server.indexOf(":"));
-				}
-
-				String rootPath = servletPath;
-				String realPath = rootPath;
-				if (path != null) {
-					realPath = rootPath + path;
-				}
-
-				// server += getWebdavServletURL();
-				HttpURL hrl = null;
-				if (https) {
-					hrl = new HttpsURL(server, port, realPath);
-				} else {
-					hrl = new HttpURL(server, port, realPath);
-				}
-
-				if (credential != null) {
-					hrl.setUserinfo(credential.getUserName(), credential
-							.getPassword());
-				}
-				return hrl;
+			if (server == null) {
+				return null;
 			}
-			return null;
+			
+			int port = 80;
+			boolean https = false;
+			if (server.endsWith(CoreConstants.SLASH)) {
+				server = server.substring(0, server.lastIndexOf(CoreConstants.SLASH));
+			}
+			if (server.startsWith("http://")) {
+				server = server.substring(7, server.length());
+			}
+			if (server.startsWith("https://")) {
+				if (getIWMainApplication().getSettings().getBoolean("slide.allow.local.https")) {
+					// https protocol when to slide is only enabled when this property is set
+					https = true;
+				}
+				server = server.substring(8, server.length());
+			}
+			if (server.indexOf(CoreConstants.COLON) != -1) {
+				String sPort = server.substring(server.indexOf(CoreConstants.COLON) + 1, server.length());
+				port = Integer.parseInt(sPort);
+				server = server.substring(0, server.indexOf(CoreConstants.COLON));
+			}
+
+			String rootPath = servletPath;
+			String realPath = rootPath;
+			if (path != null) {
+				realPath = rootPath + path;
+			}
+
+			HttpURL hrl = https ? new HttpsURL(server, port, realPath) : new HttpURL(server, port, realPath);
+			if (credential != null) {
+				hrl.setUserinfo(credential.getUserName(), credential.getPassword());
+			}
+			
+			if (addSessionId) {
+				HttpSession currentSession = getCurrentSession();
+				if (currentSession != null) {
+					hrl.setQuery(CoreConstants.PARAMETER_SESSION_ID.toLowerCase(), currentSession.getId());
+				}
+			}
+			
+			return hrl;
 		} catch (URIException e) {
 			throw new IBORuntimeException(e);
 		}
@@ -301,57 +309,113 @@ public class IWSlideServiceBean extends IBOServiceBean implements
 	 * @throws IOException
 	 * @throws RemoteException
 	 */
-	public WebdavResource getWebdavRootResource(
-			UsernamePasswordCredentials credentials) throws HttpException,
-			IOException, RemoteException {
+	public WebdavResource getWebdavRootResource(UsernamePasswordCredentials credentials) throws HttpException, IOException, RemoteException {
 		return getWebdavExtendedResource(null, credentials);
-
 	}
 
-	public WebdavResource getWebdavResource(String path,
-			UsernamePasswordCredentials credentials) throws HttpException,
-			IOException, RemoteException {
+	public WebdavResource getWebdavResource(String path, UsernamePasswordCredentials credentials) throws HttpException, IOException, RemoteException {
 		return getWebdavExtendedResource(path, credentials);
-
 	}
 
-	public WebdavExtendedResource getWebdavExtendedResource(String path,
-			UsernamePasswordCredentials credentials) throws HttpException,
-			IOException, RemoteException {
-		HttpURL url = getWebdavServerURL(credentials, getPath(path));
+	public WebdavExtendedResource getWebdavExtendedResource(String path, UsernamePasswordCredentials credentials)
+		throws HttpException, IOException, RemoteException {
+		return getWebdavExtendedResource(path, credentials, Boolean.TRUE);
+	}
+	
+	public WebdavExtendedResource getWebdavExtendedResource(String path, UsernamePasswordCredentials credentials, boolean localResource) throws HttpException,
+			IOException, RemoteException, RemoteException {
+
+		HttpURL url = getWebdavServerURL(credentials, getPath(path), getWebdavServerURI(), localResource);
 		if (url == null) {
-			throw new IOException(
-					"[IWSlideService] WebdavServerURL could not be retrieved");
+			throw new IOException("[IWSlideService] WebdavServerURL could not be retrieved");
 		}
-		return new WebdavExtendedResource(url);
-		// WebdavExtendedResource resource;
-		// if(getUserContext().isLoggedOn()){
-		// resource = new
-		// WebdavLocalResource(getWebdavServerURL(credentials,getPath(path)));
-		// } else {
-		// resource = new
-		// WebdavExtendedResource(getIWSlideService().getWebdavServerURL(path));
-		// }
-		// return resource;
+		
+		WebdavExtendedResource resource = null;
+		
+		if (localResource) {
+			if (!Domain.isInitialized()) {
+				DomainConfig domainConfig = ELUtil.getInstance().getBean(DomainConfig.SPRING_BEAN_IDENTIFIER);
+				domainConfig.initialize();
+			}
+			
+			try {
+				resource = new WebdavLocalResource(getHttpClient(url, credentials));
+				resource.setHttpURL(url);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		if (resource == null) {
+			resource = new WebdavExtendedResource(url.getURI(), credentials, Boolean.FALSE);
+		}
+		
+		return resource;
 	}
 
+	@SuppressWarnings("deprecation")
+	private HttpClient getHttpClient(HttpURL url, UsernamePasswordCredentials credentials) throws Exception {
+		HttpSession currentSession = getCurrentSession();
+		
+		HttpState state = new WebdavState();
+		AuthScope authScope = new AuthScope(url.getHost(), url.getPort());
+		state.setCredentials(authScope, credentials);
+		if (currentSession != null) {
+			IWTimestamp iwExpires = new IWTimestamp(System.currentTimeMillis());
+			iwExpires.setMinute(iwExpires.getMinute() + 30);
+			Date expires = new Date(iwExpires.getTimestamp().getTime());
+			
+			boolean secure = url instanceof HttpsURL;
+			
+			Cookie cookie = new Cookie(url.getHost(), CoreConstants.PARAMETER_SESSION_ID, currentSession.getId(), CoreConstants.SLASH, expires, secure);
+			state.addCookie(cookie);
+		}
+		
+		HttpClient client = new HttpClient(new MultiThreadedHttpConnectionManager());
+		client.setState(state);
+
+        HostConfiguration hostConfig = client.getHostConfiguration();
+        hostConfig.setHost(url);
+        
+        Credentials hostCredentials = null;
+
+        if (credentials == null) {
+            String userName = url.getUser();
+            if (userName != null && userName.length() > 0) {
+                hostCredentials = new UsernamePasswordCredentials(userName, url.getPassword());
+            }
+        }
+
+        if (hostCredentials != null) {
+            HttpState clientState = client.getState();
+            clientState.setCredentials(null, url.getHost(), hostCredentials);
+            clientState.setAuthenticationPreemptive(true);
+        }
+        
+        return client;
+	}
+	
+	private HttpSession getCurrentSession() {
+		try {
+			RequestProvider requestProvider = ELUtil.getInstance().getBean(RequestProvider.class);
+			return requestProvider.getRequest().getSession(Boolean.FALSE);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	/**
 	 * Returns the WebdavResource at the given path and authenticated as root
 	 */
-	public WebdavResource getWebdavResourceAuthenticatedAsRoot(String path)
-			throws HttpException, IOException {
-		// String thePath = (path==null)?null:getPath(path);
-		// return new
-		// WebdavResource(getWebdavServerURL(getRootUserCredentials(),thePath));
-		String thePath = path;
-		return getWebdavResource(thePath, getRootUserCredentials());
+	public WebdavResource getWebdavResourceAuthenticatedAsRoot(String path) throws HttpException, IOException {
+		return getWebdavResource(path, getRootUserCredentials());
 	}
 
 	/**
 	 * Returns the WebdavResource at path "/" and authenticated as root
 	 */
-	public WebdavResource getWebdavResourceAuthenticatedAsRoot()
-			throws HttpException, IOException {
+	public WebdavResource getWebdavResourceAuthenticatedAsRoot() throws HttpException, IOException {
 		return getWebdavResourceAuthenticatedAsRoot(null);
 	}
 
@@ -370,8 +434,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements
 			// to avoid /content/content/
 			path = path.substring(CoreConstants.WEBDAV_SERVLET_URI.length());
 		}
-		return getWebdavServerURI() + ((path.startsWith(SLASH)) ? "" : SLASH)
-				+ path;
+		return getWebdavServerURI() + ((path.startsWith(SLASH)) ? "" : SLASH) + path;
 	}
 
 	public String getPath(String uri) throws RemoteException {
@@ -388,13 +451,16 @@ public class IWSlideServiceBean extends IBOServiceBean implements
 		if (path == null) {
 			return false;
 		}
+		
 		try {
-			String pathToCheck = ((path.startsWith(getWebdavServerURI())) ? path
-					: getURI(path));
+			return getSimpleSlideService().checkExistance(path);
+		} catch (Exception e) {}
+		
+		try {
+			String pathToCheck = ((path.startsWith(getWebdavServerURI())) ? path : getURI(path));
 			// System.out.println("[IWSlideServiceBean]:
 			// getExistence("+path+")->headerMethod("+ pathToCheck+")");
-			Enumeration prop = getWebdavResourceAuthenticatedAsRoot()
-					.propfindMethod(pathToCheck, WebdavResource.DISPLAYNAME);
+			Enumeration prop = getWebdavResourceAuthenticatedAsRoot().propfindMethod(pathToCheck, WebdavResource.DISPLAYNAME);
 			return !(prop == null || !prop.hasMoreElements());
 		} catch (HttpException e) {
 			if (e.getReasonCode() == WebdavStatus.SC_NOT_FOUND) {
@@ -713,9 +779,8 @@ public class IWSlideServiceBean extends IBOServiceBean implements
 		}
 	}
 
-	public AccessControlList getAccessControlList(String path)
-			throws HttpException, IOException {
-		WebdavResource rResource = getWebdavResourceAuthenticatedAsRoot();
+	public AccessControlList getAccessControlList(String path) throws HttpException, IOException {
+		WebdavResource rResource = getWebdavResourceAuthenticatedAsRoot(path);
 		return getAccessControlList(path, new WebdavRootResource(rResource));
 	}
 
@@ -727,17 +792,16 @@ public class IWSlideServiceBean extends IBOServiceBean implements
 	 * @throws HttpException
 	 * @throws IOException
 	 */
-	public AccessControlList getAccessControlList(String path,
-			WebdavRootResource rResource) throws HttpException, IOException {
+	public AccessControlList getAccessControlList(String path, WebdavRootResource rResource) throws HttpException, IOException {
 		String thePath = null;
 		if (path != null) {
 			thePath = getPath(path);
 		}
-		AccessControlList acl = new AccessControlList(getWebdavServerURI(),
-				thePath);
+		
+		AccessControlList acl = new AccessControlList(getWebdavServerURI(), thePath);
 
 		AclProperty aclProperty = null;
-		if (thePath != null) { // && !"/".equals(path) && !"".equals(path)){
+		if (thePath != null) {
 			aclProperty = rResource.aclfindMethod(getURI(thePath));
 		} else {
 			aclProperty = rResource.aclfindMethod();
@@ -751,9 +815,9 @@ public class IWSlideServiceBean extends IBOServiceBean implements
 		return acl;
 	}
 
-	public boolean storeAccessControlList(AccessControlList acl)
-			throws HttpException, IOException {
-		WebdavResource rResource = getWebdavResourceAuthenticatedAsRoot();
+	//	TODO: use local resource!
+	public boolean storeAccessControlList(AccessControlList acl) throws HttpException, IOException {
+		WebdavResource rResource = getWebdavExtendedResource(null, getRootUserCredentials(), Boolean.FALSE);
 		return storeAccessControlList(acl, new WebdavRootResource(rResource));
 	}
 
@@ -993,8 +1057,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements
 	public boolean uploadFileAndCreateFoldersFromStringAsRoot(
 			String parentPath, String fileName, InputStream fileInputStream,
 			String contentType, boolean deletePredecessor) {
-		if (uploadFile(parentPath, fileName, contentType, fileInputStream,
-				false)) { // Trying with Slide API firstly
+		if (uploadFile(parentPath, fileName, contentType, fileInputStream, false)) { // Trying with Slide API firstly
 			return true;
 		}
 
@@ -1504,7 +1567,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements
 
 		if (stream == null) {
 			WebdavResource resource = getWebdavResourceAuthenticatedAsRoot(path);
-			return resource.getMethodData();
+			stream = resource.getMethodData();
 		}
 
 		return stream;

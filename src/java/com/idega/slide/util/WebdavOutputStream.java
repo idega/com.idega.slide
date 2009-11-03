@@ -10,12 +10,16 @@
 package com.idega.slide.util;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.webdav.lib.WebdavResource;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.idega.io.MemoryFileBuffer;
 import com.idega.io.MemoryInputStream;
 import com.idega.io.MemoryOutputStream;
+import com.idega.slide.business.IWSimpleSlideService;
+import com.idega.util.expression.ELUtil;
 
 
 /**
@@ -29,8 +33,10 @@ import com.idega.io.MemoryOutputStream;
  */
 public class WebdavOutputStream extends MemoryOutputStream {
 
+	@Autowired
+	private IWSimpleSlideService slideAPI;
 	private WebdavResource webdavResource;
-	boolean committed=false;
+	private boolean committed;
 	
 	/**
 	 * @param buffer
@@ -38,23 +44,28 @@ public class WebdavOutputStream extends MemoryOutputStream {
 	public WebdavOutputStream(WebdavResource resource) {
 		super(new MemoryFileBuffer());
 		setWebdavResource(resource);
-		// TODO Auto-generated constructor stub
 	}
 
 	public void commit() throws IOException {
-		if(!this.committed){
-			getWebdavResource().putMethod(new MemoryInputStream(getBuffer()));
-			this.committed=true;
+		if (this.committed) {
+			return;
 		}
+		
+		InputStream stream = new MemoryInputStream(getBuffer());
+		if (!getSlideAPI().setContent(webdavResource.getPath(), stream)) {
+			getWebdavResource().putMethod(stream);
+		}
+		
+		this.committed = true;
 	}
 	
 	/* (non-Javadoc)
 	 * @see com.idega.io.MemoryOutputStream#close()
 	 */
+	@Override
 	public void close() throws IOException {
 		commit();
 		getWebdavResource().close();
-		// TODO Auto-generated method stub
 		super.close();
 	}
 
@@ -66,11 +77,17 @@ public class WebdavOutputStream extends MemoryOutputStream {
 		return this.webdavResource;
 	}
 
-	
 	/**
 	 * @param webdavResource the webdavResource to set
 	 */
 	public void setWebdavResource(WebdavResource webdavResource) {
 		this.webdavResource = webdavResource;
+	}
+	
+	private IWSimpleSlideService getSlideAPI() {
+		if (slideAPI == null) {
+			ELUtil.getInstance().autowire(this);
+		}
+		return slideAPI;
 	}
 }
