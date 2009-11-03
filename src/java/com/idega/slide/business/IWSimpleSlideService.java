@@ -14,6 +14,8 @@ import com.idega.user.data.User;
 */
 public interface IWSimpleSlideService {
 
+	public boolean checkExistance(String pathToFile) throws Exception;
+	
 	public InputStream getInputStream(String pathToFile);
 	
 	public boolean upload(InputStream stream, String uploadPath, String fileName, String contentType, User user) throws Exception;

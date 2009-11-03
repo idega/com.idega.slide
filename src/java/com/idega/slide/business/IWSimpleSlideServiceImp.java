@@ -36,6 +36,7 @@ import com.idega.user.data.User;
 import com.idega.util.CoreConstants;
 import com.idega.util.IOUtil;
 import com.idega.util.IWTimestamp;
+import com.idega.util.StringHandler;
 import com.idega.util.StringUtil;
 
 /**
@@ -46,7 +47,6 @@ import com.idega.util.StringUtil;
 *
 * Last modified: $Date: 2009/05/08 08:10:02 $ by: $Author: valdas $
 */
-
 @Service
 @Scope(BeanDefinition.SCOPE_SINGLETON)
 public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
@@ -65,26 +65,28 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 	
 	private synchronized void initializeSimpleSlideServiceBean() {
 		if (initialized) {
+			initialized = !(namespace == null || structure == null || content == null || security == null);
+		}
+		if (initialized) {
 			return;
 		}
 		
 		initialized = true;
 		try {
-			namespace = Domain.accessNamespace(new SecurityToken(CoreConstants.EMPTY), Domain.getDefaultNamespace());
-			structure = namespace.getStructureHelper();
-			content = namespace.getContentHelper();
-			security = namespace.getSecurityHelper();
-		} catch(Exception e) {
+			namespace = namespace == null ? Domain.accessNamespace(new SecurityToken(CoreConstants.EMPTY), Domain.getDefaultNamespace()) : namespace;
+			structure = structure == null ? namespace.getStructureHelper() : structure;
+			content = content == null ? namespace.getContentHelper(): content;
+			security = security == null ? namespace.getSecurityHelper() : security;
+		} catch(Throwable e) {
 			initialized = false;
-			LOGGER.log(Level.SEVERE, "Error while initializing Simple Slide API", e);
+			LOGGER.warning("Error while initializing Simple Slide API, will try again on next request");
 		}
 	}
 	
 	private AuthenticationBusiness getAuthenticationBusiness() {
 		if (authenticationBusiness == null) {
 			try {
-				authenticationBusiness = (AuthenticationBusiness) IBOLookup.getServiceInstance(IWMainApplication.getDefaultIWApplicationContext(),
-																																AuthenticationBusiness.class);
+				authenticationBusiness = IBOLookup.getServiceInstance(IWMainApplication.getDefaultIWApplicationContext(), AuthenticationBusiness.class);
 			} catch (IBOLookupException e) {
 				LOGGER.log(Level.WARNING, "Error getting EJB bean:" + AuthenticationBusiness.class, e);
 			}
@@ -182,7 +184,7 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 			
 			content.create(token, uploadPath, revisionDescriptor, revisionContent);
 			return true;
-		} catch(Exception e) {
+		} catch(Throwable e) {
 			LOGGER.log(Level.SEVERE, "Error while uploading!", e);
 		}
 		finally {
@@ -222,8 +224,8 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 		return upload(stream, uploadPath, fileName, contentType, user, true);
 	}
 
-	public InputStream getInputStream(String pathToFile) {
-		if (StringUtil.isEmpty(pathToFile)) {
+	private NodeRevisionDescriptors getNodeRevisionDescriptors(String pathToNode) {
+		if (StringUtil.isEmpty(pathToNode)) {
 			return null;
 		}
 		
@@ -241,22 +243,45 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 			return null;
 		}
 		
-		NodeRevisionDescriptors revisionDescriptors = null;
-		try {
-			revisionDescriptors = content.retrieve(rootToken, pathToFile);
-		} catch (Exception e) {
-			LOGGER.log(Level.SEVERE, "Error retrieving revision descriptors", e);
+		if (pathToNode.startsWith(CoreConstants.WEBDAV_SERVLET_URI)) {
+			pathToNode = StringHandler.replace(pathToNode, CoreConstants.WEBDAV_SERVLET_URI, CoreConstants.EMPTY);
 		}
-		if (revisionDescriptors == null || !revisionDescriptors.hasRevisions()) {
-			LOGGER.log(Level.SEVERE, "There are no revision descriptors or no revisions for: " + pathToFile);
+		
+		try {
+			return content.retrieve(rootToken, pathToNode);
+		} catch (Throwable e) {
+			LOGGER.warning("Unable to retrieve requested object: " + pathToNode);
+		} finally {
 			rollbackTransaction();
+		}
+		
+		return null;
+	}
+	
+	public boolean checkExistance(String pathToFile) {
+		NodeRevisionDescriptors revisionDescriptors = getNodeRevisionDescriptors(pathToFile);
+		return revisionDescriptors == null ? Boolean.FALSE : Boolean.TRUE;
+	}
+	
+	public InputStream getInputStream(String pathToFile) {
+		NodeRevisionDescriptors revisionDescriptors = getNodeRevisionDescriptors(pathToFile);
+		if (revisionDescriptors == null || !revisionDescriptors.hasRevisions()) {
+			return null;
+		}
+		
+		SlideToken rootToken = getSlideToken();
+		if (rootToken == null) {
+			return null;
+		}
+		
+		if (!startTransaction()) {
 			return null;
 		}
 		
 		NodeRevisionDescriptor revisionDescriptor = null;
 		try {
 			revisionDescriptor = content.retrieve(rootToken, revisionDescriptors);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			LOGGER.log(Level.SEVERE, "Error retrieving revision descriptor", e);
 		}
 		if (revisionDescriptor == null) {
@@ -265,7 +290,7 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 		
 		try {
 			return content.retrieve(rootToken, revisionDescriptors, revisionDescriptor).streamContent();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			LOGGER.log(Level.SEVERE, "Error getting InputStream for: " + pathToFile, e);
 		} finally {
 			finishTransaction();
@@ -277,7 +302,7 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 	private boolean startTransaction() {
 		try {
 			namespace.begin();
-		} catch(Exception e) {
+		} catch(Throwable e) {
 			LOGGER.log(Level.SEVERE, "Cannot start user transaction", e);
 			return false;
 		}
@@ -288,7 +313,7 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 	private boolean rollbackTransaction() {
 		try {
 			namespace.rollback();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			LOGGER.log(Level.SEVERE, "Cannot rollback user transaction", e);
 			return false;
 		}
@@ -298,7 +323,7 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 	private boolean finishTransaction() {
 		try {
 			namespace.commit();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			LOGGER.log(Level.SEVERE, "Cannot finish user transaction", e);
 			return false;
 		}
