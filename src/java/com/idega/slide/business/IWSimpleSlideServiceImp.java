@@ -24,6 +24,7 @@ import org.apache.slide.security.Security;
 import org.apache.slide.structure.ObjectNotFoundException;
 import org.apache.slide.structure.Structure;
 import org.apache.slide.structure.SubjectNode;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,7 @@ import com.idega.business.IBOLookup;
 import com.idega.business.IBOLookupException;
 import com.idega.idegaweb.IWMainApplication;
 import com.idega.slide.authentication.AuthenticationBusiness;
+import com.idega.slide.webdavservlet.DomainConfig;
 import com.idega.user.data.User;
 import com.idega.util.CoreConstants;
 import com.idega.util.IOUtil;
@@ -54,6 +56,9 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 	private static final long serialVersionUID = 8065146986117553218L;
 	private static final Logger LOGGER = Logger.getLogger(IWSimpleSlideServiceImp.class.getName());
 	
+	@Autowired
+	private DomainConfig domainConfig;
+	
 	private NamespaceAccessToken namespace;
 	private Structure structure;
 	private Content content;
@@ -73,6 +78,10 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 		
 		initialized = true;
 		try {
+			if (!Domain.isInitialized()) {
+				domainConfig.initialize();
+			}
+			
 			namespace = namespace == null ? Domain.accessNamespace(new SecurityToken(CoreConstants.EMPTY), Domain.getDefaultNamespace()) : namespace;
 			structure = structure == null ? namespace.getStructureHelper() : structure;
 			content = content == null ? namespace.getContentHelper(): content;
