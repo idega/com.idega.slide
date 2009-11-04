@@ -231,13 +231,6 @@ public class IWSlideServiceBean extends IBOServiceBean implements
 				hrl.setUserinfo(credential.getUserName(), credential.getPassword());
 			}
 			
-			if (addSessionId) {
-				HttpSession currentSession = getCurrentSession();
-				if (currentSession != null) {
-					hrl.setQuery(CoreConstants.PARAMETER_SESSION_ID.toLowerCase(), currentSession.getId());
-				}
-			}
-			
 			return hrl;
 		} catch (URIException e) {
 			throw new IBORuntimeException(e);
@@ -336,6 +329,11 @@ public class IWSlideServiceBean extends IBOServiceBean implements
 			if (!Domain.isInitialized()) {
 				DomainConfig domainConfig = ELUtil.getInstance().getBean(DomainConfig.SPRING_BEAN_IDENTIFIER);
 				domainConfig.initialize();
+			}
+			
+			HttpSession currentSession = getCurrentSession();
+			if (currentSession != null) {
+				url.setQuery(CoreConstants.PARAMETER_SESSION_ID.toLowerCase(), currentSession.getId());
 			}
 			
 			try {
