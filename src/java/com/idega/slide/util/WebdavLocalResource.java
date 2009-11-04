@@ -67,38 +67,13 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 	
 	@Autowired
 	private IWSimpleSlideService slideAPI;
-	
-//	public WebdavLocalResource(String path, Credentials cred) {
-//		
-//	}
-	
-	/**
-	 * @param urlStr
-	 * @param cred
-	 * @param followRedirects
-	 * @throws IOException
-	 */
-//	public WebdavLocalResource(String urlStr, Credentials cred, boolean followRedirects) throws IOException {
-//		super(urlStr, cred, followRedirects);
-//	}
-//
+
 	/**
 	 * @param client - {@link HttpClient}
 	 */
 	public WebdavLocalResource(HttpClient client) {
 		super(client);
 	}
-//
-//	/**
-//	 * @param url
-//	 * @throws HttpException
-//	 * @throws IOException
-//	 */
-//	public WebdavLocalResource(HttpURL url, Credentials credentials) throws HttpException, IOException {
-//		super(url);
-//		
-//		setCredentials(credentials);
-//	}
 
 	/**
 	 * 

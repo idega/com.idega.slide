@@ -292,8 +292,6 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 			revisionDescriptor = content.retrieve(rootToken, revisionDescriptors);
 		} catch (Throwable e) {
 			LOGGER.log(Level.SEVERE, "Error retrieving revision descriptor", e);
-		}
-		if (revisionDescriptor == null) {
 			rollbackTransaction();
 		}
 		
@@ -301,6 +299,7 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 			return content.retrieve(rootToken, revisionDescriptors, revisionDescriptor);
 		} catch (Throwable e) {
 			LOGGER.log(Level.SEVERE, "Error getting InputStream for: " + pathToFile, e);
+			rollbackTransaction();
 		} finally {
 			finishTransaction();
 		}
@@ -323,6 +322,7 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 			return nodeContent.streamContent();
 		} catch (Throwable e) {
 			LOGGER.log(Level.SEVERE, "Error getting InputStream for: " + pathToFile, e);
+			rollbackTransaction();
 		} finally {
 			finishTransaction();
 		}
@@ -346,6 +346,7 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 			return Boolean.TRUE;
 		} catch (Throwable e) {
 			LOGGER.log(Level.SEVERE, "Error setting content InputStream for: " + pathToFile, e);
+			rollbackTransaction();
 		} finally {
 			finishTransaction();
 		}
@@ -383,5 +384,4 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 		}
 		return true;
 	}
-	
 }
