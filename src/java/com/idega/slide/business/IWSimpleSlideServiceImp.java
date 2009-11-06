@@ -1,7 +1,8 @@
 package com.idega.slide.business;
 
 import java.io.InputStream;
-import java.util.Hashtable;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -21,6 +22,7 @@ import org.apache.slide.content.NodeRevisionDescriptor;
 import org.apache.slide.content.NodeRevisionDescriptors;
 import org.apache.slide.content.NodeRevisionNumber;
 import org.apache.slide.security.Security;
+import org.apache.slide.structure.ObjectNode;
 import org.apache.slide.structure.ObjectNotFoundException;
 import org.apache.slide.structure.Structure;
 import org.apache.slide.structure.SubjectNode;
@@ -104,6 +106,8 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 	}
 	
 	private SlideToken getSlideToken() {
+		initializeSimpleSlideServiceBean();
+		
 		String userPrincipals = null;
 		
 		try {
@@ -138,7 +142,7 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 		return DigestUtils.md5Hex(result.toString());
 	}
 	
-	@SuppressWarnings({ "deprecation", "unchecked" })
+	@SuppressWarnings("unchecked")
 	private boolean doUploading(InputStream stream, SlideToken token, String uploadPath, String contentType, User user, boolean closeStream) {
 		//	TODO: there is problem in uploadPath: API doesn't "see" different in case: /files/themes/ and /files/Themes/
 		try {
@@ -159,10 +163,10 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 				lastRevision = new NodeRevisionNumber(lastRevision, false);
 			}
 			
-			//	Node revision descriptor
+			//	Node revision descriptor	//	TODO: check for existing descriptor
 			IWTimestamp now = IWTimestamp.RightNow();
 			NodeRevisionDescriptor revisionDescriptor = new NodeRevisionDescriptor(lastRevision, NodeRevisionDescriptors.MAIN_BRANCH, new Vector(),
-					new Hashtable());
+					new ArrayList());
 			revisionDescriptor.setResourceType(CoreConstants.EMPTY);
 			revisionDescriptor.setSource(CoreConstants.EMPTY);
 			revisionDescriptor.setContentLanguage(Locale.ENGLISH.getLanguage());
@@ -211,11 +215,6 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 			return false;
 		}
 		
-		initializeSimpleSlideServiceBean();
-		if (!initialized) {
-			return false;
-		}
-		
 		SlideToken token = getSlideToken();
 		if (!startTransaction()) {
 			return false;
@@ -238,11 +237,6 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 			return null;
 		}
 		
-		initializeSimpleSlideServiceBean();
-		if (!initialized) {
-			return null;
-		}
-		
 		SlideToken rootToken = getSlideToken();
 		if (rootToken == null) {
 			return null;
@@ -252,9 +246,7 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 			return null;
 		}
 		
-		if (pathToNode.startsWith(CoreConstants.WEBDAV_SERVLET_URI)) {
-			pathToNode = StringHandler.replace(pathToNode, CoreConstants.WEBDAV_SERVLET_URI, CoreConstants.EMPTY);
-		}
+		pathToNode = getNormalizedPath(pathToNode);
 		
 		try {
 			return content.retrieve(rootToken, pathToNode);
@@ -267,14 +259,71 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 		return null;
 	}
 	
+	private NodeRevisionDescriptor getNodeRevisionDescriptor(String pathToNode) {
+		NodeRevisionDescriptors revisionDescriptors = getNodeRevisionDescriptors(pathToNode);
+		return getNodeRevisionDescriptor(revisionDescriptors, pathToNode);
+	}
+	
+	private NodeRevisionDescriptor getNodeRevisionDescriptor(NodeRevisionDescriptors revisionDescriptors, String pathToNode) {
+		SlideToken rootToken = getSlideToken();
+		if (rootToken == null) {
+			return null;
+		}
+		
+		if (!startTransaction()) {
+			return null;
+		}
+		
+		try {
+			return content.retrieve(rootToken, revisionDescriptors);
+		} catch (Throwable e) {
+			LOGGER.log(Level.SEVERE, "Error retrieving revision descriptor", e);
+		} finally {
+			rollbackTransaction();
+		}
+		
+		return null;
+	}
+	
 	public boolean checkExistance(String pathToFile) {
-		NodeRevisionDescriptors revisionDescriptors = getNodeRevisionDescriptors(pathToFile);
-		return revisionDescriptors == null ? Boolean.FALSE : Boolean.TRUE;
+		SlideToken rootToken = getSlideToken();
+		if (rootToken == null) {
+			return false;
+		}
+		
+		if (!startTransaction()) {
+			return false;
+		}
+
+		pathToFile = getNormalizedPath(pathToFile);
+		
+		ObjectNode node = null;
+		try {
+			node = structure.retrieve(rootToken, pathToFile);
+		} catch (Exception e) {
+			rollbackTransaction();
+			LOGGER.warning("Error retrieving object at " + pathToFile);
+			return false;
+		}
+		
+		finishTransaction();
+		
+		if (node == null) {
+			LOGGER.warning("Object doesn't exist at " + pathToFile);
+			return false;
+		}
+		
+		return true;
 	}
 	
 	private NodeRevisionContent getNodeContent(String pathToFile) {
 		NodeRevisionDescriptors revisionDescriptors = getNodeRevisionDescriptors(pathToFile);
 		if (revisionDescriptors == null || !revisionDescriptors.hasRevisions()) {
+			return null;
+		}
+		
+		NodeRevisionDescriptor revisionDescriptor = getNodeRevisionDescriptor(pathToFile);
+		if (revisionDescriptor == null) {
 			return null;
 		}
 		
@@ -285,14 +334,6 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 		
 		if (!startTransaction()) {
 			return null;
-		}
-		
-		NodeRevisionDescriptor revisionDescriptor = null;
-		try {
-			revisionDescriptor = content.retrieve(rootToken, revisionDescriptors);
-		} catch (Throwable e) {
-			LOGGER.log(Level.SEVERE, "Error retrieving revision descriptor", e);
-			rollbackTransaction();
 		}
 		
 		try {
@@ -318,44 +359,80 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 			return null;
 		}
 		
+		InputStream stream = null;
 		try {
-			return nodeContent.streamContent();
+			stream = nodeContent.streamContent();
 		} catch (Throwable e) {
 			LOGGER.log(Level.SEVERE, "Error getting InputStream for: " + pathToFile, e);
 			rollbackTransaction();
-		} finally {
-			finishTransaction();
 		}
 		
-		return null;
+		finishTransaction();
+		return stream;
 	}
 	
 	public boolean setContent(String pathToFile, InputStream contentStream) {
+		pathToFile = getNormalizedPath(pathToFile);
+		
 		NodeRevisionContent nodeContent = getNodeContent(pathToFile);
 		
 		if (nodeContent == null) {
 			return Boolean.FALSE;
 		}
 		
+		SlideToken rootToken = getSlideToken();
+		if (rootToken == null) {
+			return Boolean.FALSE;
+		}
+		
+		NodeRevisionDescriptors descriptors = getNodeRevisionDescriptors(pathToFile);
+		NodeRevisionDescriptor descriptor = getNodeRevisionDescriptor(descriptors, pathToFile);
+		
 		if (!startTransaction()) {
 			return Boolean.FALSE;
 		}
 		
 		try {
+			descriptor.setContentLength(contentStream.available());
+			descriptor.setLastModified(new Date(System.currentTimeMillis()));
+			
 			nodeContent.setContent(contentStream);
-			return Boolean.TRUE;
+			content.store(rootToken, pathToFile, descriptor, nodeContent);
 		} catch (Throwable e) {
 			LOGGER.log(Level.SEVERE, "Error setting content InputStream for: " + pathToFile, e);
 			rollbackTransaction();
-		} finally {
-			finishTransaction();
+			return Boolean.FALSE;
 		}
 		
-		return Boolean.FALSE;
+		finishTransaction();
+		return Boolean.TRUE;
+	}
+	
+	private String getNormalizedPath(String path) {
+		if (StringUtil.isEmpty(path)) {
+			return path;
+		}
+		
+		if (path.startsWith(CoreConstants.WEBDAV_SERVLET_URI)) {
+			path = StringHandler.replace(path, CoreConstants.WEBDAV_SERVLET_URI, CoreConstants.EMPTY);
+		}
+		
+		return path;
 	}
 	
 	private boolean startTransaction() {
+		initializeSimpleSlideServiceBean();
+		
+		if (namespace == null) {
+			return false;
+		}
+		
 		try {
+			if (namespace.getStatus() == 0) {
+				//	Transaction was begun already	TODO: check if it's OK!
+				return true;
+			}
+			
 			namespace.begin();
 		} catch(Throwable e) {
 			LOGGER.log(Level.SEVERE, "Cannot start user transaction", e);
@@ -366,6 +443,10 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 	}
 	
 	private boolean rollbackTransaction() {
+		if (namespace == null) {
+			return false;
+		}
+		
 		try {
 			namespace.rollback();
 		} catch (Throwable e) {
@@ -376,6 +457,10 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 	}
 	
 	private boolean finishTransaction() {
+		if (namespace == null) {
+			return false;
+		}
+		
 		try {
 			namespace.commit();
 		} catch (Throwable e) {
