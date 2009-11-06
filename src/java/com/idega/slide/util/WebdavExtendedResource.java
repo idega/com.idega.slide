@@ -16,6 +16,8 @@ import org.apache.webdav.lib.WebdavResource;
 import org.apache.webdav.lib.WebdavResources;
 import org.apache.webdav.lib.methods.DepthSupport;
 
+import com.idega.util.CoreConstants;
+
 /**
  * 
  * This class is an extended version Slide's WebdavResource. <br>
@@ -55,9 +57,9 @@ public class WebdavExtendedResource extends WebdavResource {
 	public String getParentPath() {
 		if (this.parentPath == null) {
 			if (this.path != null) {
-				int index = this.path.lastIndexOf("/");
+				int index = this.path.lastIndexOf(CoreConstants.SLASH);
 				if (index == 0) {
-					this.parentPath = "";
+					this.parentPath = CoreConstants.EMPTY;
 				} else {
 					this.parentPath = this.path.substring(0, index);
 				}
@@ -75,11 +77,10 @@ public class WebdavExtendedResource extends WebdavResource {
 	 * @param client HttpClient to be used by this webdavresource.
 	 * @return A new WebdavResource object.
 	 */
+	@Override
 	protected WebdavResource createWebdavResource(HttpClient client) {
 		WebdavResource resource = new WebdavExtendedResource(client);
 		resource.setCredentials(this.hostCredentials);
-		//        resource.setProxy(proxyHost, proxyPort);
-		//        resource.setProxyCredentials(proxyCredentials);
 		return resource;
 	}
 
@@ -117,6 +118,7 @@ public class WebdavExtendedResource extends WebdavResource {
 	 * @see org.apache.commons.httpclient.HttpURL#getName()
 	 *  
 	 */
+	@Override
 	public String getName() {
 		return this.path;
 	}
@@ -154,6 +156,7 @@ public class WebdavExtendedResource extends WebdavResource {
 	 * Process a property, setting various member variables depending on what the property is.
 	 * @param property The property to process.
 	 */
+	@Override
 	protected void processProperty(Property property) {
 		String propName = property.getLocalName();
 		String strVal = property.getPropertyAsString();
@@ -353,10 +356,9 @@ public class WebdavExtendedResource extends WebdavResource {
 	}
 	
 	public boolean lockMethodNoTimeout() throws HttpException, IOException {
-		
 		String owner = httpURL.getUser() == null ? "Slide" : httpURL.getUser();
 	    boolean result = lockMethod(httpURL.getPath(), owner, LockMethod.TIMEOUT_INFINITY);
-	    if(result)
+	    if (result)
 	    	refresh();
 	    return result;
 	}

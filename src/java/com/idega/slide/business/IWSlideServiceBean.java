@@ -320,11 +320,10 @@ public class IWSlideServiceBean extends IBOServiceBean implements
 
 		HttpURL url = getWebdavServerURL(credentials, getPath(path), getWebdavServerURI(), localResource);
 		if (url == null) {
-			throw new IOException("[IWSlideService] WebdavServerURL could not be retrieved");
+			throw new IOException("[IWSlideService] WebdavServerURL could not be retrieved for " + path + ", using credentials: " + credentials);
 		}
 		
 		WebdavExtendedResource resource = null;
-		
 		if (localResource) {
 			if (!Domain.isInitialized()) {
 				DomainConfig domainConfig = ELUtil.getInstance().getBean(DomainConfig.SPRING_BEAN_IDENTIFIER);
@@ -343,9 +342,8 @@ public class IWSlideServiceBean extends IBOServiceBean implements
 				e.printStackTrace();
 			}
 		}
-		
 		if (resource == null) {
-			resource = new WebdavExtendedResource(url.getURI(), credentials, Boolean.FALSE);
+			resource = new WebdavExtendedResource(url);
 		}
 		
 		return resource;

@@ -12,6 +12,7 @@ package com.idega.slide.authentication;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Collections;
+import java.util.logging.Logger;
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -66,36 +67,32 @@ public class IWSlideAuthenticator extends BaseFilter{
 	/* (non-Javadoc)
 	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
 	 */
-	public void init(FilterConfig arg0) throws ServletException {
-		// TODO Auto-generated method stub
-	}
-
+	public void init(FilterConfig arg0) throws ServletException {}
 	
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
-		ServletException{
-	
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException{
 		HttpServletRequest hRequest = (HttpServletRequest)request;
+		HttpSession session = hRequest.getSession(Boolean.FALSE);
 		
-		//String requestUri = hRequest.getRequestURI();
-		//System.out.println(" - '"+requestUri+"'");
+		//	TODO: remove after testing
+		String uri = hRequest.getRequestURI();
+		Logger.getLogger(IWSlideAuthenticator.class.getName()).info("Request: '" + uri + "' with session: " + (session == null ? "unknown" : session.getId()));
 		
-		boolean isEnabled=isEnabled(hRequest);
-		if(isEnabled){
+		boolean isEnabled = isEnabled(hRequest);
+		if (isEnabled) {
 			doAuthentication(request,response,chain);
 			
 			if (!defaultPermissionsApplied) {
 				defaultPermissionsApplied = true;
-				defaultPermissionsApplied = applyDefaultPermissionsToRepository(hRequest.getSession());
+				defaultPermissionsApplied = applyDefaultPermissionsToRepository(session);
 				
 				//fire slide started action
-				IWMainApplication iwma = IWMainApplication.getIWMainApplication((HttpServletRequest)request);
+				IWMainApplication iwma = IWMainApplication.getIWMainApplication(hRequest);
 				ELUtil.getInstance().publishEvent(new IWMainSlideStartedEvent(iwma));
 			}
 		}
-		else{
+		else {
 			chain.doFilter(request,response);
 		}
-	
 	}
 	
 	private boolean applyDefaultPermissionsToRepository(HttpSession session) {
@@ -138,15 +135,12 @@ public class IWSlideAuthenticator extends BaseFilter{
 	/* (non-Javadoc)
 	 * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse, javax.servlet.FilterChain)
 	 */
-	public void doAuthentication(ServletRequest arg0, ServletResponse arg1, FilterChain arg2) throws IOException,
-			ServletException {	
+	public void doAuthentication(ServletRequest arg0, ServletResponse arg1, FilterChain arg2) throws IOException, ServletException {	
 		
-		//IWContext iwc = new IWContext((HttpServletRequest)arg0, (HttpServletResponse)arg1, ((HttpServletRequest)arg0).getSession().getServletContext());
 		HttpServletRequest request = (HttpServletRequest)arg0;
 		HttpServletResponse response = (HttpServletResponse)arg1;
 		HttpSession session = request.getSession();
 		LoginBusinessBean loginBusiness = getLoginBusiness(request);
-		//HttpServletRequest newRequest = request;
 		
 		try{
 			if(loginBusiness.isLoggedOn(request)){
@@ -166,7 +160,6 @@ public class IWSlideAuthenticator extends BaseFilter{
 							setAsUnauthenticatedInSlide(session);
 						}
 					} else if(!username.equals(loggedInUser)){
-						//request.getSession().invalidate();
 						if(isAuthenticated(request,lInfo,username,password)){
 							request = setAsAuthenticatedInSlide(request,username,lInfo);
 						} else {
@@ -313,7 +306,6 @@ public class IWSlideAuthenticator extends BaseFilter{
 	 * @see javax.servlet.Filter#destroy()
 	 */
 	public void destroy() {
-		// TODO Auto-generated method stub
 	}
 	
 }
