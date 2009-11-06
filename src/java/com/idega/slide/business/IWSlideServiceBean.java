@@ -90,8 +90,7 @@ import com.idega.util.expression.ELUtil;
  *         href="mailto:tryggvi@idega.com">Tryggvi Larusson</a>
  * @version $Revision: 1.69 $
  */
-public class IWSlideServiceBean extends IBOServiceBean implements
-		IWSlideService, IWSlideChangeListener {
+public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService, IWSlideChangeListener {
 
 	private static final long serialVersionUID = -4520443825572949293L;
 
@@ -414,6 +413,10 @@ public class IWSlideServiceBean extends IBOServiceBean implements
 	public WebdavResource getWebdavResourceAuthenticatedAsRoot() throws HttpException, IOException {
 		return getWebdavResourceAuthenticatedAsRoot(null);
 	}
+	
+	public WebdavResource getWebdavExternalResourceAuthenticatedAsRoot() throws HttpException, IOException {
+		return getWebdavExtendedResource(null, getRootUserCredentials(), Boolean.FALSE);
+	}
 
 	/**
 	 * <p>
@@ -456,7 +459,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements
 			String pathToCheck = ((path.startsWith(getWebdavServerURI())) ? path : getURI(path));
 			// System.out.println("[IWSlideServiceBean]:
 			// getExistence("+path+")->headerMethod("+ pathToCheck+")");
-			Enumeration prop = getWebdavResourceAuthenticatedAsRoot().propfindMethod(pathToCheck, WebdavResource.DISPLAYNAME);
+			Enumeration prop = getWebdavExternalResourceAuthenticatedAsRoot().propfindMethod(pathToCheck, WebdavResource.DISPLAYNAME);
 			return !(prop == null || !prop.hasMoreElements());
 		} catch (HttpException e) {
 			if (e.getReasonCode() == WebdavStatus.SC_NOT_FOUND) {
@@ -470,13 +473,11 @@ public class IWSlideServiceBean extends IBOServiceBean implements
 		// getWebdavResourceAuthenticatedAsRoot().headMethod(pathToCheck);
 	}
 
-	public boolean generateUserFolders(String loginName) throws HttpException,
-			IOException {
+	public boolean generateUserFolders(String loginName) throws HttpException, IOException {
 		boolean returner = false;
 
-		if (loginName != null
-				&& !getExistence(getUserHomeFolderPath(loginName))) {
-			WebdavResource rootFolder = getWebdavResourceAuthenticatedAsRoot();
+		if (loginName != null && !getExistence(getUserHomeFolderPath(loginName))) {
+			WebdavResource rootFolder = getWebdavExternalResourceAuthenticatedAsRoot();
 
 			String userFolderPath = getURI(getUserHomeFolderPath(loginName));
 			rootFolder.mkcolMethod(userFolderPath);
@@ -1065,7 +1066,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements
 			}
 
 			String filePath = parentPath + fileName;
-			WebdavResource rootResource = getWebdavResourceAuthenticatedAsRoot();
+			WebdavResource rootResource = getWebdavExternalResourceAuthenticatedAsRoot();
 
 			String fixedURL = getURI(filePath);
 

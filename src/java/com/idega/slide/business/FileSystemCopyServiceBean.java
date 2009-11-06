@@ -296,7 +296,7 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
           //httpURL = uriToHttpURL(uri);
 //          httpURL.setUserinfo("root","root");
         if (this.webdavResource == null) {
-            this.webdavResource = getService().getWebdavResourceAuthenticatedAsRoot();
+            this.webdavResource = getService().getWebdavExternalResourceAuthenticatedAsRoot();
             //webdavResource.setDebug(Integer.MAX_VALUE);
             
             // is not a collection?
@@ -309,7 +309,7 @@ public class FileSystemCopyServiceBean extends IBOServiceBean  implements FileSy
         } else {
             this.webdavResource.close();
 //            webdavResource.setHttpURL(httpURL);
-            this.webdavResource = getService().getWebdavResourceAuthenticatedAsRoot();
+            this.webdavResource = getService().getWebdavExternalResourceAuthenticatedAsRoot();
         }
         setPath(this.webdavResource.getPath()+CoreConstants.PATH_FILES_ROOT);
         }

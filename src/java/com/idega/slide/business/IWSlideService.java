@@ -113,11 +113,13 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 			throws HttpException, IOException, RemoteException;
 
 	/**
+	 * Returns LOCAL resource!
 	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavResourceAuthenticatedAsRoot
 	 */
-	public WebdavResource getWebdavResourceAuthenticatedAsRoot()
-			throws HttpException, IOException, RemoteException;
+	public WebdavResource getWebdavResourceAuthenticatedAsRoot() throws HttpException, IOException, RemoteException;
 
+	public WebdavResource getWebdavExternalResourceAuthenticatedAsRoot() throws HttpException, IOException;
+	
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getURI
 	 */
