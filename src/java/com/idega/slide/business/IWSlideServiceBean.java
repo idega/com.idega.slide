@@ -414,8 +414,12 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		return getWebdavResourceAuthenticatedAsRoot(null);
 	}
 	
+	private WebdavResource getWebdavExternalResourceAuthenticatedAsRoot(String path) throws HttpException, IOException {
+		return getWebdavExtendedResource(path, getRootUserCredentials(), Boolean.FALSE);
+	}
+		
 	public WebdavResource getWebdavExternalResourceAuthenticatedAsRoot() throws HttpException, IOException {
-		return getWebdavExtendedResource(null, getRootUserCredentials(), Boolean.FALSE);
+		return getWebdavExternalResourceAuthenticatedAsRoot(null);
 	}
 
 	/**
@@ -777,7 +781,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	}
 
 	public AccessControlList getAccessControlList(String path) throws HttpException, IOException {
-		WebdavResource rResource = getWebdavResourceAuthenticatedAsRoot(path);
+		WebdavResource rResource = getWebdavExternalResourceAuthenticatedAsRoot(path);
 		return getAccessControlList(path, new WebdavRootResource(rResource));
 	}
 
@@ -934,9 +938,9 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		hadToCreate = !getExistence(path);
 		if (hadToCreate) {
 			StringBuffer createPath = new StringBuffer(getWebdavServerURI());
-			StringTokenizer st = new StringTokenizer(path, "/");
+			StringTokenizer st = new StringTokenizer(path, CoreConstants.SLASH);
 			while (st.hasMoreTokens()) {
-				createPath.append("/").append(st.nextToken());
+				createPath.append(CoreConstants.SLASH).append(st.nextToken());
 				rootResource.mkcolMethod(createPath.toString());
 			}
 		}
@@ -1268,7 +1272,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 							WebdavResource wResource = resources[i];
 							String path = wResource.getPath();
 							String fileName = path.substring(path
-									.lastIndexOf("/") + 1);
+									.lastIndexOf(CoreConstants.SLASH) + 1);
 							if (!resources[i].isCollection()
 									&& !isHiddenFile(fileName)) {
 								paths.add(wResource.getPath());
@@ -1378,17 +1382,17 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		// rip the URI apart and then rebuild it from ground up, invalidating
 		// each folders cache
 		// must end with a "/"
-		if (!URI.endsWith("/")) {
-			URI += "/";
+		if (!URI.endsWith(CoreConstants.SLASH)) {
+			URI += CoreConstants.SLASH;
 		}
 		StringBuffer createPath = new StringBuffer();
-		StringTokenizer st = new StringTokenizer(URI, "/");
+		StringTokenizer st = new StringTokenizer(URI, CoreConstants.SLASH);
 		while (st.hasMoreTokens()) {
 
-			if (!createPath.toString().startsWith("/")) {
-				createPath.append("/");
+			if (!createPath.toString().startsWith(CoreConstants.SLASH)) {
+				createPath.append(CoreConstants.SLASH);
 			}
-			createPath.append(st.nextToken()).append("/");
+			createPath.append(st.nextToken()).append(CoreConstants.SLASH);
 			// clear from maps
 			String path = createPath.toString();
 			getChildFolderPathsCacheMap().remove(path);
@@ -1469,7 +1473,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	public String getParentPath(String path) {
 		String parentPath = null;
 		if (path != null) {
-			int index = path.lastIndexOf("/");
+			int index = path.lastIndexOf(CoreConstants.SLASH);
 			if (index == 0) {
 				parentPath = "";
 			} else {
