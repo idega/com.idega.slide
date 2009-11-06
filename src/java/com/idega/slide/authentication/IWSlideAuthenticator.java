@@ -12,8 +12,6 @@ package com.idega.slide.authentication;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Collections;
-import java.util.logging.Logger;
-
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -72,10 +70,6 @@ public class IWSlideAuthenticator extends BaseFilter{
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException{
 		HttpServletRequest hRequest = (HttpServletRequest)request;
 		HttpSession session = hRequest.getSession(Boolean.FALSE);
-		
-		//	TODO: remove after testing
-		String uri = hRequest.getRequestURI();
-		Logger.getLogger(IWSlideAuthenticator.class.getName()).info("Request: '" + uri + "' with session: " + (session == null ? "unknown" : session.getId()));
 		
 		boolean isEnabled = isEnabled(hRequest);
 		if (isEnabled) {
