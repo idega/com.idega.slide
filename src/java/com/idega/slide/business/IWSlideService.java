@@ -84,9 +84,8 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavRootResource
 	 */
-	public WebdavResource getWebdavRootResource(
-			UsernamePasswordCredentials credentials) throws HttpException,
-			IOException, RemoteException, RemoteException;
+	public WebdavResource getWebdavExternalRootResource(UsernamePasswordCredentials credentials) throws HttpException, IOException, RemoteException,
+		RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getWebdavResource

@@ -301,16 +301,16 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @throws IOException
 	 * @throws RemoteException
 	 */
-	public WebdavResource getWebdavRootResource(UsernamePasswordCredentials credentials) throws HttpException, IOException, RemoteException {
-		return getWebdavExtendedResource(null, credentials);
+	public WebdavResource getWebdavExternalRootResource(UsernamePasswordCredentials credentials) throws HttpException, IOException, RemoteException {
+		return getWebdavExtendedResource(null, credentials, Boolean.FALSE);
 	}
 
 	public WebdavResource getWebdavResource(String path, UsernamePasswordCredentials credentials) throws HttpException, IOException, RemoteException {
 		return getWebdavExtendedResource(path, credentials);
 	}
 
-	public WebdavExtendedResource getWebdavExtendedResource(String path, UsernamePasswordCredentials credentials)
-		throws HttpException, IOException, RemoteException {
+	public WebdavExtendedResource getWebdavExtendedResource(String path, UsernamePasswordCredentials credentials) throws HttpException, IOException,
+		RemoteException {
 		return getWebdavExtendedResource(path, credentials, Boolean.TRUE);
 	}
 	
@@ -461,8 +461,6 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		
 		try {
 			String pathToCheck = ((path.startsWith(getWebdavServerURI())) ? path : getURI(path));
-			// System.out.println("[IWSlideServiceBean]:
-			// getExistence("+path+")->headerMethod("+ pathToCheck+")");
 			Enumeration prop = getWebdavExternalResourceAuthenticatedAsRoot().propfindMethod(pathToCheck, WebdavResource.DISPLAYNAME);
 			return !(prop == null || !prop.hasMoreElements());
 		} catch (HttpException e) {
@@ -472,9 +470,6 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 				throw e;
 			}
 		}
-
-		// return
-		// getWebdavResourceAuthenticatedAsRoot().headMethod(pathToCheck);
 	}
 
 	public boolean generateUserFolders(String loginName) throws HttpException, IOException {
@@ -929,14 +924,12 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @throws IOException
 	 * @return true if it needed to create the folders
 	 */
-	public boolean createAllFoldersInPath(String path,
-			UsernamePasswordCredentials credentials) throws HttpException,
-			RemoteException, IOException {
+	public boolean createAllFoldersInPath(String path, UsernamePasswordCredentials credentials) throws HttpException, RemoteException, IOException {
 		boolean hadToCreate = false;
-		WebdavResource rootResource = getWebdavRootResource(credentials);
 
 		hadToCreate = !getExistence(path);
 		if (hadToCreate) {
+			WebdavResource rootResource = getWebdavExternalRootResource(credentials);
 			StringBuffer createPath = new StringBuffer(getWebdavServerURI());
 			StringTokenizer st = new StringTokenizer(path, CoreConstants.SLASH);
 			while (st.hasMoreTokens()) {
