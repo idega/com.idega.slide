@@ -60,6 +60,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBORuntimeException;
 import com.idega.business.IBOServiceBean;
+import com.idega.idegaweb.IWMainApplication;
 import com.idega.io.ZipInstaller;
 import com.idega.servlet.filter.RequestProvider;
 import com.idega.slide.authentication.AuthenticationBusiness;
@@ -323,7 +324,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		}
 		
 		WebdavExtendedResource resource = null;
-		if (localResource) {
+		if (localResource && IWMainApplication.getDefaultIWMainApplication().getSettings().getBoolean("local_slide_resource", Boolean.FALSE)) {
 			if (!Domain.isInitialized()) {
 				DomainConfig domainConfig = ELUtil.getInstance().getBean(DomainConfig.SPRING_BEAN_IDENTIFIER);
 				domainConfig.initialize();
