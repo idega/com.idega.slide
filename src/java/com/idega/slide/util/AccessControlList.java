@@ -11,12 +11,13 @@ package com.idega.slide.util;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.logging.Logger;
 
 import org.apache.webdav.lib.Ace;
+
+import com.idega.util.CoreConstants;
 
 
 /**
@@ -28,17 +29,15 @@ import org.apache.webdav.lib.Ace;
  */
 public class AccessControlList {
 	
-	protected List aceList;
+	protected List<AccessControlEntry> aceList;
 	protected String serverURI;
 	protected String resourcePath;
 	
-	protected List acesForStandardPrincipals;
-	protected List acesForRoles;
-	protected List acesForUsers;
-	protected List acesForGroups;
-	protected List acesForOthers;
-	
-	boolean tmp = false;
+	protected List<AccessControlEntry> acesForStandardPrincipals;
+	protected List<AccessControlEntry> acesForRoles;
+	protected List<AccessControlEntry> acesForUsers;
+	protected List<AccessControlEntry> acesForGroups;
+	protected List<AccessControlEntry> acesForOthers;
 	
 	protected boolean guaranteeThatRootHasAllPrivileges = true;
 	
@@ -53,30 +52,26 @@ public class AccessControlList {
 	}
 	
 	private void clearLists(){
-		this.aceList = new ArrayList();
-		this.acesForStandardPrincipals = new ArrayList();
-		this.acesForRoles = new ArrayList();
-		this.acesForUsers = new ArrayList();
-		this.acesForGroups = new ArrayList();
-		this.acesForOthers = new ArrayList();
+		this.aceList = new ArrayList<AccessControlEntry>();
+		this.acesForStandardPrincipals = new ArrayList<AccessControlEntry>();
+		this.acesForRoles = new ArrayList<AccessControlEntry>();
+		this.acesForUsers = new ArrayList<AccessControlEntry>();
+		this.acesForGroups = new ArrayList<AccessControlEntry>();
+		this.acesForOthers = new ArrayList<AccessControlEntry>();
 	}
 	
 	public void setAces(Ace[] aces){
 		clearLists();
-//		System.out.println("setAces(...) starts");
 		if(aces != null){
 			for (int i = 0; i < aces.length; i++) {
 				Ace ace = aces[i];
 				addAce(ace);
 			}
 		}
-//		System.out.println("setAces(...) ends");
 	}
 	
 	public void add(AccessControlEntry entry){
-//		tmp=true;
 		addAceToList(this.aceList,entry);
-//		tmp=false;
 		
 		switch (entry.getPrincipalType()) {
 			case AccessControlEntry.PRINCIPAL_TYPE_ROLE:
@@ -105,17 +100,16 @@ public class AccessControlList {
 	 * 
 	 * @param entry
 	 */
-	private void addAceToList(List theList, AccessControlEntry entry) {
+	private void addAceToList(List<AccessControlEntry> theList, AccessControlEntry entry) {
 		int index = -1;
 		String entryPrincipal = entry.getPrincipal();
 		boolean entryIsNegative = entry.isNegative();
 		boolean listContainedAnalogousEntry = false;
-		for (ListIterator iter = theList.listIterator(); iter.hasNext();) {
-			AccessControlEntry ace = (AccessControlEntry) iter.next();
+		for (ListIterator<AccessControlEntry> iter = theList.listIterator(); iter.hasNext();) {
+			AccessControlEntry ace = iter.next();
 			int lIndex = iter.nextIndex()-1;
 			if(entryPrincipal.equals(ace.getPrincipal())){
 				if(entryIsNegative==ace.isNegative()){  //swap entries
-//					if(tmp){System.out.println("Removing: "+ace.toString()+" and adding "+entry.toString());}
 					iter.remove();
 					iter.add(entry);
 					index = -1;
@@ -129,7 +123,6 @@ public class AccessControlList {
 
 		boolean addBefore = !entryIsNegative;
 		if(!listContainedAnalogousEntry){ //add next after it's sister item
-//			if(tmp){	System.out.println("Adding "+((addBefore)?"before":"after")+" sister item ("+index+")(size:"+theList.size()+") : "+entry.toString());}	
 			int addIndex = (index+((addBefore)?0:1));
 			if(addIndex <= 0 || addIndex > theList.size()){
 				theList.add(entry);
@@ -181,14 +174,13 @@ public class AccessControlList {
 	}
 
 	public Ace[] getAces(){
-		List l = new ArrayList();
-		String rootRoleSuffix = "/".concat(IWSlideConstants.ROLENAME_ROOT);
+		List<Ace> l = new ArrayList<Ace>();
+		String rootRoleSuffix = CoreConstants.SLASH.concat(IWSlideConstants.ROLENAME_ROOT);
 		boolean containsPositiveRootACE = false;
 		
 		Collections.sort(this.aceList, new AcessControlEntryComparator());  // Groups roles, groups, users and standard principals together 
 		
-		for (Iterator iter = this.aceList.iterator(); iter.hasNext();) {
-			AccessControlEntry entry = (AccessControlEntry) iter.next();
+		for (AccessControlEntry entry: this.aceList) {
 			if(entry.hasPrivileges()){
 				if(isGuaranteedThatRootHasAllPrivileges() && entry.getPrincipalType() == AccessControlEntry.PRINCIPAL_TYPE_ROLE && entry.getPrincipal().endsWith(rootRoleSuffix)){
 					if(!entry.isNegative()){
@@ -207,31 +199,30 @@ public class AccessControlList {
 		if(!containsPositiveRootACE){
 			Logger.getLogger(this.getClass().getName()).warning("List " +this.aceList+ " does not contain positive ace for root role.");
 		}
-		//System.out.println("Size of aceList is "+aceList.size());
-		return (Ace[])l.toArray(new Ace[l.size()]);
+		return l.toArray(new Ace[l.size()]);
 	}
 	
-	public List getAccessControlEntries(){
+	public List<AccessControlEntry> getAccessControlEntries(){
 		return this.aceList;
 	}
 	
-	public List getAccessControlEntriesForStandardPrincipals(){
+	public List<AccessControlEntry> getAccessControlEntriesForStandardPrincipals(){
 		return this.acesForStandardPrincipals;
 	}
 	
-	public List getAccessControlEntriesForRoles(){
+	public List<AccessControlEntry> getAccessControlEntriesForRoles(){
 		return this.acesForRoles;
 	}
 	
-	public List getAccessControlEntriesForUsers(){
+	public List<AccessControlEntry> getAccessControlEntriesForUsers(){
 		return this.acesForUsers;
 	}
 	
-	public List getAccessControlEntriesForGroups(){
+	public List<AccessControlEntry> getAccessControlEntriesForGroups(){
 		return this.acesForGroups;
 	}
 	
-	public List getAccessControlEntriesForOthers(){
+	public List<AccessControlEntry> getAccessControlEntriesForOthers(){
 		return this.acesForOthers;
 	}
 	
@@ -244,8 +235,8 @@ public class AccessControlList {
 	}
 	/**
 	 * 
-	 * When this is true, as default, the method #getAces() returnes array of Aces that is guaranteed not to 
-	 * denie the root role any privileges when used to store ACL.
+	 * When this is true, as default, the method #getAces() returns array of Aces that is guaranteed not to 
+	 * deny the root role any privileges when used to store ACL.
 	 * 
 	 * @param guaranteeThatRootHasAllPrivileges The guaranteeThatRootHasAllPrivileges to set. Default is true.
 	 */

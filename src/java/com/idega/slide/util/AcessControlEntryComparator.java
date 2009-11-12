@@ -19,22 +19,21 @@ import java.util.Comparator;
  * @author <a href="mailto:gummi@idega.com">Gudmundur Agust Saemundsson</a>
  * @version $Revision: 1.1 $
  */
-public class AcessControlEntryComparator implements Comparator {
+public class AcessControlEntryComparator implements Comparator<AccessControlEntry> {
 
 	/**
 	 * 
 	 */
 	public AcessControlEntryComparator() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	/* (non-Javadoc)
 	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 	 */
-	public int compare(Object o1, Object o2) {
-		int i1 = getPrincipalTypeOrderValue((AccessControlEntry)o1);
-		int i2 = getPrincipalTypeOrderValue((AccessControlEntry)o2);
+	public int compare(AccessControlEntry o1, AccessControlEntry o2) {
+		int i1 = getPrincipalTypeOrderValue(o1);
+		int i2 = getPrincipalTypeOrderValue(o2);
 		if(i1==i2){
 			return 0;
 		} else if(i1>i2){
