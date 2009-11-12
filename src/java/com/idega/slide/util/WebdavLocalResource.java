@@ -26,7 +26,6 @@ import java.util.logging.Logger;
 import javax.transaction.NotSupportedException;
 import javax.transaction.SystemException;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
@@ -44,6 +43,7 @@ import org.apache.slide.content.Content;
 import org.apache.slide.content.NodeProperty;
 import org.apache.slide.content.NodeRevisionDescriptor;
 import org.apache.slide.content.NodeRevisionDescriptors;
+import org.apache.slide.security.NodePermission;
 import org.apache.slide.structure.ObjectNotFoundException;
 import org.apache.webdav.lib.Ace;
 import org.apache.webdav.lib.Property;
@@ -66,6 +66,7 @@ import com.idega.slide.business.IWSimpleSlideService;
 import com.idega.util.CoreConstants;
 import com.idega.util.StringHandler;
 import com.idega.util.expression.ELUtil;
+import com.idega.util.xml.XmlUtil;
 
 
 /**
@@ -144,9 +145,8 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 		return propfindMethod(path,depth,null);
 	}
 		
-	@SuppressWarnings("unchecked")
 	@Override
-	public Enumeration propfindMethod(String path, int depth, Vector presetProperties) throws HttpException, IOException {
+	public Enumeration<LocalResponse> propfindMethod(String path, int depth, Vector presetProperties) throws HttpException, IOException {
 		LOGGER.info("Local resource called: " + httpURL);
         this.namespace = Domain.accessNamespace(new SecurityToken(CoreConstants.EMPTY), Domain.getDefaultNamespace());
         String userPrincipal = "root";
@@ -165,26 +165,24 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 			this.namespace.begin();
 	        try {
 	            Content c = this.namespace.getContentHelper();
+	            
 	            NodeRevisionDescriptors revs = c.retrieve(this.token, resourcePath);
 	            NodeRevisionDescriptor rev = c.retrieve(this.token, revs, revs.getLatestRevision());
+	           
 	            Enumeration<NodeProperty> e = rev.enumerateProperties();
 	            Vector<Property> properties = new Vector<Property>();
 	            while (e.hasMoreElements()) {
 	                NodeProperty p = e.nextElement();
 	                String localName = p.getPropertyName().getName();
-	                Property property=null;
+	                Property property = null;
 	                if (localName.equals(RESOURCETYPE)) {
-	                    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-	                    factory.setNamespaceAware(true);
-	                    factory.setValidating(false);
-	                    DocumentBuilder builder = factory.newDocumentBuilder();
+	                	DocumentBuilder builder = XmlUtil.getDocumentBuilder();
 		                Object oValue = p.getValue();
 		                String value = null;
 		                if (oValue != null) {
 		                	value=oValue.toString();
 		                }
 		                Document doc = builder.newDocument();
-		                //doc.setPrefix(p.getNamespace());
 		                String namespace = p.getNamespace();
 		                String tagName = p.getName();
 		                Element element = doc.createElementNS(namespace,tagName);
@@ -195,11 +193,8 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 		                else {
 		                	child = doc.createTextNode(value);
 		                }
-		                //element.setNodeValue(value);
 		                element.appendChild(child);
-	                    /*String elLocalName = */element.getLocalName();
-	                    property = new ResourceTypeProperty(response,element);
-	                    
+	                    property = new ResourceTypeProperty(response, element);
 	                }
 	                else if (localName.equals(LOCKDISCOVERY)) {
 	                    /*DocumentBuilderFactory factory =
@@ -213,14 +208,14 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 	                }
 	                else {
 		                LocalProperty lProperty = new LocalProperty(response);
-		                property=lProperty;
+		                property = lProperty;
 		                lProperty.setName(p.getName());
 		                lProperty.setNamespaceURI(p.getNamespace());
 		                lProperty.setLocalName(p.getName());
 		                Object oValue = p.getValue();
-		                String value=null;
-		                if(oValue!=null){
-		                	value=oValue.toString();
+		                String value = null;
+		                if (oValue != null) {
+		                	value = oValue.toString();
 		                }
 		                lProperty.setPropertyAsString(value);
 	                }
@@ -247,12 +242,6 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 		
 		return responses.elements();
 	}
-	
-//	TODO: implement OR for now can create external resource to manage rights
-//	@Override
-//	public AclProperty aclfindMethod(String path) throws HttpException, IOException {
-//		return super.aclfindMethod(path);
-//	}
 
 	@Override
 	public boolean putMethod(byte[] data) throws HttpException, IOException {
@@ -396,22 +385,22 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 
 	@Override
 	public AclProperty aclfindMethod() throws HttpException, IOException {
-		LOGGER.info("Local resource called: " + httpURL);
-		return super.aclfindMethod();
+		return aclfindMethod(httpURL.getPathQuery());
 	}
 
 	@Override
-	public AclProperty aclfindMethod(String arg0) throws HttpException,
-			IOException {
-		LOGGER.info("Local resource called: " + httpURL);
-		return super.aclfindMethod(arg0);
+	public AclProperty aclfindMethod(String path) throws HttpException, IOException {
+		Enumeration<NodePermission> permissions = getSlideAPI().getPermissions(path);
+		if (permissions == null || !permissions.hasMoreElements()) {
+			return null;
+		}
+		
+		return new LocalAclProperty(permissions);
 	}
 
 	@Override
-	public boolean aclMethod(String arg0, Ace[] arg1) throws HttpException,
-			IOException {
-		LOGGER.info("Local resource called: " + httpURL);
-		return super.aclMethod(arg0, arg1);
+	public boolean aclMethod(String path, Ace[] aces) throws HttpException, IOException {
+		return getSlideAPI().setPermissions(path, aces);
 	}
 
 	@Override

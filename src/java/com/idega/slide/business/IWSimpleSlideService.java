@@ -1,6 +1,10 @@
 package com.idega.slide.business;
 
 import java.io.InputStream;
+import java.util.Enumeration;
+
+import org.apache.slide.security.NodePermission;
+import org.apache.webdav.lib.Ace;
 
 import com.idega.user.data.User;
 
@@ -23,4 +27,8 @@ public interface IWSimpleSlideService {
 	public boolean upload(InputStream stream, String uploadPath, String fileName, String contentType, User user, boolean closeStream) throws Exception;
 	
 	public boolean setContent(String pathToFile, InputStream contentStream);
+	
+	public Enumeration<NodePermission> getPermissions(String path);
+	
+	public boolean setPermissions(String path, Ace[] aces);
 }

@@ -587,8 +587,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		return returner;
 	}
 
-	public void updateUserFolderPrivileges(String loginName)
-			throws IOException, IOException {
+	public void updateUserFolderPrivileges(String loginName) throws IOException, IOException {
 
 		String userFolderPath = getURI(getUserHomeFolderPath(loginName));
 
@@ -598,14 +597,13 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		// user folder
 		AccessControlList userFolderList = getAccessControlList(userFolderPath);
 		// should be 'all' for the user himself
-		List userFolderUserACEs = userFolderList
-				.getAccessControlEntriesForUsers();
+		List<AccessControlEntry> userFolderUserACEs = userFolderList.getAccessControlEntriesForUsers();
 		AccessControlEntry usersPositiveAce = null;
 		AccessControlEntry usersNegativeAce = null;
 		boolean madeChangesToUserFolderList = false;
 		// Find the ace
-		for (Iterator iter = userFolderUserACEs.iterator(); iter.hasNext();) {
-			AccessControlEntry ace = (AccessControlEntry) iter.next();
+		for (Iterator<AccessControlEntry> iter = userFolderUserACEs.iterator(); iter.hasNext();) {
+			AccessControlEntry ace = iter.next();
 			if (ace.getPrincipal().equals(userPrincipal) && !ace.isInherited()) {
 				if (ace.isNegative()) {
 					usersNegativeAce = ace;
@@ -615,15 +613,12 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 			}
 		}
 		if (usersPositiveAce == null) {
-			usersPositiveAce = new AccessControlEntry(userPrincipal, false,
-					false, false, null, AccessControlEntry.PRINCIPAL_TYPE_USER);
+			usersPositiveAce = new AccessControlEntry(userPrincipal, false, false, false, null, AccessControlEntry.PRINCIPAL_TYPE_USER);
 			userFolderList.add(usersPositiveAce);
 		}
 
 		if (!usersPositiveAce.containsPrivilege(IWSlideConstants.PRIVILEGE_ALL)) {
-			if (usersNegativeAce != null
-					&& usersNegativeAce
-							.containsPrivilege(IWSlideConstants.PRIVILEGE_ALL)) {
+			if (usersNegativeAce != null && usersNegativeAce.containsPrivilege(IWSlideConstants.PRIVILEGE_ALL)) {
 				// do nothing becuse this is not ment to reset permissions but
 				// to set them in the first
 				// first place and update for legacy reasons. If Administrator
@@ -656,25 +651,20 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @throws HttpException
 	 * @throws IOException
 	 */
-	private void updateUsersDropboxPrivileges(String userFolderPath)
-			throws HttpException, IOException {
+	private void updateUsersDropboxPrivileges(String userFolderPath)throws HttpException, IOException {
 		// dropbox
-		AccessControlList dropboxList = getAccessControlList(userFolderPath
-				+ FOLDER_NAME_DROPBOX);
+		AccessControlList dropboxList = getAccessControlList(userFolderPath + FOLDER_NAME_DROPBOX);
 		// should be 'write' for authenticated
 
-		List publicFolderStandardACEs = dropboxList
-				.getAccessControlEntriesForUsers();
+		List<AccessControlEntry> publicFolderStandardACEs = dropboxList.getAccessControlEntriesForUsers();
 		String principalAuthenticated = IWSlideConstants.SUBJECT_URI_AUTHENTICATED;
 		AccessControlEntry prAuthenticatedPositiveAce = null;
 		AccessControlEntry prAuthenticatedNegativeAce = null;
 		boolean madeChangesToPublicFolderList = false;
 		// Find the ace
-		for (Iterator iter = publicFolderStandardACEs.iterator(); iter
-				.hasNext();) {
-			AccessControlEntry ace = (AccessControlEntry) iter.next();
-			if (ace.getPrincipal().equals(principalAuthenticated)
-					&& !ace.isInherited()) {
+		for (Iterator<AccessControlEntry> iter = publicFolderStandardACEs.iterator(); iter.hasNext();) {
+			AccessControlEntry ace = iter.next();
+			if (ace.getPrincipal().equals(principalAuthenticated) && !ace.isInherited()) {
 				if (ace.isNegative()) {
 					prAuthenticatedNegativeAce = ace;
 				} else {
@@ -683,23 +673,17 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 			}
 		}
 		if (prAuthenticatedPositiveAce == null) {
-			prAuthenticatedPositiveAce = new AccessControlEntry(
-					principalAuthenticated, false, false, false, null,
-					AccessControlEntry.PRINCIPAL_TYPE_STANDARD);
+			prAuthenticatedPositiveAce = new AccessControlEntry(principalAuthenticated, false, false, false, null, AccessControlEntry.PRINCIPAL_TYPE_STANDARD);
 			dropboxList.add(prAuthenticatedPositiveAce);
 		}
 
-		if (!prAuthenticatedPositiveAce
-				.containsPrivilege(IWSlideConstants.PRIVILEGE_WRITE)) {
-			if (prAuthenticatedNegativeAce != null
-					&& prAuthenticatedNegativeAce
-							.containsPrivilege(IWSlideConstants.PRIVILEGE_WRITE)) {
+		if (!prAuthenticatedPositiveAce.containsPrivilege(IWSlideConstants.PRIVILEGE_WRITE)) {
+			if (prAuthenticatedNegativeAce != null && prAuthenticatedNegativeAce.containsPrivilege(IWSlideConstants.PRIVILEGE_WRITE)) {
 				// do nothing becuse this is not ment to reset permissions but
 				// to set them in the first
 				// first place and update for legacy reasons.
 			} else {
-				prAuthenticatedPositiveAce
-						.addPrivilege(IWSlideConstants.PRIVILEGE_WRITE);
+				prAuthenticatedPositiveAce.addPrivilege(IWSlideConstants.PRIVILEGE_WRITE);
 				madeChangesToPublicFolderList = true;
 
 				// temporary at least:
@@ -718,26 +702,20 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @throws HttpException
 	 * @throws IOException
 	 */
-	private void updateUsersPublicFolderPrivileges(String userFolderPath)
-			throws HttpException, IOException {
+	private void updateUsersPublicFolderPrivileges(String userFolderPath) throws HttpException, IOException {
 		// public folder
-		AccessControlList publicFolderList = getAccessControlList(userFolderPath
-				+ FOLDER_NAME_PUBLIC);
-		// should be 'read' for everyone (and preferably nothing set for
-		// 'write')
+		AccessControlList publicFolderList = getAccessControlList(userFolderPath + FOLDER_NAME_PUBLIC);
+		// should be 'read' for everyone (and preferably nothing set for 'write')
 
-		List publicFolderStandardACEs = publicFolderList
-				.getAccessControlEntriesForUsers();
+		List<AccessControlEntry> publicFolderStandardACEs = publicFolderList.getAccessControlEntriesForUsers();
 		String principalEveryone = IWSlideConstants.SUBJECT_URI_ALL;
 		AccessControlEntry prEveryonePositiveAce = null;
 		AccessControlEntry prEveryoneNegativeAce = null;
 		boolean madeChangesToPublicFolderList = false;
 		// Find the ace
-		for (Iterator iter = publicFolderStandardACEs.iterator(); iter
-				.hasNext();) {
-			AccessControlEntry ace = (AccessControlEntry) iter.next();
-			if (ace.getPrincipal().equals(principalEveryone)
-					&& !ace.isInherited()) {
+		for (Iterator<AccessControlEntry> iter = publicFolderStandardACEs.iterator(); iter.hasNext();) {
+			AccessControlEntry ace = iter.next();
+			if (ace.getPrincipal().equals(principalEveryone) && !ace.isInherited()) {
 				if (ace.isNegative()) {
 					prEveryoneNegativeAce = ace;
 				} else {
@@ -746,23 +724,17 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 			}
 		}
 		if (prEveryonePositiveAce == null) {
-			prEveryonePositiveAce = new AccessControlEntry(principalEveryone,
-					false, false, false, null,
-					AccessControlEntry.PRINCIPAL_TYPE_STANDARD);
+			prEveryonePositiveAce = new AccessControlEntry(principalEveryone, false, false, false, null, AccessControlEntry.PRINCIPAL_TYPE_STANDARD);
 			publicFolderList.add(prEveryonePositiveAce);
 		}
 
-		if (!prEveryonePositiveAce
-				.containsPrivilege(IWSlideConstants.PRIVILEGE_READ)) {
-			if (prEveryoneNegativeAce != null
-					&& prEveryoneNegativeAce
-							.containsPrivilege(IWSlideConstants.PRIVILEGE_READ)) {
+		if (!prEveryonePositiveAce.containsPrivilege(IWSlideConstants.PRIVILEGE_READ)) {
+			if (prEveryoneNegativeAce != null && prEveryoneNegativeAce.containsPrivilege(IWSlideConstants.PRIVILEGE_READ)) {
 				// do nothing becuse this is not ment to reset permissions but
 				// to set them in the first
 				// first place and update for legacy reasons.
 			} else {
-				prEveryonePositiveAce
-						.addPrivilege(IWSlideConstants.PRIVILEGE_READ);
+				prEveryonePositiveAce.addPrivilege(IWSlideConstants.PRIVILEGE_READ);
 				madeChangesToPublicFolderList = true;
 
 				// temporary at least:
@@ -777,8 +749,8 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	}
 
 	public AccessControlList getAccessControlList(String path) throws HttpException, IOException {
-		WebdavResource rResource = getWebdavExternalResourceAuthenticatedAsRoot(path);
-		return getAccessControlList(path, new WebdavRootResource(rResource));
+		WebdavResource resource = getWebdavResourceAuthenticatedAsRoot(path);
+		return getAccessControlList(path, new WebdavRootResource(resource));
 	}
 
 	/**
@@ -812,7 +784,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		return acl;
 	}
 
-	//	TODO: use local resource!
+	//	TODO: use local resource
 	public boolean storeAccessControlList(AccessControlList acl) throws HttpException, IOException {
 		WebdavResource rResource = getWebdavExtendedResource(null, getRootUserCredentials(), Boolean.FALSE);
 		return storeAccessControlList(acl, new WebdavRootResource(rResource));
@@ -826,32 +798,10 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @throws HttpException
 	 * @throws IOException
 	 */
-	public boolean storeAccessControlList(AccessControlList acl,
-			WebdavRootResource rResource) throws HttpException, IOException {
+	public boolean storeAccessControlList(AccessControlList acl, WebdavRootResource rResource) throws HttpException, IOException {
 		String resourceURI = getURI(acl.getResourcePath());
 		Ace[] aces = acl.getAces();
-		// System.out.println("Saving for resource: "+resourceURI);
-		// for(int i = 0; i < aces.length; i++) {
-		// System.out.print("Saving:"+aces[i]);
-		// Enumeration e = aces[i].enumeratePrivileges();
-		// while (e.hasMoreElements()) {
-		// Privilege p = (Privilege) e.nextElement();
-		// System.out.print(", "+p.getName());
-		// }
-		// System.out.println();
-		// }
-
-		boolean value = rResource.aclMethod(resourceURI, aces);
-		// System.out.println("Success: "+value);
-		// if (!value){
-		// //try
-		// String path = getPath(resourceURI);
-		// System.out.println("Try path: "+path);
-		// rResource.aclMethod(path,aces);
-		// System.out.println("Success: "+value);
-		// }
-		// System.out.println("Done - ------------------");
-		return value;
+		return rResource.aclMethod(resourceURI, aces);
 	}
 
 	/**
@@ -1160,10 +1110,9 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @param iwSlideChangeListeners
 	 *            The iwSlideChangeListeners to set. Overwrites the current list
 	 */
-	public void setIWSlideChangeListeners(List iwSlideChangeListeners) {
+	public void setIWSlideChangeListeners(List<IWSlideChangeListener> iwSlideChangeListeners) {
 		this.iwSlideChangeListeners = iwSlideChangeListeners;
-		this.iwSlideChangeListenersArray = (IWSlideChangeListener[]) iwSlideChangeListeners
-				.toArray(new IWSlideChangeListener[0]);
+		this.iwSlideChangeListenersArray = iwSlideChangeListeners.toArray(new IWSlideChangeListener[0]);
 	}
 
 	/**
@@ -1172,8 +1121,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * 
 	 * @param iwSlideChangeListener
 	 */
-	public void addIWSlideChangeListeners(
-			IWSlideChangeListener iwSlideChangeListener) {
+	public void addIWSlideChangeListeners(IWSlideChangeListener iwSlideChangeListener) {
 		if (this.iwSlideChangeListeners == null) {
 			this.iwSlideChangeListeners = new ArrayList<IWSlideChangeListener>();
 		}
@@ -1181,10 +1129,8 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		if (!this.iwSlideChangeListeners.contains(iwSlideChangeListener)) {
 			this.iwSlideChangeListeners.add(iwSlideChangeListener);
 			// update the array, for speed optimization
-			this.iwSlideChangeListenersArray = this.iwSlideChangeListeners
-					.toArray(new IWSlideChangeListener[0]);
+			this.iwSlideChangeListenersArray = this.iwSlideChangeListeners.toArray(new IWSlideChangeListener[0]);
 		}
-
 	}
 
 	/**
@@ -1246,10 +1192,10 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @return the count of "real" child resources, excluding folders and hidden
 	 *         files
 	 */
-	public List getChildPathsExcludingFoldersAndHiddenFiles(String folderURI) {
+	public List<String> getChildPathsExcludingFoldersAndHiddenFiles(String folderURI) {
 
-		Map cache = getChildPathsCacheMap();
-		List paths = (List) cache.get(folderURI);
+		Map<String, List<String>> cache = getChildPathsCacheMap();
+		List<String> paths = cache.get(folderURI);
 
 		if (paths == null) {
 			try {
@@ -1261,14 +1207,12 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 					WebdavResource[] resources = children.listResources();
 
 					if (resources.length > 0) {
-						paths = new ArrayList();
+						paths = new ArrayList<String>();
 						for (int i = 0; i < resources.length; i++) {
 							WebdavResource wResource = resources[i];
 							String path = wResource.getPath();
-							String fileName = path.substring(path
-									.lastIndexOf(CoreConstants.SLASH) + 1);
-							if (!resources[i].isCollection()
-									&& !isHiddenFile(fileName)) {
+							String fileName = path.substring(path.lastIndexOf(CoreConstants.SLASH) + 1);
+							if (!resources[i].isCollection() && !isHiddenFile(fileName)) {
 								paths.add(wResource.getPath());
 							}
 						}
@@ -1412,6 +1356,8 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	}
 
 	/**
+	 * @param <K>
+	 * @param <V>
 	 * @return Returns the childPathsCacheMap.
 	 */
 	public Map getChildPathsCacheMap() {

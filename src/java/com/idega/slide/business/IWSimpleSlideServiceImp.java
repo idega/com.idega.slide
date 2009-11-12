@@ -2,7 +2,10 @@ package com.idega.slide.business;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -21,11 +24,14 @@ import org.apache.slide.content.NodeRevisionContent;
 import org.apache.slide.content.NodeRevisionDescriptor;
 import org.apache.slide.content.NodeRevisionDescriptors;
 import org.apache.slide.content.NodeRevisionNumber;
+import org.apache.slide.security.NodePermission;
 import org.apache.slide.security.Security;
 import org.apache.slide.structure.ObjectNode;
 import org.apache.slide.structure.ObjectNotFoundException;
 import org.apache.slide.structure.Structure;
 import org.apache.slide.structure.SubjectNode;
+import org.apache.webdav.lib.Ace;
+import org.apache.webdav.lib.Privilege;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -37,6 +43,7 @@ import com.idega.idegaweb.IWMainApplication;
 import com.idega.slide.authentication.AuthenticationBusiness;
 import com.idega.slide.webdavservlet.DomainConfig;
 import com.idega.user.data.User;
+import com.idega.util.ArrayUtil;
 import com.idega.util.CoreConstants;
 import com.idega.util.IOUtil;
 import com.idega.util.IWTimestamp;
@@ -406,6 +413,76 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 		
 		finishTransaction();
 		return Boolean.TRUE;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Enumeration<NodePermission> getPermissions(String path) {
+		path = getNormalizedPath(path);
+		if (StringUtil.isEmpty(path)) {
+			return null;
+		}
+		
+		if (!startTransaction()) {
+			return null;
+		}
+		
+		Enumeration<NodePermission> permissions = null;
+		try {
+			permissions = security.enumeratePermissions(getSlideToken(), path);
+		} catch (Throwable t) {
+			LOGGER.log(Level.WARNING, "Error getting permissions for: " + path, t);
+			rollbackTransaction();
+		}
+		
+		finishTransaction();
+		return permissions;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public boolean setPermissions(String path, Ace[] aces) {
+		if (ArrayUtil.isEmpty(aces)) {
+			return false;
+		}
+		
+		path = getNormalizedPath(path);
+		
+		if (!startTransaction()) {
+			return false;
+		}
+		
+		Collection<NodePermission> permissions = new ArrayList<NodePermission>(aces.length);
+		for (Ace ace: aces) {
+			String action = CoreConstants.EMPTY;
+			Enumeration<Privilege> privileges = ace.enumeratePrivileges();
+			if (privileges != null) {
+				while (privileges.hasMoreElements()) {
+					Privilege p = privileges.nextElement();
+					action = action.concat(p.getName());
+					if (privileges.hasMoreElements()) {
+						action = action.concat(CoreConstants.COMMA);
+					}
+				}
+			}
+			
+			NodePermission permission = new NodePermission(path, ace.getPrincipal(), action);
+			permission.setInheritable(ace.isInheritable());
+			String inheritedFrom = ace.getInheritedFrom();
+			permission.setInheritedFrom(inheritedFrom);
+			permission.setNegative(ace.isNegative());
+			permission.setProtected(ace.isProtected());
+			
+			permissions.add(permission);
+		}
+		try {
+			security.setPermissions(getSlideToken(), path, Collections.enumeration(permissions));
+		} catch (Throwable t) {
+			LOGGER.log(Level.WARNING, "Error setting ACLs " + aces + " for " + path, t);
+			rollbackTransaction();
+			return false;
+		}
+		
+		finishTransaction();
+		return true;
 	}
 	
 	private String getNormalizedPath(String path) {
