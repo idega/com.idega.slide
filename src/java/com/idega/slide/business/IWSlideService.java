@@ -256,8 +256,7 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#setIWSlideChangeListeners
 	 */
-	public void setIWSlideChangeListeners(List iwSlideChangeListeners)
-			throws RemoteException;
+	public void setIWSlideChangeListeners(List<IWSlideChangeListener> iwSlideChangeListeners) throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#addIWSlideChangeListeners
@@ -289,8 +288,7 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getChildPathsExcludingFoldersAndHiddenFiles
 	 */
-	public List getChildPathsExcludingFoldersAndHiddenFiles(String folderURI)
-			throws RemoteException;
+	public List<String> getChildPathsExcludingFoldersAndHiddenFiles(String folderURI) throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getChildFolderPaths
