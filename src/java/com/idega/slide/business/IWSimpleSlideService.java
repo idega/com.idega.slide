@@ -31,4 +31,6 @@ public interface IWSimpleSlideService {
 	public Enumeration<NodePermission> getPermissions(String path);
 	
 	public boolean setPermissions(String path, Ace[] aces);
+	
+	public boolean createStructure(String path);
 }

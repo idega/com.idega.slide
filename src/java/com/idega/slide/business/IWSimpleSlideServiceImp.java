@@ -2,10 +2,12 @@ package com.idega.slide.business;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -16,6 +18,7 @@ import org.apache.slide.authenticate.CredentialsToken;
 import org.apache.slide.authenticate.SecurityToken;
 import org.apache.slide.common.Domain;
 import org.apache.slide.common.NamespaceAccessToken;
+import org.apache.slide.common.ServiceAccessException;
 import org.apache.slide.common.SlideToken;
 import org.apache.slide.common.SlideTokenImpl;
 import org.apache.slide.content.Content;
@@ -24,8 +27,14 @@ import org.apache.slide.content.NodeRevisionContent;
 import org.apache.slide.content.NodeRevisionDescriptor;
 import org.apache.slide.content.NodeRevisionDescriptors;
 import org.apache.slide.content.NodeRevisionNumber;
+import org.apache.slide.content.RevisionDescriptorNotFoundException;
+import org.apache.slide.event.VetoException;
+import org.apache.slide.lock.ObjectLockedException;
+import org.apache.slide.security.AccessDeniedException;
 import org.apache.slide.security.NodePermission;
 import org.apache.slide.security.Security;
+import org.apache.slide.structure.LinkedObjectNotFoundException;
+import org.apache.slide.structure.ObjectAlreadyExistsException;
 import org.apache.slide.structure.ObjectNode;
 import org.apache.slide.structure.ObjectNotFoundException;
 import org.apache.slide.structure.Structure;
@@ -37,10 +46,10 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import com.idega.business.IBOLookup;
-import com.idega.business.IBOLookupException;
-import com.idega.idegaweb.IWMainApplication;
+import com.idega.core.business.DefaultSpringBean;
 import com.idega.slide.authentication.AuthenticationBusiness;
+import com.idega.slide.util.IWSlideConstants;
+import com.idega.slide.util.LocalAclProperty;
 import com.idega.slide.webdavservlet.DomainConfig;
 import com.idega.user.data.User;
 import com.idega.util.ArrayUtil;
@@ -60,7 +69,7 @@ import com.idega.util.StringUtil;
 */
 @Service
 @Scope(BeanDefinition.SCOPE_SINGLETON)
-public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
+public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimpleSlideService {
 
 	private static final long serialVersionUID = 8065146986117553218L;
 	private static final Logger LOGGER = Logger.getLogger(IWSimpleSlideServiceImp.class.getName());
@@ -103,11 +112,7 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 	
 	private AuthenticationBusiness getAuthenticationBusiness() {
 		if (authenticationBusiness == null) {
-			try {
-				authenticationBusiness = IBOLookup.getServiceInstance(IWMainApplication.getDefaultIWApplicationContext(), AuthenticationBusiness.class);
-			} catch (IBOLookupException e) {
-				LOGGER.log(Level.WARNING, "Error getting EJB bean:" + AuthenticationBusiness.class, e);
-			}
+			authenticationBusiness = getServiceInstance(AuthenticationBusiness.class);
 		}
 		return authenticationBusiness;
 	}
@@ -150,18 +155,36 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private boolean doUploading(InputStream stream, SlideToken token, String uploadPath, String contentType, User user, boolean closeStream) {
-		//	TODO: there is problem in uploadPath: API doesn't "see" different in case: /files/themes/ and /files/Themes/
+	public boolean upload(InputStream stream, String uploadPath, String fileName, String contentType, User user, boolean closeStream) throws Exception {
+		if (stream == null || uploadPath == null || fileName == null) {
+			return false;
+		}
+		
+		uploadPath = uploadPath.concat(fileName);
+		uploadPath = getNormalizedPath(uploadPath);
+
+		NodeRevisionDescriptor descriptor = null;
+		try {
+			descriptor = getNodeRevisionDescriptor(uploadPath);
+		} catch (Throwable t) {}
+		if (descriptor != null) {
+			//	Modifying existing file!
+			return setContent(uploadPath, stream);
+		}
+		
+		if (!startTransaction()) {
+			return false;
+		}
+		
+		SlideToken token = getSlideToken();
 		try {
 			NodeRevisionNumber lastRevision = null;
 			try {
 				structure.retrieve(token, uploadPath);
 				lastRevision = content.retrieve(token, uploadPath).getLatestRevision();
-			}
-			catch (ObjectNotFoundException e) {
-				SubjectNode subject = new SubjectNode();
-				//	Create object
-				structure.create(token, subject, uploadPath);
+			} catch (ObjectNotFoundException e) {
+				SubjectNode subjectNode = new SubjectNode();
+				structure.create(token, subjectNode, uploadPath);
 			}
 			if (lastRevision == null) {
 				lastRevision = new NodeRevisionNumber();
@@ -170,7 +193,7 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 				lastRevision = new NodeRevisionNumber(lastRevision, false);
 			}
 			
-			//	Node revision descriptor	//	TODO: check for existing descriptor
+			//	Node revision descriptor
 			IWTimestamp now = IWTimestamp.RightNow();
 			NodeRevisionDescriptor revisionDescriptor = new NodeRevisionDescriptor(lastRevision, NodeRevisionDescriptors.MAIN_BRANCH, new Vector(),
 					new ArrayList());
@@ -182,7 +205,7 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 			revisionDescriptor.setCreationDate(now.getDate());
 			
 			//	Owner
-			String creator = ((SubjectNode)security.getPrincipal(token)).getPath().lastSegment();
+			String creator = ((SubjectNode) security.getPrincipal(token)).getPath().lastSegment();
 			revisionDescriptor.setCreationUser(creator);
 			revisionDescriptor.setOwner(creator);
 			if (contentType != null) {
@@ -204,8 +227,9 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 			
 			content.create(token, uploadPath, revisionDescriptor, revisionContent);
 			return true;
-		} catch(Throwable e) {
-			LOGGER.log(Level.SEVERE, "Error while uploading!", e);
+		} catch(Throwable t) {
+			LOGGER.log(Level.WARNING, "Error while uploading: " + uploadPath, t);
+			rollbackTransaction();
 		}
 		finally {
 			if (closeStream) {
@@ -215,24 +239,6 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 		}
 		
 		return false;
-	}
-	
-	public boolean upload(InputStream stream, String uploadPath, String fileName, String contentType, User user, boolean closeStream) throws Exception {
-		if (stream == null || uploadPath == null || fileName == null) {
-			return false;
-		}
-		
-		SlideToken token = getSlideToken();
-		if (!startTransaction()) {
-			return false;
-		}
-		
-		boolean uploadingResult = doUploading(stream, token, uploadPath + fileName, contentType, user, closeStream);
-		if (!uploadingResult) {
-			rollbackTransaction();
-		}
-		
-		return uploadingResult;
 	}
 	
 	public boolean upload(InputStream stream, String uploadPath, String fileName, String contentType, User user) throws Exception {
@@ -258,7 +264,6 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 		try {
 			return content.retrieve(rootToken, pathToNode);
 		} catch (Throwable e) {
-			LOGGER.warning("Unable to retrieve requested object: " + pathToNode);
 		} finally {
 			rollbackTransaction();
 		}
@@ -266,12 +271,36 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 		return null;
 	}
 	
-	private NodeRevisionDescriptor getNodeRevisionDescriptor(String pathToNode) {
-		NodeRevisionDescriptors revisionDescriptors = getNodeRevisionDescriptors(pathToNode);
-		return getNodeRevisionDescriptor(revisionDescriptors, pathToNode);
+	private NodeRevisionDescriptor getNodeRevisionDescriptor(String path)
+		throws ObjectNotFoundException, AccessDeniedException, LinkedObjectNotFoundException, RevisionDescriptorNotFoundException, ObjectLockedException,
+			ServiceAccessException, VetoException {
+		
+		NodeRevisionDescriptors revisionDescriptors = getNodeRevisionDescriptors(path);
+		return getNodeRevisionDescriptor(revisionDescriptors);
 	}
 	
-	private NodeRevisionDescriptor getNodeRevisionDescriptor(NodeRevisionDescriptors revisionDescriptors, String pathToNode) {
+	private NodeRevisionDescriptor getRevisionDescriptor(String path) {
+		try {
+			return getNodeRevisionDescriptor(path);
+		} catch (Throwable t) {
+			LOGGER.warning("Error getting node revision descriptor for: " + path);
+		}
+		return null;
+	}
+	
+	private NodeRevisionDescriptor getRevisionDescriptor(NodeRevisionDescriptors revisionDescriptors) {
+		try {
+			return getNodeRevisionDescriptor(revisionDescriptors);
+		} catch (Throwable t) {
+			LOGGER.warning("Error getting node revision descriptor!");
+		}
+		return null;
+	}
+	
+	private NodeRevisionDescriptor getNodeRevisionDescriptor(NodeRevisionDescriptors revisionDescriptors)
+		throws ObjectNotFoundException, AccessDeniedException, LinkedObjectNotFoundException, RevisionDescriptorNotFoundException, ObjectLockedException,
+				ServiceAccessException, VetoException {
+		
 		SlideToken rootToken = getSlideToken();
 		if (rootToken == null) {
 			return null;
@@ -283,13 +312,9 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 		
 		try {
 			return content.retrieve(rootToken, revisionDescriptors);
-		} catch (Throwable e) {
-			LOGGER.log(Level.SEVERE, "Error retrieving revision descriptor", e);
 		} finally {
 			rollbackTransaction();
 		}
-		
-		return null;
 	}
 	
 	public boolean checkExistance(String pathToFile) {
@@ -304,23 +329,30 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 
 		pathToFile = getNormalizedPath(pathToFile);
 		
+		boolean rollback = true;
 		ObjectNode node = null;
 		try {
 			node = structure.retrieve(rootToken, pathToFile);
-		} catch (Exception e) {
-			rollbackTransaction();
-			LOGGER.warning("Error retrieving object at " + pathToFile);
-			return false;
+			
+			finishTransaction();
+			rollback = false;
+			
+			return node == null ? false : true;
+		} catch (ObjectNotFoundException e) {
+		} catch (LinkedObjectNotFoundException e) {
+		} catch (AccessDeniedException e) {
+			LOGGER.warning("Current user can not access " + pathToFile + " - access denied!");
+		} catch (ServiceAccessException e) {
+			LOGGER.log(Level.WARNING, "Error accessing " + pathToFile, e);
+		} catch (Throwable t) {
+			LOGGER.log(Level.WARNING, "Some error occurred while trying to retrieve " + pathToFile, t);
+		} finally {
+			if (rollback) {
+				rollbackTransaction();
+			}
 		}
 		
-		finishTransaction();
-		
-		if (node == null) {
-			LOGGER.warning("Object doesn't exist at " + pathToFile);
-			return false;
-		}
-		
-		return true;
+		return false;
 	}
 	
 	private NodeRevisionContent getNodeContent(String pathToFile) {
@@ -329,7 +361,7 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 			return null;
 		}
 		
-		NodeRevisionDescriptor revisionDescriptor = getNodeRevisionDescriptor(pathToFile);
+		NodeRevisionDescriptor revisionDescriptor = getRevisionDescriptor(pathToFile);
 		if (revisionDescriptor == null) {
 			return null;
 		}
@@ -346,7 +378,7 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 		try {
 			return content.retrieve(rootToken, revisionDescriptors, revisionDescriptor);
 		} catch (Throwable e) {
-			LOGGER.log(Level.SEVERE, "Error getting InputStream for: " + pathToFile, e);
+			LOGGER.log(Level.WARNING, "Error getting InputStream for: " + pathToFile, e);
 			rollbackTransaction();
 		} finally {
 			finishTransaction();
@@ -370,7 +402,7 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 		try {
 			stream = nodeContent.streamContent();
 		} catch (Throwable e) {
-			LOGGER.log(Level.SEVERE, "Error getting InputStream for: " + pathToFile, e);
+			LOGGER.log(Level.WARNING, "Error getting InputStream for: " + pathToFile, e);
 			rollbackTransaction();
 		}
 		
@@ -393,7 +425,7 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 		}
 		
 		NodeRevisionDescriptors descriptors = getNodeRevisionDescriptors(pathToFile);
-		NodeRevisionDescriptor descriptor = getNodeRevisionDescriptor(descriptors, pathToFile);
+		NodeRevisionDescriptor descriptor = getRevisionDescriptor(descriptors);
 		
 		if (!startTransaction()) {
 			return Boolean.FALSE;
@@ -406,7 +438,7 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 			nodeContent.setContent(contentStream);
 			content.store(rootToken, pathToFile, descriptor, nodeContent);
 		} catch (Throwable e) {
-			LOGGER.log(Level.SEVERE, "Error setting content InputStream for: " + pathToFile, e);
+			LOGGER.log(Level.WARNING, "Error setting content InputStream for: " + pathToFile, e);
 			rollbackTransaction();
 			return Boolean.FALSE;
 		}
@@ -438,9 +470,41 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 		return permissions;
 	}
 	
+	private Ace[] getNewPermissions(String path, Ace[] aces) {
+		Enumeration<NodePermission> currentPermissions = getPermissions(path);
+		if (currentPermissions == null || !currentPermissions.hasMoreElements()) {
+			return aces;
+		}
+		
+		LocalAclProperty localAcl = new LocalAclProperty(currentPermissions);
+		Ace[] currentAces = localAcl.getAces();
+		if (ArrayUtil.isEmpty(currentAces)) {
+			return aces;
+		}
+		
+		Collection<Ace> newAces = new ArrayList<Ace>();
+		Collection<Ace> currAcesColl = Arrays.asList(currentAces);
+		for (Ace ace: aces) {
+			if (!currAcesColl.contains(ace)) {
+				newAces.add(ace);
+			}
+		}
+		
+		return ArrayUtil.convertListToArray(newAces);
+	}
+	
 	@SuppressWarnings("unchecked")
 	public boolean setPermissions(String path, Ace[] aces) {
 		if (ArrayUtil.isEmpty(aces)) {
+			return false;
+		}
+		
+		Ace[] newAces = getNewPermissions(path, aces);
+		if (ArrayUtil.isEmpty(newAces)) {
+			return true;
+		}
+		
+		if (!createStructure(path)) {
 			return false;
 		}
 		
@@ -450,28 +514,27 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 			return false;
 		}
 		
-		Collection<NodePermission> permissions = new ArrayList<NodePermission>(aces.length);
-		for (Ace ace: aces) {
-			String action = CoreConstants.EMPTY;
+		Collection<NodePermission> permissions = new ArrayList<NodePermission>(newAces.length);
+		for (Ace ace: newAces) {
+			List<String> actions = new ArrayList<String>();
 			Enumeration<Privilege> privileges = ace.enumeratePrivileges();
 			if (privileges != null) {
 				while (privileges.hasMoreElements()) {
 					Privilege p = privileges.nextElement();
-					action = action.concat(p.getName());
-					if (privileges.hasMoreElements()) {
-						action = action.concat(CoreConstants.COMMA);
-					}
+					actions.add(p.getName());
 				}
 			}
 			
-			NodePermission permission = new NodePermission(path, ace.getPrincipal(), action);
-			permission.setInheritable(ace.isInheritable());
-			String inheritedFrom = ace.getInheritedFrom();
-			permission.setInheritedFrom(inheritedFrom);
-			permission.setNegative(ace.isNegative());
-			permission.setProtected(ace.isProtected());
-			
-			permissions.add(permission);
+			for (String action: actions) {
+				NodePermission permission = new NodePermission(path, ace.getPrincipal(), IWSlideConstants.PATH_ACTIONS.concat(CoreConstants.SLASH).concat(action));
+				permission.setInheritable(ace.isInheritable());
+				String inheritedFrom = ace.getInheritedFrom();
+				permission.setInheritedFrom(inheritedFrom);
+				permission.setNegative(ace.isNegative());
+				permission.setProtected(ace.isProtected());
+				
+				permissions.add(permission);
+			}
 		}
 		try {
 			security.setPermissions(getSlideToken(), path, Collections.enumeration(permissions));
@@ -506,13 +569,13 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 		
 		try {
 			if (namespace.getStatus() == 0) {
-				//	Transaction was begun already	TODO: check if it's OK!
+				//	Transaction was begun already
 				return true;
 			}
 			
 			namespace.begin();
 		} catch(Throwable e) {
-			LOGGER.log(Level.SEVERE, "Cannot start user transaction", e);
+			LOGGER.log(Level.WARNING, "Cannot start user transaction", e);
 			return false;
 		}
 		
@@ -527,7 +590,7 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 		try {
 			namespace.rollback();
 		} catch (Throwable e) {
-			LOGGER.log(Level.SEVERE, "Cannot rollback user transaction", e);
+			LOGGER.log(Level.WARNING, "Cannot rollback user transaction", e);
 			return false;
 		}
 		return true;
@@ -541,9 +604,83 @@ public class IWSimpleSlideServiceImp implements IWSimpleSlideService {
 		try {
 			namespace.commit();
 		} catch (Throwable e) {
-			LOGGER.log(Level.SEVERE, "Cannot finish user transaction", e);
+			LOGGER.log(Level.WARNING, "Cannot finish user transaction", e);
 			return false;
 		}
 		return true;
+	}
+
+	public boolean createStructure(String path) {
+		return createStructure(path, Boolean.TRUE);
+	}
+	
+	private boolean createStructure(String path, boolean checkParents) {
+		path = getNormalizedPath(path);
+		if (path == null) {
+			return false;
+		}
+		
+		if (checkParents) {
+			String[] paths = path.split(CoreConstants.SLASH);
+			
+			String parentPath = CoreConstants.SLASH;
+			for (String pathPart: paths) {
+				if (!StringUtil.isEmpty(pathPart)) {
+					parentPath = parentPath.concat(pathPart).concat(CoreConstants.SLASH);
+					if (!createStructure(parentPath, Boolean.FALSE)) {
+						return false;
+					}
+				}
+			}
+		}
+		
+		if (!startTransaction()) {
+			return false;
+		}
+		
+		boolean error = false;
+		SlideToken token = getSlideToken();
+		ObjectNode node = new SubjectNode(path);
+		NodeRevisionDescriptor descriptor = null;
+		try {
+			structure.create(token, node, path);
+			finishTransaction();
+		} catch (ObjectAlreadyExistsException e) {
+			descriptor = getRevisionDescriptor(path);
+			if (descriptor != null) {
+				return true;
+			}
+		} catch (Throwable t) {
+			error = true;
+			LOGGER.log(Level.WARNING, "Error creating structure: " + path, t);
+			return false;
+		} finally {
+			if (error) {
+				rollbackTransaction();
+			}
+		}
+		
+		try {
+			if (!startTransaction()) {
+				return false;
+			}
+
+			descriptor = new NodeRevisionDescriptor();
+			NodeRevisionContent nodeContent = new NodeRevisionContent();
+			nodeContent.setContent(path.getBytes());
+			content.create(token, path, descriptor, nodeContent);
+
+			finishTransaction();
+			return true;
+		} catch (Throwable t) {
+			error = true;
+			LOGGER.log(Level.WARNING, "Error creating descriptor: " + path, t);
+		} finally {
+			if (error) {
+				rollbackTransaction();
+			}
+		}
+		
+		return false;
 	}
 }

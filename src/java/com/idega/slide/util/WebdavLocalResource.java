@@ -989,13 +989,13 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 	@Override
 	public boolean mkcolMethod() throws HttpException, IOException {
 		LOGGER.info("Local resource called: " + httpURL);
-		return super.mkcolMethod();
+		return mkcolMethod(httpURL.getPathQuery());
 	}
 
 	@Override
 	public boolean mkcolMethod(String path) throws HttpException, IOException {
 		LOGGER.info("Local resource called: " + httpURL);
-		return super.mkcolMethod(path);
+		return getSlideAPI().createStructure(path);
 	}
 
 	@Override
