@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -41,8 +43,6 @@ import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.slide.common.Domain;
 import org.apache.slide.common.NamespaceAccessToken;
 import org.apache.slide.security.Security;
@@ -98,30 +98,16 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	// listeners and caching
 	private List<IWSlideChangeListener> iwSlideChangeListeners = null;
 	private IWSlideChangeListener[] iwSlideChangeListenersArray = null;
-	private Map childPathsCacheMap = new HashMap();
-	private Map childPathsExcludingFolderAndHiddenFilesCacheMap = new HashMap();
-	private Map childFolderPathsCacheMap = new HashMap();
-	//
+	private Map<String, List<String>> childPathsCacheMap = new HashMap<String, List<String>>();
+	private Map<String, List<String>> childPathsExcludingFolderAndHiddenFilesCacheMap = new HashMap<String, List<String>>();
+	private Map<String, List<String>> childFolderPathsCacheMap = new HashMap<String, List<String>>();
 
-	protected static final String SLASH = "/";
-	private static final String SPACE = " ";
-	private static final String UNDER = "_";
-	private static final String EMPTY = "";
-	private static final String DOT = ".";
-	private static final String BRACKET_OPENING = "(";
-	private static final String BRACKET_CLOSING = ")";
+	protected static final String FILE_SERVER_URI = CoreConstants.WEBDAV_SERVLET_URI + CoreConstants.PATH_FILES_ROOT;
+	protected static final String USER_SERVLET_URI = CoreConstants.WEBDAV_SERVLET_URI + "/users";
 
-	protected static final String FILE_SERVER_URI = CoreConstants.WEBDAV_SERVLET_URI
-			+ CoreConstants.PATH_FILES_ROOT;
-	protected static final String USER_SERVLET_URI = CoreConstants.WEBDAV_SERVLET_URI
-			+ "/users";
-
-	protected static final String PATH_BLOCK_HOME = CoreConstants.PATH_FILES_ROOT
-			+ "/cms";
-	protected static final String PATH_USERS_HOME_FOLDERS = CoreConstants.PATH_FILES_ROOT
-			+ "/users";
-	protected static final String PATH_GROUPS_HOME_FOLDERS = CoreConstants.PATH_FILES_ROOT
-			+ "/groups";
+	protected static final String PATH_BLOCK_HOME = CoreConstants.PATH_FILES_ROOT + "/cms";
+	protected static final String PATH_USERS_HOME_FOLDERS = CoreConstants.PATH_FILES_ROOT + "/users";
+	protected static final String PATH_GROUPS_HOME_FOLDERS = CoreConstants.PATH_FILES_ROOT + "/groups";
 
 	protected static final String FOLDER_NAME_PUBLIC = "/public";
 	protected static final String FOLDER_NAME_SHARED = "/shared";
@@ -132,7 +118,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 
 	private Security security = null;
 
-	private static final Log log = LogFactory.getLog(IWSlideServiceBean.class);
+	private static final Logger LOGGER = Logger.getLogger(IWSlideServiceBean.class.getName());
 
 	@Autowired
 	private IWSimpleSlideService simpleSlideService;
@@ -315,6 +301,10 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		return getWebdavExtendedResource(path, credentials, Boolean.TRUE);
 	}
 	
+	private boolean isLocalResourceEnabled() {
+		return IWMainApplication.getDefaultIWMainApplication().getSettings().getBoolean("local_slide_resource", Boolean.FALSE);
+	}
+	
 	public WebdavExtendedResource getWebdavExtendedResource(String path, UsernamePasswordCredentials credentials, boolean localResource) throws HttpException,
 			IOException, RemoteException, RemoteException {
 
@@ -324,7 +314,8 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		}
 		
 		WebdavExtendedResource resource = null;
-		if (localResource && IWMainApplication.getDefaultIWMainApplication().getSettings().getBoolean("local_slide_resource", Boolean.FALSE)) {
+		
+		if (localResource && isLocalResourceEnabled()) {
 			if (!Domain.isInitialized()) {
 				DomainConfig domainConfig = ELUtil.getInstance().getBean(DomainConfig.SPRING_BEAN_IDENTIFIER);
 				domainConfig.initialize();
@@ -438,7 +429,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 			// to avoid /content/content/
 			path = path.substring(CoreConstants.WEBDAV_SERVLET_URI.length());
 		}
-		return getWebdavServerURI() + ((path.startsWith(SLASH)) ? "" : SLASH) + path;
+		return getWebdavServerURI() + ((path.startsWith(CoreConstants.SLASH)) ? CoreConstants.EMPTY : CoreConstants.SLASH) + path;
 	}
 
 	public String getPath(String uri) throws RemoteException {
@@ -784,9 +775,8 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		return acl;
 	}
 
-	//	TODO: use local resource
 	public boolean storeAccessControlList(AccessControlList acl) throws HttpException, IOException {
-		WebdavResource rResource = getWebdavExtendedResource(null, getRootUserCredentials(), Boolean.FALSE);
+		WebdavResource rResource = getWebdavExtendedResource(null, getRootUserCredentials(), Boolean.TRUE);
 		return storeAccessControlList(acl, new WebdavRootResource(rResource));
 	}
 
@@ -818,7 +808,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @return
 	 */
 	public String getUserHomeFolderPath(String loginName) {
-		return PATH_USERS_HOME_FOLDERS + SLASH + loginName;
+		return PATH_USERS_HOME_FOLDERS + CoreConstants.SLASH + loginName;
 	}
 
 	/**
@@ -857,8 +847,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 
 	public Security getSecurityHelper() {
 		if (this.security == null) {
-			NamespaceAccessToken token = (NamespaceAccessToken) getIWApplicationContext()
-					.getApplicationAttribute(WebdavServlet.ATTRIBUTE_NAME);
+			NamespaceAccessToken token = (NamespaceAccessToken) getIWApplicationContext().getApplicationAttribute(WebdavServlet.ATTRIBUTE_NAME);
 			this.security = token.getSecurityHelper();
 		}
 		return this.security;
@@ -876,10 +865,13 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @return true if it needed to create the folders
 	 */
 	public boolean createAllFoldersInPath(String path, UsernamePasswordCredentials credentials) throws HttpException, RemoteException, IOException {
-		boolean hadToCreate = false;
-
-		hadToCreate = !getExistence(path);
-		if (hadToCreate) {
+		boolean create = !getExistence(path);
+		
+		if (create) {
+			if (isLocalResourceEnabled() && getSimpleSlideService().createStructure(path)) {
+				return true;
+			}
+			
 			WebdavResource rootResource = getWebdavExternalRootResource(credentials);
 			StringBuffer createPath = new StringBuffer(getWebdavServerURI());
 			StringTokenizer st = new StringTokenizer(path, CoreConstants.SLASH);
@@ -888,8 +880,8 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 				rootResource.mkcolMethod(createPath.toString());
 			}
 		}
-		return hadToCreate;
-
+		
+		return true;
 	}
 
 	/**
@@ -904,8 +896,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @throws IOException
 	 * @return true if it needed to create the folders
 	 */
-	public boolean createAllFoldersInPathAsRoot(String path)
-			throws HttpException, RemoteException, IOException {
+	public boolean createAllFoldersInPathAsRoot(String path) throws HttpException, RemoteException, IOException {
 		return createAllFoldersInPath(path, getRootUserCredentials());
 	}
 
@@ -941,31 +932,32 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		return false;
 	}
 
-	private String createFoldersAndPreparedUploadPath(String uploadPath,
-			boolean checkSlashes) {
+	private String createFoldersAndPreparedUploadPath(String uploadPath, boolean checkSlashes) {
 		if (checkSlashes) {
 			if (!uploadPath.startsWith(CoreConstants.SLASH)) {
-				uploadPath = CoreConstants.SLASH + uploadPath;
+				uploadPath = CoreConstants.SLASH.concat(uploadPath);
 			}
 			if (!uploadPath.endsWith(CoreConstants.SLASH)) {
-				uploadPath += CoreConstants.SLASH;
+				uploadPath.concat(CoreConstants.SLASH);
 			}
 		}
 
 		try {
 			if (uploadPath.startsWith(CoreConstants.WEBDAV_SERVLET_URI)) {
 				// to avoid /content/content/
-				createAllFoldersInPathAsRoot(uploadPath
-						.substring(CoreConstants.WEBDAV_SERVLET_URI.length()));
+				if (createAllFoldersInPathAsRoot(uploadPath.substring(CoreConstants.WEBDAV_SERVLET_URI.length()))) {
+					return uploadPath;
+				}
 			} else {
-				createAllFoldersInPathAsRoot(uploadPath);
+				if (createAllFoldersInPathAsRoot(uploadPath)) {
+					return uploadPath;
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
 		}
 
-		return uploadPath;
+		return null;
 	}
 
 	public boolean uploadFile(String uploadPath, String fileName,
@@ -1048,12 +1040,9 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 				// revisionDescriptor)
 				// first parameter is the namespace, second parameter is the
 				// name of the property (e.g. "getcontenttype")
-				PropertyName propertyName = new PropertyName("DAV:",
-						WebdavResource.GETCONTENTTYPE);
-				if (!rootResource.proppatchMethod(fixedURL, propertyName,
-						contentType, true)) {
-					rootResource.proppatchMethod(filePath, propertyName,
-							contentType, true);
+				PropertyName propertyName = new PropertyName("DAV:", WebdavResource.GETCONTENTTYPE);
+				if (!rootResource.proppatchMethod(fixedURL, propertyName, contentType, true)) {
+					rootResource.proppatchMethod(filePath, propertyName, contentType, true);
 				}
 			}
 			rootResource.close();
@@ -1140,7 +1129,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 *         files
 	 */
 	public int getChildCountExcludingFoldersAndHiddenFiles(String folderURI) {
-		List children = getChildPathsExcludingFoldersAndHiddenFiles(folderURI);
+		List<String> children = getChildPathsExcludingFoldersAndHiddenFiles(folderURI);
 
 		if (children != null) {
 			return children.size();
@@ -1155,7 +1144,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 *         files and hidden files
 	 */
 	public int getChildFolderCount(String folderURI) {
-		List children = getChildFolderPaths(folderURI);
+		List<String> children = getChildFolderPaths(folderURI);
 
 		if (children != null) {
 			return children.size();
@@ -1170,8 +1159,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 *         files
 	 */
 	public int getChildCount(String folderURI) {
-
-		List children = getChildPaths(folderURI);
+		List<String> children = getChildPaths(folderURI);
 
 		if (children != null) {
 			return children.size();
@@ -1181,7 +1169,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 
 	public boolean isHiddenFile(String fileName) {
 		if (fileName != null) {
-			return fileName.startsWith(".") || fileName.startsWith("Thumbs.db");
+			return fileName.startsWith(CoreConstants.DOT) || fileName.startsWith("Thumbs.db");
 		}
 		return false;
 	}
@@ -1199,7 +1187,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 
 		if (paths == null) {
 			try {
-				// todo optimize by using a dasl search!
+				// TODO optimize by using a dasl search!
 				WebdavResource resource = getWebdavResourceAuthenticatedAsRoot(folderURI);
 
 				if (resource.isCollection()) {
@@ -1235,14 +1223,14 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @return the paths of folder resources under the specified path, excluding
 	 *         files and hidden files
 	 */
-	public List getChildFolderPaths(String folderURI) {
+	public List<String> getChildFolderPaths(String folderURI) {
 
-		Map<String, List> cache = getChildFolderPathsCacheMap();
+		Map<String, List<String>>cache = getChildFolderPathsCacheMap();
 		List<String> paths = cache.get(folderURI);
 
 		if (paths == null) {
 			try {
-				// todo optimize by using a dasl search!
+				// TODO optimize by using a dasl search!
 				WebdavResource resource = getWebdavResourceAuthenticatedAsRoot(folderURI);
 
 				if (resource.isCollection()) {
@@ -1276,14 +1264,13 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @return the path of ALL child resources, including folders and hidden
 	 *         files. Null if no children
 	 */
-	public List getChildPaths(String folderURI) {
-
-		Map<String, List> cache = getChildPathsCacheMap();
+	public List<String> getChildPaths(String folderURI) {
+		Map<String, List<String>> cache = getChildPathsCacheMap();
 		List<String> paths = cache.get(folderURI);
 
 		if (paths == null) {
 			try {
-				// todo optimize by using a dasl search!
+				// TODO optimize by using a dasl search!
 				WebdavResource resource = getWebdavResourceAuthenticatedAsRoot(folderURI);
 
 				if (resource.isCollection()) {
@@ -1307,7 +1294,6 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		}
 
 		return paths;
-
 	}
 
 	/**
@@ -1343,7 +1329,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	/**
 	 * @return Returns the childFolderPathsCacheMap.
 	 */
-	public Map getChildFolderPathsCacheMap() {
+	public Map<String, List<String>> getChildFolderPathsCacheMap() {
 		return this.childFolderPathsCacheMap;
 	}
 
@@ -1351,7 +1337,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @param childFolderPathsCacheMap
 	 *            The childFolderPathsCacheMap to set.
 	 */
-	public void setChildFolderPathsCacheMap(Map childFolderPathsCacheMap) {
+	public void setChildFolderPathsCacheMap(Map<String, List<String>> childFolderPathsCacheMap) {
 		this.childFolderPathsCacheMap = childFolderPathsCacheMap;
 	}
 
@@ -1360,7 +1346,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @param <V>
 	 * @return Returns the childPathsCacheMap.
 	 */
-	public Map getChildPathsCacheMap() {
+	public Map<String, List<String>> getChildPathsCacheMap() {
 		return this.childPathsCacheMap;
 	}
 
@@ -1368,14 +1354,14 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @param childPathsCacheMap
 	 *            The childPathsCacheMap to set.
 	 */
-	public void setChildPathsCacheMap(Map childPathsCacheMap) {
+	public void setChildPathsCacheMap(Map<String, List<String>> childPathsCacheMap) {
 		this.childPathsCacheMap = childPathsCacheMap;
 	}
 
 	/**
 	 * @return Returns the childPathsExcludingFolderAndHiddenFilesCacheMap.
 	 */
-	public Map getChildPathsExcludingFolderAndHiddenFilesCacheMap() {
+	public Map<String, List<String>> getChildPathsExcludingFolderAndHiddenFilesCacheMap() {
 		return this.childPathsExcludingFolderAndHiddenFilesCacheMap;
 	}
 
@@ -1383,8 +1369,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @param childPathsExcludingFolderAndHiddenFilesCacheMap
 	 *            The childPathsExcludingFolderAndHiddenFilesCacheMap to set.
 	 */
-	public void setChildPathsExcludingFolderAndHiddenFilesCacheMap(
-			Map childPathsExcludingFolderAndHiddenFilesCacheMap) {
+	public void setChildPathsExcludingFolderAndHiddenFilesCacheMap(Map<String, List<String>> childPathsExcludingFolderAndHiddenFilesCacheMap) {
 		this.childPathsExcludingFolderAndHiddenFilesCacheMap = childPathsExcludingFolderAndHiddenFilesCacheMap;
 	}
 
@@ -1415,7 +1400,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		if (path != null) {
 			int index = path.lastIndexOf(CoreConstants.SLASH);
 			if (index == 0) {
-				parentPath = "";
+				parentPath = CoreConstants.EMPTY;
 			} else {
 				parentPath = path.substring(0, index);
 			}
@@ -1441,12 +1426,12 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 				.equals(uploadPath)) ? false : true; // Checking if
 														// parameters are valid
 		if (!result) {
-			log.error("Invalid upload path!");
+			LOGGER.warning("Invalid upload path!");
 			return result;
 		}
 		result = zipInputStream == null ? false : true;
 		if (!result) {
-			log.error("ZipInputStream is closed!");
+			LOGGER.warning("ZipInputStream is closed!");
 			return result;
 		}
 
@@ -1459,20 +1444,20 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		try {
 			while ((entry = zipInputStream.getNextEntry()) != null && result) {
 				if (!entry.isDirectory()) {
-					pathToFile = EMPTY;
+					pathToFile = CoreConstants.EMPTY;
 					fileName = StringHandler.removeCharacters(entry.getName(),
-							SPACE, UNDER);
+							CoreConstants.SPACE, CoreConstants.UNDER);
 					fileName = StringHandler.removeCharacters(fileName,
-							BRACKET_OPENING, EMPTY);
+							CoreConstants.BRACKET_LEFT, CoreConstants.EMPTY);
 					fileName = StringHandler.removeCharacters(fileName,
-							BRACKET_CLOSING, EMPTY);
-					int lastSlash = fileName.lastIndexOf(SLASH);
+							CoreConstants.BRACKET_RIGHT, CoreConstants.EMPTY);
+					int lastSlash = fileName.lastIndexOf(CoreConstants.SLASH);
 					if (lastSlash != -1) {
 						pathToFile = fileName.substring(0, lastSlash + 1);
 						fileName = fileName.substring(lastSlash + 1, fileName
 								.length());
 					}
-					if (!fileName.startsWith(DOT)) { // If not a system file
+					if (!fileName.startsWith(CoreConstants.DOT)) { // If not a system file
 						memory = new ByteArrayOutputStream();
 						zip.writeFromStreamToStream(zipInputStream, memory);
 						is = new ByteArrayInputStream(memory.toByteArray());
@@ -1485,7 +1470,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 				zip.closeEntry(zipInputStream);
 			}
 		} catch (IOException e) {
-			log.error(e);
+			LOGGER.log(Level.WARNING, "Error uploading zip file to: " + uploadPath, e);
 			return false;
 		} finally {
 			zip.closeEntry(zipInputStream);
@@ -1507,7 +1492,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		}
 
 		if (stream == null) {
-			WebdavResource resource = getWebdavResourceAuthenticatedAsRoot(path);
+			WebdavResource resource = getWebdavExternalResourceAuthenticatedAsRoot(path);
 			stream = resource.getMethodData();
 		}
 
