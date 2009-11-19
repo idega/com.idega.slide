@@ -293,53 +293,48 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getChildFolderPaths
 	 */
-	public List getChildFolderPaths(String folderURI) throws RemoteException;
+	public List<String> getChildFolderPaths(String folderURI) throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getChildPaths
 	 */
-	public List getChildPaths(String folderURI) throws RemoteException;
+	public List<String> getChildPaths(String folderURI) throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#invalidateCacheForAllFoldersInURIPath
 	 */
-	public void invalidateCacheForAllFoldersInURIPath(String URI)
-			throws RemoteException;
+	public void invalidateCacheForAllFoldersInURIPath(String URI) throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getChildFolderPathsCacheMap
 	 */
-	public Map getChildFolderPathsCacheMap() throws RemoteException;
+	public Map<String, List<String>> getChildFolderPathsCacheMap() throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#setChildFolderPathsCacheMap
 	 */
-	public void setChildFolderPathsCacheMap(Map childFolderPathsCacheMap)
-			throws RemoteException;
+	public void setChildFolderPathsCacheMap(Map<String, List<String>> childFolderPathsCacheMap) throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getChildPathsCacheMap
 	 */
-	public Map getChildPathsCacheMap() throws RemoteException;
+	public Map<String, List<String>> getChildPathsCacheMap() throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#setChildPathsCacheMap
 	 */
-	public void setChildPathsCacheMap(Map childPathsCacheMap)
-			throws RemoteException;
+	public void setChildPathsCacheMap(Map<String, List<String>> childPathsCacheMap) throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getChildPathsExcludingFolderAndHiddenFilesCacheMap
 	 */
-	public Map getChildPathsExcludingFolderAndHiddenFilesCacheMap()
-			throws RemoteException;
+	public Map<String, List<String>> getChildPathsExcludingFolderAndHiddenFilesCacheMap() throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#setChildPathsExcludingFolderAndHiddenFilesCacheMap
 	 */
-	public void setChildPathsExcludingFolderAndHiddenFilesCacheMap(
-			Map childPathsExcludingFolderAndHiddenFilesCacheMap)
-			throws RemoteException;
+	public void setChildPathsExcludingFolderAndHiddenFilesCacheMap(Map<String, List<String>> childPathsExcludingFolderAndHiddenFilesCacheMap)
+		throws RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#onSlideChange

@@ -43,6 +43,7 @@ import com.idega.slide.util.IWSlideConstants;
 import com.idega.slide.util.WebdavExtendedResource;
 import com.idega.slide.util.WebdavOutputStream;
 import com.idega.slide.util.WebdavRootResource;
+import com.idega.util.CoreConstants;
 import com.idega.util.StringHandler;
 import com.idega.util.StringUtil;
 
@@ -426,9 +427,7 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	 * @return
 	 */
 	private ActionNode getActionNode(Privilege privilege) {
-		
-		String path = IWSlideConstants.PATH_ACTIONS+"/"+privilege.getName();
-		
+		String path = IWSlideConstants.PATH_ACTIONS.concat(CoreConstants.SLASH).concat(privilege.getName());
 		return ActionNode.getActionNode(path);
 	}
 	
@@ -442,19 +441,6 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	 * @return true if it needed to create the folders
 	 */
 	public boolean createAllFoldersInPath(String path) throws HttpException, RemoteException, IOException {
-		/*boolean hadToCreate = false;
-		WebdavRootResource rootResource = getWebdavRootResource();
-		
-		hadToCreate = !getExistence(path);
-		if(hadToCreate){
-			StringBuffer createPath = new StringBuffer(getWebdavServerURI());
-			StringTokenizer st = new StringTokenizer(path,"/");
-			while(st.hasMoreTokens()) {
-				createPath.append("/").append(st.nextToken());
-				rootResource.mkcolMethod(createPath.toString());
-			}
-		}
-		return hadToCreate;*/
 		IWSlideService slideService = getIWSlideService();
 		return slideService.createAllFoldersInPath(path,getUserCredentials());
 		
