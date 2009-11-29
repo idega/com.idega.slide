@@ -1537,4 +1537,32 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		return file;
 	}
 
+	public boolean deleteAsRootUser(String path) throws RemoteException {
+		if (getSimpleSlideService().delete(path)) {
+			return true;
+		}
+		
+		try {
+			WebdavResource resource = getWebdavResourceAuthenticatedAsRoot(path);
+			resource.deleteMethod();
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, "Error deleting: " + path, e);
+			return false;
+		}
+		
+		return true;
+	}
+
+	public boolean delete(String path, UsernamePasswordCredentials credentials) throws RemoteException {
+		try {
+			WebdavResource resource = getWebdavResource(path, credentials);
+			resource.deleteMethod();
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, "Error deleting: " + path, e);
+			return false;
+		}
+		
+		return true;
+	}
+
 }

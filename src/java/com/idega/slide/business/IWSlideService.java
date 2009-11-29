@@ -378,4 +378,8 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 	 * @see com.idega.slide.business.IWSlideServiceBean#getFile
 	 */
 	public File getFile(String path)throws URIException, RemoteException;
+	
+	public boolean deleteAsRootUser(String path) throws RemoteException;
+	
+	public boolean delete(String path, UsernamePasswordCredentials credentials) throws RemoteException;
 }
