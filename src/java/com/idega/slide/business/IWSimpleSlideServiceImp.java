@@ -2,7 +2,6 @@ package com.idega.slide.business;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -49,7 +48,6 @@ import org.springframework.stereotype.Service;
 import com.idega.core.business.DefaultSpringBean;
 import com.idega.slide.authentication.AuthenticationBusiness;
 import com.idega.slide.util.IWSlideConstants;
-import com.idega.slide.util.LocalAclProperty;
 import com.idega.slide.webdavservlet.DomainConfig;
 import com.idega.user.data.User;
 import com.idega.util.ArrayUtil;
@@ -117,7 +115,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		return authenticationBusiness;
 	}
 	
-	private SlideToken getSlideToken() {
+	private SlideToken getContentToken() {
 		initializeSimpleSlideServiceBean();
 		
 		String userPrincipals = null;
@@ -176,7 +174,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return false;
 		}
 		
-		SlideToken token = getSlideToken();
+		SlideToken token = getContentToken();
 		try {
 			NodeRevisionNumber lastRevision = null;
 			try {
@@ -250,7 +248,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return null;
 		}
 		
-		SlideToken rootToken = getSlideToken();
+		SlideToken rootToken = getContentToken();
 		if (rootToken == null) {
 			return null;
 		}
@@ -301,7 +299,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		throws ObjectNotFoundException, AccessDeniedException, LinkedObjectNotFoundException, RevisionDescriptorNotFoundException, ObjectLockedException,
 				ServiceAccessException, VetoException {
 		
-		SlideToken rootToken = getSlideToken();
+		SlideToken rootToken = getContentToken();
 		if (rootToken == null) {
 			return null;
 		}
@@ -318,7 +316,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 	}
 	
 	public boolean checkExistance(String pathToFile) {
-		SlideToken rootToken = getSlideToken();
+		SlideToken rootToken = getContentToken();
 		if (rootToken == null) {
 			return false;
 		}
@@ -366,7 +364,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return null;
 		}
 		
-		SlideToken rootToken = getSlideToken();
+		SlideToken rootToken = getContentToken();
 		if (rootToken == null) {
 			return null;
 		}
@@ -419,7 +417,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return Boolean.FALSE;
 		}
 		
-		SlideToken rootToken = getSlideToken();
+		SlideToken rootToken = getContentToken();
 		if (rootToken == null) {
 			return Boolean.FALSE;
 		}
@@ -447,61 +445,76 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		return Boolean.TRUE;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public Enumeration<NodePermission> getPermissions(String path) {
 		path = getNormalizedPath(path);
 		if (StringUtil.isEmpty(path)) {
 			return null;
 		}
 		
-		if (!startTransaction()) {
-			return null;
+		List<NodePermission> permissions = new ArrayList<NodePermission>();
+		permissions = getPermissions(permissions, path, path, getContentToken());
+		return Collections.enumeration(permissions);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private List<NodePermission> getPermissions(List<NodePermission> allPermissions, String path, String originalPath, SlideToken content) {
+		if (path == null) {
+			return allPermissions;
 		}
 		
+		if (!startTransaction()) {
+			return allPermissions;
+		}
 		Enumeration<NodePermission> permissions = null;
 		try {
-			permissions = security.enumeratePermissions(getSlideToken(), path);
+			permissions = security.enumeratePermissions(content, path);
 		} catch (Throwable t) {
 			LOGGER.log(Level.WARNING, "Error getting permissions for: " + path, t);
 			rollbackTransaction();
+			return allPermissions;
+		}
+		if (!finishTransaction()) {
+			return allPermissions;
 		}
 		
-		finishTransaction();
-		return permissions;
-	}
-	
-	private Ace[] getNewPermissions(String path, Ace[] aces) {
-		Enumeration<NodePermission> currentPermissions = getPermissions(path);
-		if (currentPermissions == null || !currentPermissions.hasMoreElements()) {
-			return aces;
-		}
-		
-		LocalAclProperty localAcl = new LocalAclProperty(currentPermissions);
-		Ace[] currentAces = localAcl.getAces();
-		if (ArrayUtil.isEmpty(currentAces)) {
-			return aces;
-		}
-		
-		Collection<Ace> newAces = new ArrayList<Ace>();
-		Collection<Ace> currAcesColl = Arrays.asList(currentAces);
-		for (Ace ace: aces) {
-			if (!currAcesColl.contains(ace)) {
-				newAces.add(ace);
+		if (permissions != null && permissions.hasMoreElements()) {
+			List<NodePermission> currentPermissions = Collections.list(permissions);
+			if (path.equals(originalPath)) {
+				allPermissions.addAll(currentPermissions);
+			} else {
+				for (NodePermission permission: currentPermissions) {
+					if (permission.isInheritable() && !allPermissions.contains(permission)) {
+						allPermissions.add(permission);
+					}
+				}
 			}
 		}
 		
-		return ArrayUtil.convertListToArray(newAces);
+		return getPermissions(allPermissions, getParentPath(path), path, content);
+	}
+	
+	private String getParentPath(String path) {
+		if (StringUtil.isEmpty(path)) {
+			return null;
+		}
+		if (path.endsWith(CoreConstants.SLASH)) {
+			path = path.substring(0, path.length() - 1);
+		}
+		if (path.equals(CoreConstants.WEBDAV_SERVLET_URI)) {
+			return path;
+		}
+		
+		int lastSlash = path.lastIndexOf(CoreConstants.SLASH);
+		if (lastSlash < 0) {
+			return null;
+		}
+		return path.substring(0, lastSlash);
 	}
 	
 	@SuppressWarnings("unchecked")
 	public boolean setPermissions(String path, Ace[] aces) {
 		if (ArrayUtil.isEmpty(aces)) {
 			return false;
-		}
-		
-		Ace[] newAces = getNewPermissions(path, aces);
-		if (ArrayUtil.isEmpty(newAces)) {
-			return true;
 		}
 		
 		if (!createStructure(path)) {
@@ -514,8 +527,8 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return false;
 		}
 		
-		Collection<NodePermission> permissions = new ArrayList<NodePermission>(newAces.length);
-		for (Ace ace: newAces) {
+		Collection<NodePermission> permissions = new ArrayList<NodePermission>(aces.length);
+		for (Ace ace: aces) {
 			List<String> actions = new ArrayList<String>();
 			Enumeration<Privilege> privileges = ace.enumeratePrivileges();
 			if (privileges != null) {
@@ -526,7 +539,13 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			}
 			
 			for (String action: actions) {
-				NodePermission permission = new NodePermission(path, ace.getPrincipal(), IWSlideConstants.PATH_ACTIONS.concat(CoreConstants.SLASH).concat(action));
+				String subjectUri = ace.getPrincipal();
+				String actionUri = action;
+				if (!Privilege.ALL.getName().equals(action)) {
+					actionUri = action.startsWith(IWSlideConstants.PATH_ACTIONS) ?
+						action : IWSlideConstants.PATH_ACTIONS.concat(CoreConstants.SLASH).concat(action);
+				}
+				NodePermission permission = new NodePermission(path, subjectUri, actionUri);
 				permission.setInheritable(ace.isInheritable());
 				String inheritedFrom = ace.getInheritedFrom();
 				permission.setInheritedFrom(inheritedFrom);
@@ -537,7 +556,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			}
 		}
 		try {
-			security.setPermissions(getSlideToken(), path, Collections.enumeration(permissions));
+			security.setPermissions(getContentToken(), path, Collections.enumeration(permissions));
 		} catch (Throwable t) {
 			LOGGER.log(Level.WARNING, "Error setting ACLs " + aces + " for " + path, t);
 			rollbackTransaction();
@@ -611,10 +630,10 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 	}
 
 	public boolean createStructure(String path) {
-		return createStructure(path, Boolean.TRUE);
+		return createStructure(getContentToken(), path, Boolean.TRUE);
 	}
 	
-	private boolean createStructure(String path, boolean checkParents) {
+	private boolean createStructure(SlideToken contentToken, String path, boolean checkParents) {
 		path = getNormalizedPath(path);
 		if (path == null) {
 			return false;
@@ -627,7 +646,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			for (String pathPart: paths) {
 				if (!StringUtil.isEmpty(pathPart)) {
 					parentPath = parentPath.concat(pathPart).concat(CoreConstants.SLASH);
-					if (!createStructure(parentPath, Boolean.FALSE)) {
+					if (!createStructure(contentToken, parentPath, Boolean.FALSE)) {
 						return false;
 					}
 				}
@@ -639,11 +658,10 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		}
 		
 		boolean error = false;
-		SlideToken token = getSlideToken();
 		ObjectNode node = new SubjectNode(path);
 		NodeRevisionDescriptor descriptor = null;
 		try {
-			structure.create(token, node, path);
+			structure.create(contentToken, node, path);
 			finishTransaction();
 		} catch (ObjectAlreadyExistsException e) {
 			descriptor = getRevisionDescriptor(path);
@@ -668,7 +686,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			descriptor = new NodeRevisionDescriptor();
 			NodeRevisionContent nodeContent = new NodeRevisionContent();
 			nodeContent.setContent(path.getBytes());
-			content.create(token, path, descriptor, nodeContent);
+			content.create(contentToken, path, descriptor, nodeContent);
 
 			finishTransaction();
 			return true;

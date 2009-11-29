@@ -39,13 +39,17 @@ public class LocalAclProperty extends AclProperty {
 		List<Ace> aces = new ArrayList<Ace>();
 		for (NodePermission permission: nodePermissions) {
 			String subjectUri = permission.getSubjectUri();
-			if (!StringUtil.isEmpty(subjectUri) && !IWSlideConstants.ALL_STANDARD_SUBJECT_URIS.contains(subjectUri)) {
+			if (!StringUtil.isEmpty(subjectUri) && !IWSlideConstants.ALL_STANDARD_SUBJECT_URIS.contains(subjectUri) &&
+					!subjectUri.startsWith(CoreConstants.WEBDAV_SERVLET_URI)) {
 				subjectUri = CoreConstants.WEBDAV_SERVLET_URI.concat(subjectUri);
 			}
 			Ace ace = new Ace(subjectUri);
 			
 			ace.setInheritable(permission.isInheritable());
 			String inheritedFrom = permission.getInheritedFrom();
+			if (!StringUtil.isEmpty(inheritedFrom) && !inheritedFrom.startsWith(CoreConstants.WEBDAV_SERVLET_URI)) {
+				inheritedFrom = CoreConstants.WEBDAV_SERVLET_URI.concat(inheritedFrom);
+			}
 			ace.setInheritedFrom(inheritedFrom);
 			ace.setInherited(!StringUtil.isEmpty(inheritedFrom));
 			ace.setNegative(permission.isNegative());
