@@ -33,4 +33,6 @@ public interface IWSimpleSlideService {
 	public boolean setPermissions(String path, Ace[] aces);
 	
 	public boolean createStructure(String path);
+	
+	public boolean delete(String path);
 }

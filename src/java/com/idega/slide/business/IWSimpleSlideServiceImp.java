@@ -701,4 +701,30 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		
 		return false;
 	}
+
+	public boolean delete(String path) {
+		path = getNormalizedPath(path);
+		if (StringUtil.isEmpty(path)) {
+			return false;
+		}
+		
+		NodeRevisionDescriptor descriptor = getRevisionDescriptor(path);
+		if (descriptor == null) {
+			return false;
+		}
+		
+		if (!startTransaction()) {
+			return false;
+		}
+		try {
+			content.remove(getContentToken(), path, descriptor);
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, "Unable to delete: " + path, e);
+			rollbackTransaction();
+			return false;
+		}
+		finishTransaction();
+		return true;
+	}
+	
 }

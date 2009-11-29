@@ -245,43 +245,31 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 
 	@Override
 	public boolean putMethod(byte[] data) throws HttpException, IOException {
-		LOGGER.info("Local resource called: " + httpURL);
 		return putMethod(httpURL.getPathQuery(), data);
 	}
 
 	@Override
 	public boolean putMethod(File file) throws HttpException, IOException {
-		LOGGER.info("Local resource called: " + httpURL);
 		return putMethod(httpURL.getPathQuery(), file);
 	}
 
 	@Override
 	public boolean putMethod(InputStream is) throws HttpException, IOException {
-		LOGGER.info("Local resource called: " + httpURL);
 		return putMethod(httpURL.getPathQuery(), is);
 	}
 
 	@Override
 	public boolean putMethod(String path, byte[] data) throws HttpException, IOException {
-		LOGGER.info("Local resource called: " + httpURL);
 		return putMethod(path, new ByteArrayInputStream(data));
 	}
 
-//	TODO: implement
-//	@Override
-//	public void putMethod(String path, File file, String comment) throws IOException {
-//		super.putMethod(path, file, comment);
-//	}
-
 	@Override
 	public boolean putMethod(String path, File file) throws HttpException, IOException {
-		LOGGER.info("Local resource called: " + httpURL);
 		return putMethod(path, new FileInputStream(file));
 	}
 
 	@Override
 	public boolean putMethod(String path, InputStream is) throws HttpException, IOException {
-		LOGGER.info("Local resource called: " + httpURL);
 		if (!getSlideAPI().setContent(path, is)) {
 			return super.putMethod(path, is);
 		}
@@ -291,7 +279,6 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 
 	@Override
 	public boolean putMethod(String path, String data) throws HttpException, IOException {
-		LOGGER.info("Local resource called: " + httpURL);
 		try {
 			return putMethod(path, StringHandler.getStreamFromString(data));
 		} catch (Exception e) {
@@ -307,13 +294,11 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 	 * Use another method (like putMethod(String path, InputStream is)) to set content
 	 */
 	public boolean putMethod(String path, URL url) throws HttpException, IOException {
-		LOGGER.info("Local resource called: " + httpURL);
 		return super.putMethod(path, url);
 	}
 
 	@Override
 	public boolean putMethod(String data) throws HttpException, IOException {
-		LOGGER.info("Local resource called: " + httpURL);
 		try {
 			return putMethod(StringHandler.getStreamFromString(data));
 		} catch (Exception e) {
@@ -329,19 +314,16 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 	 * Use another method (like putMethod(String path, InputStream is)) to set content
 	 */
 	public boolean putMethod(URL url) throws HttpException, IOException {
-		LOGGER.info("Local resource called: " + httpURL);
 		return super.putMethod(url);
 	}
 
 	@Override
 	public InputStream getMethodData() throws HttpException, IOException {
-		LOGGER.info("Local resource called: " + httpURL);
 		return getMethodData(httpURL.getPathQuery());
 	}
 
 	@Override
 	public InputStream getMethodData(String path) throws HttpException, IOException {
-		LOGGER.info("Local resource called: " + httpURL);
 		try {
 			return getSlideAPI().getInputStream(path);
 		} catch (Exception e) {
@@ -353,7 +335,6 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 	
 	@Override
 	public boolean exists() {
-		LOGGER.info("Local resource called: " + httpURL);
 		try {
 			return getSlideAPI().checkExistance(httpURL.getPathQuery());
 		} catch (Exception e) {
@@ -365,24 +346,9 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 	
 	@Override
 	public boolean getExistence() {
-		LOGGER.info("Local resource called: " + httpURL);
 		return exists();
 	}
 	
-	private IWSimpleSlideService getSlideAPI() {
-		if (slideAPI == null) {
-			ELUtil.getInstance().autowire(this);
-		}
-		return slideAPI;
-	}
-
-	//	Not implemented starts
-	@Override
-	public boolean abortTransaction() throws IOException {
-		LOGGER.info("Local resource called: " + httpURL);
-		return super.abortTransaction();
-	}
-
 	@Override
 	public AclProperty aclfindMethod() throws HttpException, IOException {
 		return aclfindMethod(httpURL.getPathQuery());
@@ -401,6 +367,34 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 	@Override
 	public boolean aclMethod(String path, Ace[] aces) throws HttpException, IOException {
 		return getSlideAPI().setPermissions(path, aces);
+	}
+	
+	@Override
+	public boolean deleteMethod() throws HttpException, IOException {
+		return deleteMethod(httpURL.getPathQuery());
+	}
+
+	@Override
+	public boolean deleteMethod(String path) throws HttpException, IOException {
+		if (!getSlideAPI().delete(path)) {
+			return super.deleteMethod(path);
+		}
+		
+		return Boolean.TRUE;
+	}
+	
+	private IWSimpleSlideService getSlideAPI() {
+		if (slideAPI == null) {
+			ELUtil.getInstance().autowire(this);
+		}
+		return slideAPI;
+	}
+
+	//	Not implemented starts
+	@Override
+	public boolean abortTransaction() throws IOException {
+		LOGGER.info("Local resource called: " + httpURL);
+		return super.abortTransaction();
 	}
 
 	@Override
@@ -515,18 +509,6 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 	public WebdavExtendedResource createUpdatedResource() {
 		LOGGER.info("Local resource called: " + httpURL);
 		return super.createUpdatedResource();
-	}
-
-	@Override
-	public boolean deleteMethod() throws HttpException, IOException {
-		LOGGER.info("Local resource called: " + httpURL);
-		return super.deleteMethod();
-	}
-
-	@Override
-	public boolean deleteMethod(String path) throws HttpException, IOException {
-		LOGGER.info("Local resource called: " + httpURL);
-		return super.deleteMethod(path);
 	}
 
 	@Override
