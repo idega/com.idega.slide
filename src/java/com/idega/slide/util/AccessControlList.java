@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import org.apache.webdav.lib.Ace;
 
 import com.idega.util.CoreConstants;
+import com.idega.util.ListUtil;
 
 
 /**
@@ -242,5 +243,10 @@ public class AccessControlList {
 	 */
 	public void setGuaranteedThatRootHasAllPrivileges(boolean guaranteeThatRootHasAllPrivileges) {
 		this.guaranteeThatRootHasAllPrivileges = guaranteeThatRootHasAllPrivileges;
+	}
+	
+	@Override
+	public String toString() {
+		return ListUtil.isEmpty(aceList) ? "There are no ACL available" : "Aces: ".concat(aceList.toString());
 	}
 }
