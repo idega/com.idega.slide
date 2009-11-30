@@ -1,6 +1,7 @@
 package com.idega.slide.business;
 
 import java.io.InputStream;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -277,7 +278,12 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		return getNodeRevisionDescriptor(revisionDescriptors);
 	}
 	
-	private NodeRevisionDescriptor getRevisionDescriptor(String path) {
+	public NodeRevisionDescriptor getRevisionDescriptor(String path) {
+		path = getNormalizedPath(path);
+		if (StringUtil.isEmpty(path)) {
+			return null;
+		}
+		
 		try {
 			return getNodeRevisionDescriptor(path);
 		} catch (Throwable t) {
@@ -386,6 +392,8 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 	}
 	
 	public InputStream getInputStream(String pathToFile) {
+		pathToFile = getNormalizedPath(pathToFile);
+		
 		NodeRevisionContent nodeContent = getNodeContent(pathToFile);
 		
 		if (nodeContent == null) {
@@ -574,6 +582,12 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		
 		if (path.startsWith(CoreConstants.WEBDAV_SERVLET_URI)) {
 			path = StringHandler.replace(path, CoreConstants.WEBDAV_SERVLET_URI, CoreConstants.EMPTY);
+		}
+		
+		try {
+			path = URLDecoder.decode(path, CoreConstants.ENCODING_UTF8);
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, "Error decoding: " + path, e);
 		}
 		
 		return path;

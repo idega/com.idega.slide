@@ -3,6 +3,7 @@ package com.idega.slide.business;
 import java.io.InputStream;
 import java.util.Enumeration;
 
+import org.apache.slide.content.NodeRevisionDescriptor;
 import org.apache.slide.security.NodePermission;
 import org.apache.webdav.lib.Ace;
 
@@ -35,4 +36,6 @@ public interface IWSimpleSlideService {
 	public boolean createStructure(String path);
 	
 	public boolean delete(String path);
+	
+	public NodeRevisionDescriptor getRevisionDescriptor(String path);
 }
