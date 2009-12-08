@@ -1,6 +1,7 @@
 package com.idega.slide.business;
 
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,6 +10,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,6 +30,8 @@ import org.apache.slide.content.NodeRevisionDescriptor;
 import org.apache.slide.content.NodeRevisionDescriptors;
 import org.apache.slide.content.NodeRevisionNumber;
 import org.apache.slide.content.RevisionDescriptorNotFoundException;
+import org.apache.slide.event.AbstractEventMethod;
+import org.apache.slide.event.ContentEvent;
 import org.apache.slide.event.VetoException;
 import org.apache.slide.lock.ObjectLockedException;
 import org.apache.slide.security.AccessDeniedException;
@@ -68,10 +72,16 @@ import com.idega.util.StringUtil;
 */
 @Service
 @Scope(BeanDefinition.SCOPE_SINGLETON)
-public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimpleSlideService {
+public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimpleSlideService, IWSlideChangeListener {
 
 	private static final long serialVersionUID = 8065146986117553218L;
 	private static final Logger LOGGER = Logger.getLogger(IWSimpleSlideServiceImp.class.getName());
+	
+	private static final String CACHE_RESOURCE_EXISTANCE_NAME = "slide_resource_existance_cache";
+	private static final String CACHE_RESOURCE_DESCRIPTOR_NAME = "slide_resource_descriptor_cache";
+	private static final String CACHE_RESOURCE_DESCRIPTORS_NAME = "slide_resource_descriptors_cache";
+	
+	private long THREE_MINUTES = 60 * 3;
 	
 	@Autowired
 	private DomainConfig domainConfig;
@@ -225,6 +235,9 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			}
 			
 			content.create(token, uploadPath, revisionDescriptor, revisionContent);
+			
+			putValueIntoCache(CACHE_RESOURCE_EXISTANCE_NAME, -1, uploadPath, Boolean.TRUE);
+			putValueIntoCache(CACHE_RESOURCE_DESCRIPTOR_NAME, THREE_MINUTES, uploadPath, revisionDescriptor);
 			return true;
 		} catch(Throwable t) {
 			LOGGER.log(Level.WARNING, "Error while uploading: " + uploadPath, t);
@@ -249,6 +262,11 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return null;
 		}
 		
+		NodeRevisionDescriptors descriptors = getValueFromCache(CACHE_RESOURCE_DESCRIPTORS_NAME, THREE_MINUTES, pathToNode);
+		if (descriptors != null) {
+			return descriptors;
+		}
+		
 		SlideToken rootToken = getContentToken();
 		if (rootToken == null) {
 			return null;
@@ -261,7 +279,10 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		pathToNode = getNormalizedPath(pathToNode);
 		
 		try {
-			return content.retrieve(rootToken, pathToNode);
+			descriptors = content.retrieve(rootToken, pathToNode);
+			
+			putValueIntoCache(CACHE_RESOURCE_DESCRIPTORS_NAME, THREE_MINUTES, pathToNode, descriptors);
+			return descriptors;
 		} catch (Throwable e) {
 		} finally {
 			rollbackTransaction();
@@ -305,6 +326,12 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		throws ObjectNotFoundException, AccessDeniedException, LinkedObjectNotFoundException, RevisionDescriptorNotFoundException, ObjectLockedException,
 				ServiceAccessException, VetoException {
 		
+		String path = getNormalizedPath(revisionDescriptors.getUri());
+		NodeRevisionDescriptor descriptor = getValueFromCache(CACHE_RESOURCE_DESCRIPTOR_NAME, THREE_MINUTES, path);
+		if (descriptor != null) {
+			return descriptor;
+		}
+		
 		SlideToken rootToken = getContentToken();
 		if (rootToken == null) {
 			return null;
@@ -315,13 +342,23 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		}
 		
 		try {
-			return content.retrieve(rootToken, revisionDescriptors);
+			descriptor = content.retrieve(rootToken, revisionDescriptors);
+			
+			putValueIntoCache(CACHE_RESOURCE_DESCRIPTOR_NAME, THREE_MINUTES, path, descriptor);
+			return descriptor;
 		} finally {
 			rollbackTransaction();
 		}
 	}
 	
 	public boolean checkExistance(String pathToFile) {
+		pathToFile = getNormalizedPath(pathToFile);
+		
+		Boolean cachedAnswer = getValueFromCache(CACHE_RESOURCE_EXISTANCE_NAME, -1, pathToFile);
+		if (cachedAnswer != null) {
+			return cachedAnswer;
+		}
+		
 		SlideToken rootToken = getContentToken();
 		if (rootToken == null) {
 			return false;
@@ -331,8 +368,6 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return false;
 		}
 
-		pathToFile = getNormalizedPath(pathToFile);
-		
 		boolean rollback = true;
 		ObjectNode node = null;
 		try {
@@ -341,7 +376,9 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			finishTransaction();
 			rollback = false;
 			
-			return node == null ? false : true;
+			Boolean exists = node == null ? false : true;
+			putValueIntoCache(CACHE_RESOURCE_EXISTANCE_NAME, -1, pathToFile, exists);
+			return exists;
 		} catch (ObjectNotFoundException e) {
 		} catch (LinkedObjectNotFoundException e) {
 		} catch (AccessDeniedException e) {
@@ -450,6 +487,10 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		}
 		
 		finishTransaction();
+		
+		putValueIntoCache(CACHE_RESOURCE_DESCRIPTORS_NAME, THREE_MINUTES, pathToFile, descriptors);
+		putValueIntoCache(CACHE_RESOURCE_DESCRIPTOR_NAME, THREE_MINUTES, pathToFile, descriptor);
+		putValueIntoCache(CACHE_RESOURCE_EXISTANCE_NAME, -1, pathToFile, Boolean.TRUE);
 		return Boolean.TRUE;
 	}
 	
@@ -667,6 +708,10 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			}
 		}
 		
+		if (checkExistance(path)) {
+			return true;
+		}
+		
 		if (!startTransaction()) {
 			return false;
 		}
@@ -680,6 +725,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		} catch (ObjectAlreadyExistsException e) {
 			descriptor = getRevisionDescriptor(path);
 			if (descriptor != null) {
+				putValueIntoCache(CACHE_RESOURCE_EXISTANCE_NAME, -1, path, Boolean.TRUE);
 				return true;
 			}
 		} catch (Throwable t) {
@@ -703,6 +749,9 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			content.create(contentToken, path, descriptor, nodeContent);
 
 			finishTransaction();
+			
+			putValueIntoCache(CACHE_RESOURCE_EXISTANCE_NAME, -1, path, Boolean.TRUE);
+			putValueIntoCache(CACHE_RESOURCE_DESCRIPTOR_NAME, THREE_MINUTES, path, descriptor);
 			return true;
 		} catch (Throwable t) {
 			error = true;
@@ -732,6 +781,10 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		}
 		try {
 			content.remove(getContentToken(), path, descriptor);
+			
+			removeValueFromCache(CACHE_RESOURCE_DESCRIPTORS_NAME, THREE_MINUTES, path);
+			removeValueFromCache(CACHE_RESOURCE_DESCRIPTOR_NAME, THREE_MINUTES, path);
+			removeValueFromCache(CACHE_RESOURCE_EXISTANCE_NAME, -1, path);
 		} catch (Exception e) {
 			LOGGER.log(Level.WARNING, "Unable to delete: " + path, e);
 			rollbackTransaction();
@@ -740,5 +793,40 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		finishTransaction();
 		return true;
 	}
+
+	public void onSlideChange(IWContentEvent contentEvent) {
+		AbstractEventMethod method = contentEvent.getMethod();
+
+		String path = getNormalizedPath(contentEvent.getContentEvent().getUri());
+		if (ContentEvent.REMOVE.equals(method)) {
+			removeValueFromCache(CACHE_RESOURCE_DESCRIPTORS_NAME, THREE_MINUTES, path);
+			removeValueFromCache(CACHE_RESOURCE_DESCRIPTOR_NAME, THREE_MINUTES, path);
+			removeValueFromCache(CACHE_RESOURCE_EXISTANCE_NAME, -1, path);
+		} else if (ContentEvent.STORE.equals(method)) {
+			putValueIntoCache(CACHE_RESOURCE_EXISTANCE_NAME, -1, path, Boolean.TRUE);
+		}
+	}
 	
+	private <K extends Serializable, V> void putValueIntoCache(String cacheName, long ttl, K key, V value) {
+		Map<K, V> cache = getCache(cacheName, ttl);
+		if (cache != null) {
+			cache.put(key, value);
+		}
+	}
+	
+	private <K extends Serializable, V> V getValueFromCache(String cacheName, long ttl,  K key) {
+		Map<K, V> cache = getCache(cacheName, ttl);
+		if (cache != null) {
+			return cache.get(key);
+		}
+		return null;
+	}
+	
+	private <K extends Serializable, V> V removeValueFromCache(String cacheName, long ttl, K key) {
+		Map<K, V> cache = getCache(cacheName, ttl);
+		if (cache != null) {
+			return cache.remove(key);
+		}
+		return null;
+	}
 }
