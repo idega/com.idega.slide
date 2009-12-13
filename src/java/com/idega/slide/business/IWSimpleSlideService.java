@@ -6,6 +6,7 @@ import java.util.Enumeration;
 import org.apache.slide.content.NodeRevisionDescriptor;
 import org.apache.slide.security.NodePermission;
 import org.apache.webdav.lib.Ace;
+import org.apache.webdav.lib.WebdavResources;
 
 import com.idega.user.data.User;
 
@@ -38,4 +39,6 @@ public interface IWSimpleSlideService {
 	public boolean delete(String path);
 	
 	public NodeRevisionDescriptor getRevisionDescriptor(String path);
+	
+	public WebdavResources getResources(String path);
 }

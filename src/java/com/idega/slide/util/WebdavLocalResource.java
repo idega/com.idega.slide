@@ -41,6 +41,7 @@ import org.apache.slide.structure.ObjectNotFoundException;
 import org.apache.webdav.lib.Ace;
 import org.apache.webdav.lib.Property;
 import org.apache.webdav.lib.WebdavResource;
+import org.apache.webdav.lib.WebdavResources;
 import org.apache.webdav.lib.properties.AclProperty;
 import org.apache.webdav.lib.properties.ResourceTypeProperty;
 import org.apache.webdav.lib.util.WebdavStatus;
@@ -411,5 +412,10 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 	@Override
 	public String getName() {
 		return super.getName();
+	}
+	
+	@Override
+	public WebdavResources getChildResources() throws HttpException, IOException {
+		return getSlideAPI().getResources(httpURL.getPath());
 	}
 }

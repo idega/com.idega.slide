@@ -45,6 +45,7 @@ import org.apache.slide.structure.Structure;
 import org.apache.slide.structure.SubjectNode;
 import org.apache.webdav.lib.Ace;
 import org.apache.webdav.lib.Privilege;
+import org.apache.webdav.lib.WebdavResources;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -59,6 +60,7 @@ import com.idega.util.ArrayUtil;
 import com.idega.util.CoreConstants;
 import com.idega.util.IOUtil;
 import com.idega.util.IWTimestamp;
+import com.idega.util.ListUtil;
 import com.idega.util.StringHandler;
 import com.idega.util.StringUtil;
 
@@ -828,5 +830,51 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return cache.remove(key);
 		}
 		return null;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public WebdavResources getResources(String path) {
+		WebdavResources resources = new WebdavResources();
+		path = getNormalizedPath(path);
+		if (path == null) {
+			return resources;
+		}
+		
+		if (!startTransaction()) {
+			return resources;
+		}
+		
+		ObjectNode node = null;
+		try {
+			node = structure.retrieve(getContentToken(), path);
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, "Error while trying to retrieve: " + path, e);
+		} finally {
+			rollbackTransaction();
+		}
+		
+		if (node == null) {
+			return resources; 
+		}
+		
+		Vector<String> children = node.getChildren();
+		if (ListUtil.isEmpty(children)) {
+			return resources;
+		}
+		
+		IWSlideService slideService = getServiceInstance(IWSlideService.class);
+		for (String child: children) {
+			try {
+				String name = child;
+				if (child.indexOf(CoreConstants.SLASH) != -1) {
+					name = child.substring(child.lastIndexOf(CoreConstants.SLASH));
+				}
+				resources.addResource(name, slideService.getWebdavResourceAuthenticatedAsRoot(child));
+			} catch (Exception e) {
+				LOGGER.log(Level.WARNING, "Error while adding resource: " + child + " to the " + path, e);
+			}
+		}
+		
+		return resources;
 	}
 }
