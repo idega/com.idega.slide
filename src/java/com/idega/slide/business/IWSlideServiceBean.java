@@ -468,7 +468,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		boolean returner = false;
 
 		if (loginName != null && !getExistence(getUserHomeFolderPath(loginName))) {
-			WebdavResource rootFolder = getWebdavExternalResourceAuthenticatedAsRoot();
+			WebdavResource rootFolder = getWebdavResourceAuthenticatedAsRoot();
 
 			String userFolderPath = getURI(getUserHomeFolderPath(loginName));
 			rootFolder.mkcolMethod(userFolderPath);
