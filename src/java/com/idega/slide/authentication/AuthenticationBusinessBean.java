@@ -78,7 +78,7 @@ public class AuthenticationBusinessBean extends IBOServiceBean implements
 	
 	public WebdavResources getAllRoles(UsernamePasswordCredentials credentials) throws HttpException, RemoteException, IOException {
 		IWSlideService service = getSlideServiceInstance();
-		WebdavResource rolesFolder = service.getWebdavResource(PATH_ROLES, credentials);
+		WebdavResource rolesFolder = new WebdavResource(service.getWebdavServerURL(credentials, PATH_ROLES));
 		return rolesFolder.getChildResources();
 	}
 	
