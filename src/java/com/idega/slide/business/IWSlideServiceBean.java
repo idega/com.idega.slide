@@ -62,7 +62,7 @@ import com.idega.business.IBORuntimeException;
 import com.idega.business.IBOServiceBean;
 import com.idega.idegaweb.IWMainApplication;
 import com.idega.io.ZipInstaller;
-import com.idega.servlet.filter.RequestProvider;
+import com.idega.servlet.filter.RequestResponseProvider;
 import com.idega.slide.authentication.AuthenticationBusiness;
 import com.idega.slide.schema.SlideSchemaCreator;
 import com.idega.slide.util.AccessControlEntry;
@@ -384,7 +384,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	
 	private HttpSession getCurrentSession() {
 		try {
-			RequestProvider requestProvider = ELUtil.getInstance().getBean(RequestProvider.class);
+			RequestResponseProvider requestProvider = ELUtil.getInstance().getBean(RequestResponseProvider.class);
 			return requestProvider.getRequest().getSession(Boolean.FALSE);
 		} catch (Exception e) {
 			e.printStackTrace();
