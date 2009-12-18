@@ -643,16 +643,18 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return false;
 		}
 		
-		try {
-			if (namespace.getStatus() == 0) {
-				//	Transaction was begun already
-				return true;
+		synchronized (namespace) {
+			try {
+				if (namespace.getStatus() == 0) {
+					//	Transaction was begun already
+					return true;
+				}
+				
+				namespace.begin();
+			} catch(Throwable e) {
+				LOGGER.log(Level.WARNING, "Cannot start user transaction", e);
+				return false;
 			}
-			
-			namespace.begin();
-		} catch(Throwable e) {
-			LOGGER.log(Level.WARNING, "Cannot start user transaction", e);
-			return false;
 		}
 		
 		return true;
@@ -663,12 +665,15 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return false;
 		}
 		
-		try {
-			namespace.rollback();
-		} catch (Throwable e) {
-			LOGGER.log(Level.WARNING, "Cannot rollback user transaction", e);
-			return false;
+		synchronized (namespace) {
+			try {
+				namespace.rollback();
+			} catch (Throwable e) {
+				LOGGER.log(Level.WARNING, "Cannot rollback user transaction", e);
+				return false;
+			}
 		}
+		
 		return true;
 	}
 	
@@ -677,12 +682,15 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return false;
 		}
 		
-		try {
-			namespace.commit();
-		} catch (Throwable e) {
-			LOGGER.log(Level.WARNING, "Cannot finish user transaction", e);
-			return false;
+		synchronized (namespace) {
+			try {
+				namespace.commit();
+			} catch (Throwable e) {
+				LOGGER.log(Level.WARNING, "Cannot finish user transaction", e);
+				return false;
+			}
 		}
+		
 		return true;
 	}
 
