@@ -979,8 +979,8 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		
 		try {
 			return simpleSlideService.upload(fileInputStream, uploadPath, fileName, contentType, null, closeStream);
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Throwable t) {
+			LOGGER.log(Level.WARNING, "Error uploading '" + uploadPath + fileName + "' using Slide API. Will try to upload using common API", t);
 		}
 
 		return false;
