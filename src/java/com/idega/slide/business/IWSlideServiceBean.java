@@ -302,7 +302,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	}
 	
 	private boolean isLocalResourceEnabled() {
-		return IWMainApplication.getDefaultIWMainApplication().getSettings().getBoolean("local_slide_resource", Boolean.FALSE);
+		return IWMainApplication.getDefaultIWMainApplication().getSettings().getBoolean("local_slide_resource", Boolean.TRUE);
 	}
 	
 	public WebdavExtendedResource getWebdavExtendedResource(String path, UsernamePasswordCredentials credentials, boolean localResource) throws HttpException,
