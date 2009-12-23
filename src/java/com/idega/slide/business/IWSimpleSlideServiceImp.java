@@ -636,59 +636,53 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		return path;
 	}
 	
-	private boolean startTransaction() {
+	private synchronized boolean startTransaction() {
 		initializeSimpleSlideServiceBean();
 		
 		if (namespace == null) {
 			return false;
 		}
 		
-		synchronized (namespace) {
-			try {
-				if (namespace.getStatus() == 0) {
-					//	Transaction was begun already
-					return true;
-				}
-				
-				namespace.begin();
-			} catch(Throwable e) {
-				LOGGER.log(Level.WARNING, "Cannot start user transaction", e);
-				return false;
+		try {
+			if (namespace.getStatus() == 0) {
+				//	Transaction was begun already
+				return true;
 			}
+			
+			namespace.begin();
+		} catch(Throwable e) {
+			LOGGER.log(Level.WARNING, "Cannot start user transaction", e);
+			return false;
 		}
 		
 		return true;
 	}
 	
-	private boolean rollbackTransaction() {
+	private synchronized boolean rollbackTransaction() {
 		if (namespace == null) {
 			return false;
 		}
 		
-		synchronized (namespace) {
-			try {
-				namespace.rollback();
-			} catch (Throwable e) {
-				LOGGER.log(Level.WARNING, "Cannot rollback user transaction", e);
-				return false;
-			}
+		try {
+			namespace.rollback();
+		} catch (Throwable e) {
+			LOGGER.log(Level.WARNING, "Cannot rollback user transaction", e);
+			return false;
 		}
 		
 		return true;
 	}
 	
-	private boolean finishTransaction() {
+	private synchronized boolean finishTransaction() {
 		if (namespace == null) {
 			return false;
 		}
 		
-		synchronized (namespace) {
-			try {
-				namespace.commit();
-			} catch (Throwable e) {
-				LOGGER.log(Level.WARNING, "Cannot finish user transaction", e);
-				return false;
-			}
+		try {
+			namespace.commit();
+		} catch (Throwable e) {
+			LOGGER.log(Level.WARNING, "Cannot finish user transaction", e);
+			return false;
 		}
 		
 		return true;
