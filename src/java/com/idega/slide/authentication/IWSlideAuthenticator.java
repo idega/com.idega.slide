@@ -245,27 +245,21 @@ public class IWSlideAuthenticator extends BaseFilter{
 	 * @throws HttpException
 	 */
 	private void updateRolesForUser(HttpServletRequest request, LoggedOnInfo lInfo) throws HttpException, RemoteException, IOException {
-		boolean doUpdateRoles = true;
+		//	Folders for user always should be generated
+		generateUserFolders(request);
+		
 		IWMainApplication iwma = getIWMainApplication(request);
-		String prop = iwma.getSettings().getProperty(PROPERTY_UPDATE_ROLES,"true");
-		if(prop!=null){
-			doUpdateRoles=Boolean.valueOf(prop).booleanValue();
-		}
-		if(doUpdateRoles){
-			if(lInfo != null){
-				if(lInfo.getAttribute("iw_slide_roles_updated")==null){
-					AuthenticationBusiness business = getAuthenticationBusiness(request);
-					business.updateRoleMembershipForUser(lInfo.getLogin(),lInfo.getUserRoles(),null);
-					generateUserFolders(request);
-					lInfo.setAttribute("iw_slide_roles_updated",Boolean.TRUE);
-				}
-			}
+		boolean doUpdateRoles = iwma.getSettings().getBoolean(PROPERTY_UPDATE_ROLES, Boolean.TRUE);
+		if (doUpdateRoles && lInfo != null && lInfo.getAttribute("iw_slide_roles_updated") == null) {
+			AuthenticationBusiness business = getAuthenticationBusiness(request);
+			business.updateRoleMembershipForUser(lInfo.getLogin(), lInfo.getUserRoles(), null);
+			lInfo.setAttribute("iw_slide_roles_updated", Boolean.TRUE);
 		}
 	}
 	
 	private void generateUserFolders(HttpServletRequest request) throws HttpException, RemoteException, IOException{
 		IWApplicationContext iwac = getIWMainApplication(request).getIWApplicationContext();
-		IWSlideService slideService = (IWSlideService)IBOLookup.getServiceInstance(iwac,IWSlideService.class);
+		IWSlideService slideService = IBOLookup.getServiceInstance(iwac, IWSlideService.class);
 		slideService.generateUserFolders(request.getRemoteUser());
 	}
 
