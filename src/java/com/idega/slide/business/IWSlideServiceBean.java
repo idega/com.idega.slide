@@ -77,6 +77,7 @@ import com.idega.util.CoreConstants;
 import com.idega.util.IOUtil;
 import com.idega.util.IWTimestamp;
 import com.idega.util.StringHandler;
+import com.idega.util.StringUtil;
 import com.idega.util.expression.ELUtil;
 
 /**
@@ -465,9 +466,19 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	}
 
 	public boolean generateUserFolders(String loginName) throws HttpException, IOException {
-		boolean returner = false;
-
-		if (loginName != null && !getExistence(getUserHomeFolderPath(loginName))) {
+		if (StringUtil.isEmpty(loginName)) {
+			return false;
+		}
+		
+		AuthenticationBusiness ab = getAuthenticationBusiness();
+		String userPath = ab.getUserPath(loginName);
+		if (!getExistence(userPath)) {
+			WebdavResource user = getWebdavResourceAuthenticatedAsRoot(userPath);
+			user.mkcolMethod();
+			user.close();
+		}
+		
+		if (!getExistence(getUserHomeFolderPath(loginName))) {
 			WebdavResource rootFolder = getWebdavResourceAuthenticatedAsRoot();
 
 			String userFolderPath = getURI(getUserHomeFolderPath(loginName));
@@ -475,107 +486,17 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 			rootFolder.mkcolMethod(userFolderPath + FOLDER_NAME_DROPBOX);
 			rootFolder.mkcolMethod(userFolderPath + FOLDER_NAME_PUBLIC);
 
-			// try {
-			// logOutAcesForUserFolders(loginName);
-			// }
-			// catch (HttpException e1) {
-			// e1.printStackTrace();
-			// }
-			// catch (IOException e1) {
-			// e1.printStackTrace();
-			// }
-			//			
-			// try {
-			// AuthenticationBusiness aBusiness = getAuthenticationBusiness();
-			//				
-			//				
-			// AclProperty userFolderProperty =
-			// rootFolder.aclfindMethod(userFolderPath);
-			// Ace[] userFolderProperties = (userFolderProperty==null)?new
-			// Ace[0]:userFolderProperty.getAces();
-			//				
-			// int homeLength = userFolderProperties.length;
-			// Ace[] homeFolderAce = new Ace[homeLength+1];
-			// System.arraycopy(userFolderProperties,0,homeFolderAce,0,homeLength);
-			//				
-			// Ace userAllPrivilege = new Ace(aBusiness.getUserURI(loginName));
-			// userAllPrivilege.addPrivilege(Privilege.ALL);
-			// homeFolderAce[homeLength] = userAllPrivilege;
-			// rootFolder.aclMethod(userFolderPath,homeFolderAce);
-			//				
-			//				
-			//				
-			// AclProperty userDropboxProperty =
-			// rootFolder.aclfindMethod(userFolderPath+FOLDER_NAME_DROPBOX);
-			// Ace[] userDropboxProperties = (userDropboxProperty==null)?new
-			// Ace[0]:userDropboxProperty.getAces();
-			//				
-			// int dropboxLength = userDropboxProperties.length;
-			// Ace[] dropboxAce = new Ace[dropboxLength+1];
-			// System.arraycopy(userDropboxProperties,0,dropboxAce,0,dropboxLength);
-			//				
-			// dropboxAce[dropboxLength] = new
-			// Ace(aBusiness.getRoleURI(IWSlideConstants.ROLENAME_USERS));
-			// dropboxAce[dropboxLength].addPrivilege(Privilege.WRITE);
-			// rootFolder.aclMethod(userFolderPath+FOLDER_NAME_DROPBOX,dropboxAce);
-			//				
-			//				
-			// AclProperty userPublicFolderProperty =
-			// rootFolder.aclfindMethod(userFolderPath+FOLDER_NAME_PUBLIC);
-			// Ace[] userPublicFolderProperties =
-			// (userPublicFolderProperty==null)?new
-			// Ace[0]:userPublicFolderProperty.getAces();
-			//				
-			// int publicLength = userPublicFolderProperties.length;
-			// Ace[] publicAce = new Ace[publicLength+1];
-			// System.arraycopy(userPublicFolderProperties,0,publicAce,0,publicLength);
-			//				
-			// publicAce[publicLength] = new
-			// Ace(IWSlideConstants.SUBJECT_URI_ALL);
-			// publicAce[publicLength].addPrivilege(Privilege.READ);
-			// publicAce[publicLength].setInherited(true);
-			// rootFolder.aclMethod(userFolderPath+FOLDER_NAME_PUBLIC,publicAce);
-			// }
-			// catch (IBOLookupException e) {
-			// e.printStackTrace();
-			// }
-			// catch (HttpException e) {
-			// e.printStackTrace();
-			// }
-			// catch (RemoteException e) {
-			// e.printStackTrace();
-			// }
-			// catch (IOException e) {
-			// e.printStackTrace();
-			// }
-			//			
-			//			
-			// try {
-			// logOutAcesForUserFolders(loginName);
-			// }
-			// catch (HttpException e1) {
-			// e1.printStackTrace();
-			// }
-			// catch (IOException e1) {
-			// e1.printStackTrace();
-			// }
-			//			
-			// // if(transactionStarted){
-			// // returner = rootFolder.commitTransaction();
-			// // }
 			rootFolder.close();
-		}
-		// else {
-		// logOutAcesForUserFolders(loginName);
-		// }
-
-		try {
-			updateUserFolderPrivileges(loginName);
-		} catch (IOException e) {
-			e.printStackTrace();
+			
+			try {
+				updateUserFolderPrivileges(loginName);
+			} catch (IOException e) {
+				e.printStackTrace();
+				return false;
+			}
 		}
 
-		return returner;
+		return true;
 	}
 
 	public void updateUserFolderPrivileges(String loginName) throws IOException, IOException {

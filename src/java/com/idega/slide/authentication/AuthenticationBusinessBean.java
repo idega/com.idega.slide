@@ -119,23 +119,12 @@ public class AuthenticationBusinessBean extends IBOServiceBean implements
 	 * @throws RemoteException
 	 * @throws HttpException
 	 */
-	public void updateRoleMembershipForUser(String userLoginName,
-	        Set roleNamesForUser, Set loginNamesOfAllLoggedOnUsers)
-	        throws HttpException, RemoteException, IOException {
-		if (userLoginName != null && userLoginName.length() > 0
-		        && !userLoginName.equals(SLIDE_DEFAULT_ROOT_USER)) {
+	public void updateRoleMembershipForUser(String userLoginName, Set roleNamesForUser, Set loginNamesOfAllLoggedOnUsers)
+		throws HttpException, RemoteException, IOException {
+		
+		if (userLoginName != null && userLoginName.length() > 0 && !userLoginName.equals(SLIDE_DEFAULT_ROOT_USER)) {
 			IWSlideService service = getSlideServiceInstance();
-			UsernamePasswordCredentials rCredentials = service
-			        .getRootUserCredentials();
-			
-			if (!service.getExistence(getUserPath(userLoginName))) {
-				WebdavResource user = new WebdavResource(service
-				        .getWebdavServerURL(rCredentials,
-				            getUserPath(userLoginName)),
-				        WebdavResource.NOACTION, 0);
-				user.mkcolMethod();
-				user.close();
-			}
+			UsernamePasswordCredentials rCredentials = service.getRootUserCredentials();
 			
 			Set newRoles = new HashSet(roleNamesForUser);
 			Enumeration e = getAllRoles(rCredentials).getResources();
@@ -143,8 +132,7 @@ public class AuthenticationBusinessBean extends IBOServiceBean implements
 			while (e.hasMoreElements()) {
 				WebdavResource role = (WebdavResource) e.nextElement();
 				newRoles.remove(role.getDisplayName());
-				updateRoleMembershipForUser(role, userURI, roleNamesForUser,
-				    loginNamesOfAllLoggedOnUsers);
+				updateRoleMembershipForUser(role, userURI, roleNamesForUser, loginNamesOfAllLoggedOnUsers);
 			}
 			
 			// Add Roles that don't exist
@@ -152,12 +140,9 @@ public class AuthenticationBusinessBean extends IBOServiceBean implements
 				String sRole = (String) iter.next();
 				
 				if (!service.getExistence(getRolePath(sRole))) {
-					WebdavResource newRole = new WebdavResource(service
-					        .getWebdavServerURL(rCredentials,
-					            getRolePath(sRole)), WebdavResource.NOACTION, 0);
+					WebdavResource newRole = new WebdavResource(service.getWebdavServerURL(rCredentials, getRolePath(sRole)), WebdavResource.NOACTION, 0);
 					newRole.mkcolMethod();
-					updateRoleMembershipForUser(newRole, userURI,
-					    roleNamesForUser, loginNamesOfAllLoggedOnUsers);
+					updateRoleMembershipForUser(newRole, userURI, roleNamesForUser, loginNamesOfAllLoggedOnUsers);
 					newRole.close();
 				}
 			}
