@@ -174,15 +174,6 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		uploadPath = uploadPath.concat(fileName);
 		uploadPath = getNormalizedPath(uploadPath);
 
-		NodeRevisionDescriptor descriptor = null;
-		try {
-			descriptor = getNodeRevisionDescriptor(uploadPath);
-		} catch (Throwable t) {}
-		if (descriptor != null) {
-			//	Modifying existing file!
-			return setContent(uploadPath, stream);
-		}
-		
 		if (!startTransaction()) {
 			return false;
 		}
