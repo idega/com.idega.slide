@@ -627,7 +627,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		return path;
 	}
 	
-	private synchronized boolean startTransaction() {
+	private boolean startTransaction() {
 		initializeSimpleSlideServiceBean();
 		
 		if (namespace == null) {
@@ -649,7 +649,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		return true;
 	}
 	
-	private synchronized boolean rollbackTransaction() {
+	private boolean rollbackTransaction() {
 		if (namespace == null) {
 			return false;
 		}
@@ -664,7 +664,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		return true;
 	}
 	
-	private synchronized boolean finishTransaction() {
+	private boolean finishTransaction() {
 		if (namespace == null) {
 			return false;
 		}
