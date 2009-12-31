@@ -388,7 +388,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 			RequestResponseProvider requestProvider = ELUtil.getInstance().getBean(RequestResponseProvider.class);
 			return requestProvider.getRequest().getSession(Boolean.FALSE);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.warning("Error getting current session: " + e.getMessage());
 		}
 		return null;
 	}
