@@ -887,7 +887,17 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 				true);
 	}
 
-	private boolean uploadFile(String uploadPath, String fileName, String contentType, InputStream fileInputStream, boolean closeStream) {
+	/**
+	 * Synchronized for now because it doesn't seem to be thread safe (deadlock)
+	 * 
+	 * @param uploadPath
+	 * @param fileName
+	 * @param contentType
+	 * @param fileInputStream
+	 * @param closeStream
+	 * @return
+	 */
+	private synchronized boolean uploadFile(String uploadPath, String fileName, String contentType, InputStream fileInputStream, boolean closeStream) {
 		uploadPath = createFoldersAndPreparedUploadPath(uploadPath, true);
 		if (uploadPath == null) {
 			return false;
