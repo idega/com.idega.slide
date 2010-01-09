@@ -1422,7 +1422,16 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 			stream = simpleSlideService.getInputStream(path);
 		}
 
-		if (stream == null) {
+		boolean validStream = true;
+		try {
+			validStream = stream != null && stream.available() >= 0;
+		} catch (Exception e) {
+			validStream = false;
+		}
+		
+		if (!validStream) {
+			IOUtil.close(stream);
+			
 			WebdavResource resource = getWebdavExternalResourceAuthenticatedAsRoot(path);
 			stream = resource.getMethodData();
 		}
