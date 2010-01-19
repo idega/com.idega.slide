@@ -97,7 +97,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 	
 	private boolean initialized;
 	
-	private synchronized void initializeSimpleSlideServiceBean() {
+	private void initializeSimpleSlideServiceBean() {
 		if (initialized) {
 			initialized = !(namespace == null || structure == null || content == null || security == null);
 		}
