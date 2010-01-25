@@ -359,8 +359,9 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getInputStream
 	 */
-	public InputStream getInputStream(String path) throws IOException,
-			RemoteException;
+	public InputStream getInputStream(String path) throws IOException, RemoteException;
+	
+	public InputStream getInputStream(WebdavResource resource) throws IOException, RemoteException;
 
 	/**
 	 * @see com.idega.slide.business.IWSlideServiceBean#getOutputStream

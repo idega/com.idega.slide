@@ -1422,21 +1422,47 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 			stream = simpleSlideService.getInputStream(path);
 		}
 
-		boolean validStream = true;
-		try {
-			validStream = stream != null && stream.available() >= 0;
-		} catch (Exception e) {
-			validStream = false;
-		}
-		
-		if (!validStream) {
+		if (!IOUtil.isStreamValid(stream)) {
 			IOUtil.close(stream);
 			
 			WebdavResource resource = getWebdavExternalResourceAuthenticatedAsRoot(path);
-			stream = resource.getMethodData();
+			return getInputStream(resource);
 		}
 
 		return stream;
+	}
+	
+	public InputStream getInputStream(WebdavResource resource) throws IOException, RemoteException {
+		if (resource == null) {
+			LOGGER.warning("Provided WebdavResource is undefined!");
+			return null;
+		}
+		if (!resource.exists()) {
+			LOGGER.warning("Provided WebdavResource does not exist at: " + resource.getPath());
+			return null;
+		}
+		
+		try {
+			if (resource instanceof WebdavLocalResource) {
+				InputStream stream = resource.getMethodData();
+				if (IOUtil.isStreamValid(stream)) {
+					return stream;
+				}
+				
+				IOUtil.close(stream);
+				String path = resource.getPath();
+				resource = getWebdavExternalResourceAuthenticatedAsRoot(resource.getPath());
+				if (resource == null) {
+					LOGGER.warning("InputStream from local resource '" + path + "' was invalid, tried to load resource via HTTP and it failed!");
+					return null;
+				}
+			}
+			
+			return resource.getMethodData();
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, "Error getting input stream from: " + resource.getPath());
+			return null;
+		}
 	}
 	
 	private IWSimpleSlideService getSimpleSlideService() {
