@@ -15,6 +15,7 @@ import javax.jcr.query.RowIterator;
  */
 public class SlideQueryResult implements QueryResult {
 
+	@SuppressWarnings("unused")
 	private SlideQuery slideQuery;
 
 	public SlideQueryResult(SlideQuery slideQuery) {

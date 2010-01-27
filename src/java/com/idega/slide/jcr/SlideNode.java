@@ -256,7 +256,7 @@ public class SlideNode implements Node {
 
 		try {
 			if(nodePath.endsWith("css")){
-				boolean test=true;
+				//boolean test=true;
 			}
 			try {
 				objectNode = structure.retrieve(token, nodePath);
@@ -269,7 +269,7 @@ public class SlideNode implements Node {
 					if(LOGLEVEL==LOGLEVEL_DEBUG){
 						e.printStackTrace();
 					}
-					IWTimestamp now = IWTimestamp.RightNow();
+					//IWTimestamp now = IWTimestamp.RightNow();
 					revisionDescriptor = new NodeRevisionDescriptor(lastRevision,
 							NodeRevisionDescriptors.MAIN_BRANCH, new Vector(),
 							new Hashtable());
@@ -504,7 +504,7 @@ public class SlideNode implements Node {
 
 	public PropertyIterator getProperties() throws RepositoryException {
 		if(this.getName().endsWith(".css")){
-			boolean test=true;
+			//boolean test=true;
 		}
 		List properties = loadProperties();
 		return new IteratorHelper(properties);
@@ -1045,7 +1045,7 @@ public class SlideNode implements Node {
 		
 			lastRevision = new NodeRevisionNumber(lastRevision, false);
 			// Node revision descriptor
-			IWTimestamp now = IWTimestamp.RightNow();
+			//IWTimestamp now = IWTimestamp.RightNow();
 			NodeRevisionDescriptor newRevisionDescriptor = new NodeRevisionDescriptor(lastRevision,
 					NodeRevisionDescriptors.MAIN_BRANCH, new Vector(),
 					new Hashtable());

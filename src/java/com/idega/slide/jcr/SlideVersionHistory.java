@@ -72,6 +72,7 @@ public class SlideVersionHistory implements VersionHistory {
 		return new IteratorHelper(versions);
 	}
 
+	@SuppressWarnings("unused")
 	private void loadVersions(List<SlideVersion> versions2) {
 		Enumeration enumer = this.slideNode.revisions.enumerateRevisionNumbers();
 		while(enumer.hasMoreElements()){

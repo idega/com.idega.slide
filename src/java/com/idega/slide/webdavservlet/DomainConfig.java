@@ -476,7 +476,7 @@ public class DomainConfig {
 	 * @return
 	 */
 	protected void lookupDomainSettingfromApplicationProperties() {
-		String domainparam;
+		//String domainparam;
 		//String domainTxPath = "/idegaweb/bundles/org.apache.slide.bundle/properties/Domain-FileStore.xml";
 		//String domainRdbmsPath = "/idegaweb/bundles/org.apache.slide.bundle/properties/Domain.xml";
 

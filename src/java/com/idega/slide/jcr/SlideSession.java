@@ -279,6 +279,7 @@ public class SlideSession implements Session {
 
 	}
 
+	@SuppressWarnings("unused")
 	public SlideToken getToken() {
 		if(token==null){
 			String userPrincipals = null;

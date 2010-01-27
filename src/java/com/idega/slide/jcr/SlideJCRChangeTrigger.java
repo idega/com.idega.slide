@@ -89,6 +89,7 @@ public class SlideJCRChangeTrigger implements EventCollectionListener {
 		
 	}
 
+	@SuppressWarnings("unused")
 	private void setSlideRepository(SlideRepository slideRepository) {
 		this.slideRepository = slideRepository;
 	}

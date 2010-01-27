@@ -198,7 +198,7 @@ public class RepositoryTest {
 		session.save();
 		
 		testFolder = filesNode.getNode("testFolder");
-		NodeIterator testFolderChildren = testFolder.getNodes();
+		testFolder.getNodes();
 		
 		filesNode = session.getRootNode().getNode("files");
 		NodeIterator filesNodeChildren = testFolder.getNodes();

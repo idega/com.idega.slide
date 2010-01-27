@@ -18,7 +18,10 @@ import org.apache.slide.search.Search;
  */
 public class SlideQueryManager implements QueryManager {
 
+	@SuppressWarnings("unused")
 	private SlideRepository slideRepository;
+
+	@SuppressWarnings("unused")
 	private Search searchHelper;
 	
 	public SlideQueryManager(SlideRepository slideRepository) {
