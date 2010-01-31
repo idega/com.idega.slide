@@ -65,6 +65,7 @@ import com.idega.io.ZipInstaller;
 import com.idega.servlet.filter.RequestResponseProvider;
 import com.idega.slide.authentication.AuthenticationBusiness;
 import com.idega.slide.schema.SlideSchemaCreator;
+import com.idega.slide.upload.UploadInfo;
 import com.idega.slide.util.AccessControlEntry;
 import com.idega.slide.util.AccessControlList;
 import com.idega.slide.util.IWSlideConstants;
@@ -121,6 +122,8 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 
 	private static final Logger LOGGER = Logger.getLogger(IWSlideServiceBean.class.getName());
 
+	private Map<String, UploadInfo> uploadsQueue = new HashMap<String, UploadInfo>();
+	
 	@Autowired
 	private IWSimpleSlideService simpleSlideService;
 	
@@ -853,7 +856,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		return false;
 	}
 
-	private String createFoldersAndPreparedUploadPath(String uploadPath, boolean checkSlashes) {
+	String createFoldersAndPreparedUploadPath(String uploadPath, boolean checkSlashes) {
 		if (checkSlashes) {
 			if (!uploadPath.startsWith(CoreConstants.SLASH)) {
 				uploadPath = CoreConstants.SLASH.concat(uploadPath);
@@ -881,10 +884,8 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		return null;
 	}
 
-	public boolean uploadFile(String uploadPath, String fileName,
-			String contentType, InputStream fileInputStream) {
-		return uploadFile(uploadPath, fileName, contentType, fileInputStream,
-				true);
+	public boolean uploadFile(String uploadPath, String fileName, String contentType, InputStream fileInputStream) {
+		return uploadFile(uploadPath, fileName, contentType, fileInputStream, true);
 	}
 
 	/**
@@ -897,34 +898,62 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @param closeStream
 	 * @return
 	 */
-	private synchronized boolean uploadFile(String uploadPath, String fileName, String contentType, InputStream fileInputStream, boolean closeStream) {
-		uploadPath = createFoldersAndPreparedUploadPath(uploadPath, true);
-		if (uploadPath == null) {
-			return false;
-		}
-
-		IWSimpleSlideService simpleSlideService = getSimpleSlideService();
-		if (simpleSlideService == null) {
+	private boolean uploadFile(String uploadPath, String fileName, String contentType, InputStream stream, boolean closeStream) {
+		if (StringUtil.isEmpty(uploadPath) || StringUtil.isEmpty(fileName) || !IOUtil.isStreamValid(stream)) {
+			LOGGER.warning("Unable to upload file: invalid parameters provided!");
 			return false;
 		}
 		
-		try {
-			return simpleSlideService.upload(fileInputStream, uploadPath, fileName, contentType, null, closeStream);
-		} catch (Throwable t) {
-			LOGGER.log(Level.WARNING, "Error uploading '" + uploadPath + fileName + "' using Slide API. Will try to upload using common API", t);
-		}
-
-		return false;
+		UploadWorker uw = new UploadWorker(this, uploadPath, fileName, contentType, stream, closeStream);
+		Thread uploader = new Thread(uw);
+		uploader.run();	//	We want "synchronous" execution
+		return uw.getUploadResult();
 	}
 
+	boolean isBusyUploader(String uploadPath, String uploadId) {
+		UploadInfo info = null;
+		synchronized (uploadsQueue) {
+			info = uploadsQueue.get(uploadPath);
+		}
+		
+		Boolean busy = null;
+		if (info == null) {
+			info = new UploadInfo();
+			synchronized (uploadsQueue) {
+				uploadsQueue.put(uploadPath, info);
+			}
+			busy = Boolean.FALSE;
+		}
+		
+		info.addToQueue(uploadId);
+		
+		if (busy == null) {
+			if (info.isQueueEmpty()) {
+				busy = Boolean.FALSE;		//	The first attempt to upload a file
+			} else if (info.isFirsInAQueue(uploadId)) {
+				busy = Boolean.FALSE;		//	If the upload work id is the first and a lock is unlocked, worker can upload
+			}
+		}
+		
+		return busy == null ? Boolean.TRUE : busy;
+	}
+	
+	void removeFromUploadFromQueue(String uploadPath, String uploadId) {
+		synchronized (uploadsQueue) {
+			UploadInfo info = uploadsQueue.get(uploadPath);
+			if (info != null) {
+				info.removeFromQueue(uploadId);
+			}
+		}
+	}
+	
 	/**
 	 * 
 	 * Creates the parent folder if needed and uploads the content of the file
 	 * to Slide and sets the contenttype/mimetype you specify
 	 */
-	public boolean uploadFileAndCreateFoldersFromStringAsRoot(
-			String parentPath, String fileName, InputStream fileInputStream,
-			String contentType, boolean deletePredecessor) {
+	public boolean uploadFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName, InputStream fileInputStream, String contentType,
+			boolean deletePredecessor) {
 		if (uploadFile(parentPath, fileName, contentType, fileInputStream, false)) { // Trying with Slide API firstly
 			return true;
 		}
@@ -1465,7 +1494,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		}
 	}
 	
-	private IWSimpleSlideService getSimpleSlideService() {
+	IWSimpleSlideService getSimpleSlideService() {
 		if (simpleSlideService == null) {
 			ELUtil.getInstance().autowire(this);
 		}
