@@ -14,14 +14,13 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import com.idega.core.business.DefaultSpringBean;
-import com.idega.dwr.business.DWRAnnotationPersistance;
 import com.idega.idegaweb.IWMainSlideStartedEvent;
 import com.idega.slide.business.IWSlideService;
 import com.idega.util.StringHandler;
 
 @Service
 @Scope(BeanDefinition.SCOPE_SINGLETON)
-public class UploadTest extends DefaultSpringBean implements ApplicationListener, DWRAnnotationPersistance {
+public class UploadTest extends DefaultSpringBean implements ApplicationListener {
 	
 	private Logger LOGGER;
 
