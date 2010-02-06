@@ -22,38 +22,77 @@ public class UploadInfo {
 			uploadsQueue.remove(uploadId);
 		}
 		
-		if (lock != null) {
-			synchronized (lock) {
-				lock.unlock();
-			}
-		}
+		unlock();
 	}
 	
 	public boolean isQueueEmpty() {
 		synchronized (uploadsQueue) {
-			return uploadsQueue.size() == 0;
+			if (uploadsQueue.size() == 0) {
+				return Boolean.TRUE;
+			}
+		}
+		return Boolean.FALSE;
+	}
+	
+	private void unlock() {
+		if (lock != null) {
+			synchronized (lock) {
+				try {
+					lock.unlock();
+				} catch (IllegalMonitorStateException e) {}
+			}
 		}
 	}
 	
-	public boolean isFirsInAQueue(String uploadId) {
-		synchronized (uploadsQueue) {
-			if (uploadsQueue.size() == 0) {
-				return false;
-			}
-			
-			if (uploadId.equals(uploadsQueue.get(0))) {
-				if (lock == null) {
-					lock = new ReentrantLock();
-				}
-			
-				synchronized (lock) {
-					if (!lock.isLocked()) {
-						lock.lock();
-						return true;
-					}
-				}
+	public void lock() {
+		if (lock == null) {
+			lock = new ReentrantLock();
+		}
+	
+		synchronized (lock) {
+			if (!lock.isLocked()) {
+				lock.lock();
 			}
 		}
-		return false;
+	}
+	
+	public boolean isFirstInAQueue(String uploadId) {
+		synchronized (uploadsQueue) {
+			if (uploadsQueue.size() == 0) {
+				return Boolean.FALSE;
+			}
+			
+			if (uploadId.equals(uploadsQueue.get(0)) && !isActive()) {
+				return Boolean.TRUE;
+			}
+		}
+		return Boolean.FALSE;
+	}
+	
+	public synchronized boolean isActive() {
+		if (lock == null) {
+			return Boolean.FALSE;
+		}
+		
+		if (lock.isLocked()) {
+			return Boolean.TRUE;
+		}
+
+		return Boolean.FALSE;
+	}
+	
+	public boolean isLockedByCurrentThread() {
+		if (lock == null) {
+			return false;
+		}
+		
+		synchronized (lock) {
+			return lock.isHeldByCurrentThread();
+		}
+	}
+	
+	@Override
+	public String toString() {
+		return "Uploads queue: " + uploadsQueue + ", lock: " + lock;
 	}
 }

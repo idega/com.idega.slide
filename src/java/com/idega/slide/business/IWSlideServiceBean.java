@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -77,6 +78,7 @@ import com.idega.slide.webdavservlet.DomainConfig;
 import com.idega.util.CoreConstants;
 import com.idega.util.IOUtil;
 import com.idega.util.IWTimestamp;
+import com.idega.util.ListUtil;
 import com.idega.util.StringHandler;
 import com.idega.util.StringUtil;
 import com.idega.util.expression.ELUtil;
@@ -905,9 +907,20 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		}
 		
 		UploadWorker uw = new UploadWorker(this, uploadPath, fileName, contentType, stream, closeStream);
-		Thread uploader = new Thread(uw);
-		uploader.run();	//	We want "synchronous" execution
-		return uw.getUploadResult();
+		try {
+			Thread uploader = new Thread(uw);
+			uploader.run();	//	We want "synchronous" execution
+			return uw.getUploadResult();
+		} catch (Throwable t) {
+			LOGGER.log(Level.WARNING, "Error while uploading: ".concat(uploadPath).concat(fileName), t);
+		} finally {
+			removeFromUploadFromQueue(uploadPath, uw.getUploadId());
+			
+			if (closeStream) {
+				IOUtil.close(stream);
+			}
+		}
+		return Boolean.FALSE;
 	}
 
 	boolean isBusyUploader(String uploadPath, String uploadId) {
@@ -916,26 +929,90 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 			info = uploadsQueue.get(uploadPath);
 		}
 		
-		Boolean busy = null;
 		if (info == null) {
 			info = new UploadInfo();
 			synchronized (uploadsQueue) {
 				uploadsQueue.put(uploadPath, info);
 			}
-			busy = Boolean.FALSE;
 		}
 		
 		info.addToQueue(uploadId);
 		
-		if (busy == null) {
-			if (info.isQueueEmpty()) {
-				busy = Boolean.FALSE;		//	The first attempt to upload a file
-			} else if (info.isFirsInAQueue(uploadId)) {
-				busy = Boolean.FALSE;		//	If the upload work id is the first and a lock is unlocked, worker can upload
+		boolean busy = Boolean.TRUE;
+		if (info.isQueueEmpty()) {
+			busy = Boolean.FALSE;		//	The first attempt to upload a file
+		} else if (info.isFirstInAQueue(uploadId)) {
+			busy = Boolean.FALSE;		//	If the upload work id is the first and a lock is unlocked, worker can upload
+		} else if (info.isLockedByCurrentThread()) {
+			return Boolean.FALSE;		//	Current thread has locked, worker can upload
+		}
+		
+		if (!busy) {
+			//	1.	Check if not uploading to the parent folder (to some sibling folder) currently
+			UploadInfo parentFolderActivity = getParentFolderActivityInfo(uploadPath);
+			if (parentFolderActivity != null) {
+				if (parentFolderActivity.isActive()) {
+					return Boolean.TRUE;
+				}
+			}
+			
+			//	2.	Check if not uploading to the descendant folder currently
+			List<UploadInfo> descendantFolders = getDescendantFoldersActivityInfo(uploadPath);
+			if (!ListUtil.isEmpty(descendantFolders)) {
+				for (UploadInfo descendantFolder: descendantFolders) {
+					if (descendantFolder.isActive()) {
+						return Boolean.TRUE;
+					}
+				}
 			}
 		}
 		
-		return busy == null ? Boolean.TRUE : busy;
+		if (!busy) {
+			synchronized (uploadsQueue) {
+				info.lock();
+				return Boolean.FALSE;
+			}
+		}
+		
+		return Boolean.TRUE;
+	}
+	
+	private List<UploadInfo> getDescendantFoldersActivityInfo(String uploadPath) {
+		Set<String> currentActivities = null;
+		synchronized (uploadsQueue) {
+			currentActivities = uploadsQueue.keySet();
+		}
+		if (ListUtil.isEmpty(currentActivities)) {
+			return null;
+		}
+		
+		List<UploadInfo> descendantFolders = new ArrayList<UploadInfo>();
+		for (String folderActivity: currentActivities) {
+			if (folderActivity.startsWith(uploadPath) && !folderActivity.equals(uploadPath)) {
+				UploadInfo descendantFolder = uploadsQueue.get(folderActivity);
+				if (descendantFolder != null) {
+					descendantFolders.add(descendantFolder);
+				}
+			}
+		}
+		return descendantFolders;
+	}
+	
+	private UploadInfo getParentFolderActivityInfo(String uploadPath) {
+		if (uploadPath.endsWith(CoreConstants.SLASH)) {
+			uploadPath = uploadPath.substring(0, uploadPath.length() - 1);
+		}
+		if (uploadPath.indexOf(CoreConstants.SLASH) == -1) {
+			return null;
+		}
+		
+		String parentFolder = uploadPath.substring(0, uploadPath.lastIndexOf(CoreConstants.SLASH));
+		if (!parentFolder.endsWith(CoreConstants.SLASH)) {
+			parentFolder = parentFolder.concat(CoreConstants.SLASH);
+		}
+		synchronized (uploadsQueue) {
+			return uploadsQueue.get(parentFolder);
+		}
 	}
 	
 	void removeFromUploadFromQueue(String uploadPath, String uploadId) {
@@ -943,6 +1020,10 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 			UploadInfo info = uploadsQueue.get(uploadPath);
 			if (info != null) {
 				info.removeFromQueue(uploadId);
+				
+				if (info.isQueueEmpty()) {
+					uploadsQueue.remove(uploadPath);
+				}
 			}
 		}
 	}

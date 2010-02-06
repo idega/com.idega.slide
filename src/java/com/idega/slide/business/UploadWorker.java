@@ -21,7 +21,7 @@ public class UploadWorker implements Runnable {
 	
 	private boolean closeStream;
 	
-	private boolean result;
+	private Boolean result;
 	
 	public UploadWorker(IWSlideServiceBean slideService, String uploadPath, String fileName, String contentType, InputStream stream, boolean closeStream) {
 		this.slideService = slideService;
@@ -39,13 +39,18 @@ public class UploadWorker implements Runnable {
 	}
 	
 	boolean getUploadResult() {
+		if (result == null) {
+			slideService.removeFromUploadFromQueue(uploadPath, uploadId);
+			LOGGER.warning("There is still no results about uploading status for: ".concat(uploadId).concat(", path: ").concat(uploadPath).concat(fileName));
+			result = Boolean.FALSE;
+		}
+		
 		return result;
 	}
 	
 	private void waitInAQueue() {
 		while (slideService.isBusyUploader(uploadPath, uploadId)) {
 			try {
-				LOGGER.info("Worker " + this + " is waiting in a queue...");
 				Thread.sleep(50);
 			} catch (InterruptedException e) {
 				LOGGER.log(Level.WARNING, "Upload worker was interupted while waiting in an unpload queue!", e);
@@ -55,22 +60,22 @@ public class UploadWorker implements Runnable {
 
 	private void upload() {
 		try {
-			uploadPath = slideService.createFoldersAndPreparedUploadPath(uploadPath, true);
+			String fixedUploadPath = slideService.createFoldersAndPreparedUploadPath(uploadPath, true);
 			if (uploadPath == null) {
-				return;
-			}
-	
-			IWSimpleSlideService simpleSlideService = slideService.getSimpleSlideService();
-			if (simpleSlideService == null) {
+				LOGGER.warning("Can not upload: " + uploadPath + fileName);
 				return;
 			}
 			
-			result = simpleSlideService.upload(stream, uploadPath, fileName, contentType, null, closeStream);
+			result = slideService.getSimpleSlideService().upload(stream, fixedUploadPath, fileName, contentType, null, closeStream);
 		} catch (Throwable t) {
 			LOGGER.log(Level.WARNING, "Error uploading '" + uploadPath + fileName + "' using Slide API. Will try to upload using common API", t);
 		} finally {
 			slideService.removeFromUploadFromQueue(uploadPath, uploadId);
 		}
+	}
+	
+	String getUploadId() {
+		return uploadId;
 	}
 	
 	@Override
