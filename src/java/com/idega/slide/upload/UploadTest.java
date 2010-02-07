@@ -41,11 +41,11 @@ public class UploadTest extends DefaultSpringBean implements ApplicationListener
 	public void executeUploads() {
 		final IWSlideService slide = getServiceInstance(IWSlideService.class);
 		
-		String mainDir = "/files/public/concurent_uploads_test/";
+		String mainDir = "/files/public/concurent_uploads/";
 		String subDir1 = mainDir.concat("t1/");
 		final List<String> uploadPaths = Arrays.asList(mainDir, subDir1, mainDir.concat("t2/"), subDir1.concat("sub/"));		
 		final String fileName = "File_";
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 50; i++) {
 			final int fileNumber = i+1;
 			Thread worker = new Thread(new Runnable() {
 				public void run() {
