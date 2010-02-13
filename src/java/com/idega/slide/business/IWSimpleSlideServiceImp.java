@@ -1,5 +1,7 @@
 package com.idega.slide.business;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URLDecoder;
@@ -8,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -46,6 +49,10 @@ import org.apache.slide.structure.SubjectNode;
 import org.apache.webdav.lib.Ace;
 import org.apache.webdav.lib.Privilege;
 import org.apache.webdav.lib.WebdavResources;
+import org.jdom.Attribute;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.Namespace;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -58,11 +65,13 @@ import com.idega.slide.webdavservlet.DomainConfig;
 import com.idega.user.data.User;
 import com.idega.util.ArrayUtil;
 import com.idega.util.CoreConstants;
+import com.idega.util.FileUtil;
 import com.idega.util.IOUtil;
 import com.idega.util.IWTimestamp;
 import com.idega.util.ListUtil;
 import com.idega.util.StringHandler;
 import com.idega.util.StringUtil;
+import com.idega.util.xml.XmlUtil;
 
 /**
 * Simple API of Slide implementation. It improves performance without breaking business logic.
@@ -83,12 +92,13 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 	private static final String CACHE_RESOURCE_DESCRIPTOR_NAME = "slide_resource_descriptor_cache";
 	private static final String CACHE_RESOURCE_DESCRIPTORS_NAME = "slide_resource_descriptors_cache";
 	
+	private static final String DEFINITION_XML_FILE_ENDING = ".def.xml";
+	
 	private long THREE_MINUTES = 60 * 3;
 	
 	@Autowired
 	private DomainConfig domainConfig;
 	
-	private NamespaceAccessToken namespace;
 	private Structure structure;
 	private Content content;
 	private Security security;
@@ -99,7 +109,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 	
 	private void initializeSimpleSlideServiceBean() {
 		if (initialized) {
-			initialized = !(namespace == null || structure == null || content == null || security == null);
+			initialized = !(structure == null || content == null || security == null);
 		}
 		if (initialized) {
 			return;
@@ -111,7 +121,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 				domainConfig.initialize();
 			}
 			
-			namespace = namespace == null ? Domain.accessNamespace(new SecurityToken(CoreConstants.EMPTY), Domain.getDefaultNamespace()) : namespace;
+			NamespaceAccessToken namespace = getNamespace();
 			structure = structure == null ? namespace.getStructureHelper() : structure;
 			content = content == null ? namespace.getContentHelper(): content;
 			security = security == null ? namespace.getSecurityHelper() : security;
@@ -174,7 +184,8 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		uploadPath = uploadPath.concat(fileName);
 		uploadPath = getNormalizedPath(uploadPath);
 
-		if (!startTransaction()) {
+		NamespaceAccessToken namespace = startTransaction();
+		if (namespace == null) {
 			return false;
 		}
 		
@@ -234,13 +245,12 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return true;
 		} catch(Throwable t) {
 			LOGGER.log(Level.WARNING, "Error while uploading: " + uploadPath, t);
-			rollbackTransaction();
-		}
-		finally {
+			rollbackTransaction(namespace);
+		} finally {
 			if (closeStream) {
 				IOUtil.closeInputStream(stream);
 			}
-			finishTransaction();
+			finishTransaction(namespace);
 		}
 		
 		return false;
@@ -265,7 +275,8 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return null;
 		}
 		
-		if (!startTransaction()) {
+		NamespaceAccessToken namespace = startTransaction();
+		if (namespace == null) {
 			return null;
 		}
 		
@@ -276,16 +287,18 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			
 			putValueIntoCache(CACHE_RESOURCE_DESCRIPTORS_NAME, THREE_MINUTES, pathToNode, descriptors);
 			return descriptors;
+		} catch (ObjectNotFoundException e) {
+			deletetDefinitionFile(e.getObjectUri());
 		} catch (Throwable e) {
 		} finally {
-			rollbackTransaction();
+			rollbackTransaction(namespace);
 		}
 		
 		return null;
 	}
 	
 	private NodeRevisionDescriptor getNodeRevisionDescriptor(String path)
-		throws ObjectNotFoundException, AccessDeniedException, LinkedObjectNotFoundException, RevisionDescriptorNotFoundException, ObjectLockedException,
+		throws AccessDeniedException, LinkedObjectNotFoundException, RevisionDescriptorNotFoundException, ObjectLockedException,
 			ServiceAccessException, VetoException {
 		
 		NodeRevisionDescriptors revisionDescriptors = getNodeRevisionDescriptors(path);
@@ -316,7 +329,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 	}
 	
 	private NodeRevisionDescriptor getNodeRevisionDescriptor(NodeRevisionDescriptors revisionDescriptors)
-		throws ObjectNotFoundException, AccessDeniedException, LinkedObjectNotFoundException, RevisionDescriptorNotFoundException, ObjectLockedException,
+		throws AccessDeniedException, LinkedObjectNotFoundException, RevisionDescriptorNotFoundException, ObjectLockedException,
 				ServiceAccessException, VetoException {
 		
 		String path = getNormalizedPath(revisionDescriptors.getUri());
@@ -330,7 +343,8 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return null;
 		}
 		
-		if (!startTransaction()) {
+		NamespaceAccessToken namespace = startTransaction();
+		if (namespace == null) {
 			return null;
 		}
 		
@@ -339,8 +353,11 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			
 			putValueIntoCache(CACHE_RESOURCE_DESCRIPTOR_NAME, THREE_MINUTES, path, descriptor);
 			return descriptor;
+		} catch (ObjectNotFoundException e) {
+			deletetDefinitionFile(e.getObjectUri());
+			return null;
 		} finally {
-			rollbackTransaction();
+			rollbackTransaction(namespace);
 		}
 	}
 	
@@ -357,7 +374,8 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return false;
 		}
 		
-		if (!startTransaction()) {
+		NamespaceAccessToken namespace = startTransaction();
+		if (namespace == null) {
 			return false;
 		}
 
@@ -366,13 +384,14 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		try {
 			node = structure.retrieve(rootToken, pathToFile);
 			
-			finishTransaction();
+			finishTransaction(namespace);
 			rollback = false;
 			
 			Boolean exists = node == null ? false : true;
 			putValueIntoCache(CACHE_RESOURCE_EXISTANCE_NAME, -1, pathToFile, exists);
 			return exists;
 		} catch (ObjectNotFoundException e) {
+			deletetDefinitionFile(e.getObjectUri());
 		} catch (LinkedObjectNotFoundException e) {
 		} catch (AccessDeniedException e) {
 			LOGGER.warning("Current user can not access " + pathToFile + " - access denied!");
@@ -382,7 +401,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			LOGGER.log(Level.WARNING, "Some error occurred while trying to retrieve " + pathToFile, t);
 		} finally {
 			if (rollback) {
-				rollbackTransaction();
+				rollbackTransaction(namespace);
 			}
 		}
 		
@@ -405,17 +424,27 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return null;
 		}
 		
-		if (!startTransaction()) {
+		NamespaceAccessToken namespace = startTransaction();
+		if (namespace == null) {
 			return null;
 		}
 		
+		boolean rollback = false;
 		try {
 			return content.retrieve(rootToken, revisionDescriptors, revisionDescriptor);
+		} catch (ObjectNotFoundException e) {
+			LOGGER.log(Level.WARNING, "Error getting InputStream for: " + pathToFile, e);
+			deletetDefinitionFile(e.getObjectUri());
+			rollback = true;
 		} catch (Throwable e) {
 			LOGGER.log(Level.WARNING, "Error getting InputStream for: " + pathToFile, e);
-			rollbackTransaction();
+			rollback = true;
 		} finally {
-			finishTransaction();
+			if (rollback) {
+				rollbackTransaction(namespace);
+			} else {
+				finishTransaction(namespace);
+			}
 		}
 		
 		return null;
@@ -430,19 +459,13 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return null;
 		}
 		
-		if (!startTransaction()) {
-			return null;
-		}
-		
 		InputStream stream = null;
 		try {
 			stream = nodeContent.streamContent();
 		} catch (Throwable e) {
 			LOGGER.log(Level.WARNING, "Error getting InputStream for: " + pathToFile, e);
-			rollbackTransaction();
 		}
 		
-		finishTransaction();
 		return stream;
 	}
 	
@@ -463,10 +486,12 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		NodeRevisionDescriptors descriptors = getNodeRevisionDescriptors(pathToFile);
 		NodeRevisionDescriptor descriptor = getRevisionDescriptor(descriptors);
 		
-		if (!startTransaction()) {
+		NamespaceAccessToken namespace = startTransaction();
+		if (namespace == null) {
 			return Boolean.FALSE;
 		}
 		
+		boolean rollback = false;
 		try {
 			descriptor.setContentLength(contentStream.available());
 			descriptor.setLastModified(new Date(System.currentTimeMillis()));
@@ -474,12 +499,23 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			nodeContent.setContent(contentStream);
 			content.store(rootToken, pathToFile, descriptor, nodeContent);
 		} catch (Throwable e) {
+			rollback = Boolean.TRUE;
 			LOGGER.log(Level.WARNING, "Error setting content InputStream for: " + pathToFile, e);
-			rollbackTransaction();
+			
+			if (e instanceof ObjectNotFoundException) {
+				deletetDefinitionFile(((ObjectNotFoundException) e).getObjectUri());
+			} else if (e instanceof RevisionDescriptorNotFoundException) {
+				deletetDefinitionFile(((RevisionDescriptorNotFoundException) e).getObjectUri());
+			}
+			
 			return Boolean.FALSE;
+		} finally {
+			if (rollback) {
+				rollbackTransaction(namespace);
+			} else {
+				finishTransaction(namespace);
+			}
 		}
-		
-		finishTransaction();
 		
 		putValueIntoCache(CACHE_RESOURCE_DESCRIPTORS_NAME, THREE_MINUTES, pathToFile, descriptors);
 		putValueIntoCache(CACHE_RESOURCE_DESCRIPTOR_NAME, THREE_MINUTES, pathToFile, descriptor);
@@ -504,7 +540,8 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return allPermissions;
 		}
 		
-		if (!startTransaction()) {
+		NamespaceAccessToken namespace = startTransaction();
+		if (namespace == null) {
 			return allPermissions;
 		}
 		Enumeration<NodePermission> permissions = null;
@@ -512,10 +549,15 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			permissions = security.enumeratePermissions(content, path);
 		} catch (Throwable t) {
 			LOGGER.log(Level.WARNING, "Error getting permissions for: " + path, t);
-			rollbackTransaction();
+			rollbackTransaction(namespace);
+			
+			if (t instanceof ObjectNotFoundException) {
+				deletetDefinitionFile(((ObjectNotFoundException) t).getObjectUri());
+			}
+			
 			return allPermissions;
 		}
-		if (!finishTransaction()) {
+		if (!finishTransaction(namespace)) {
 			return allPermissions;
 		}
 		
@@ -565,7 +607,8 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		
 		path = getNormalizedPath(path);
 		
-		if (!startTransaction()) {
+		NamespaceAccessToken namespace = startTransaction();
+		if (namespace == null) {
 			return false;
 		}
 		
@@ -601,11 +644,16 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			security.setPermissions(getContentToken(), path, Collections.enumeration(permissions));
 		} catch (Throwable t) {
 			LOGGER.log(Level.WARNING, "Error setting ACLs " + aces + " for " + path, t);
-			rollbackTransaction();
+			rollbackTransaction(namespace);
+			
+			if (t instanceof ObjectNotFoundException) {
+				deletetDefinitionFile(((ObjectNotFoundException) t).getObjectUri());
+			}
+			
 			return false;
 		}
 		
-		finishTransaction();
+		finishTransaction(namespace);
 		return true;
 	}
 	
@@ -627,29 +675,30 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		return path;
 	}
 	
-	private boolean startTransaction() {
+	private NamespaceAccessToken startTransaction() {
 		initializeSimpleSlideServiceBean();
 		
+		NamespaceAccessToken namespace = getNamespace();
 		if (namespace == null) {
-			return false;
+			return null;
 		}
 		
 		try {
 			if (namespace.getStatus() == 0) {
-				//	Transaction was begun already
-				return true;
+				//	Transaction was begun already!
+				return namespace;
 			}
 			
 			namespace.begin();
 		} catch(Throwable e) {
 			LOGGER.log(Level.WARNING, "Cannot start user transaction", e);
-			return false;
+			return null;
 		}
 		
-		return true;
+		return namespace;
 	}
 	
-	private boolean rollbackTransaction() {
+	private boolean rollbackTransaction(NamespaceAccessToken namespace) {
 		if (namespace == null) {
 			return false;
 		}
@@ -664,7 +713,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		return true;
 	}
 	
-	private boolean finishTransaction() {
+	private boolean finishTransaction(NamespaceAccessToken namespace) {
 		if (namespace == null) {
 			return false;
 		}
@@ -707,7 +756,8 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return true;
 		}
 		
-		if (!startTransaction()) {
+		NamespaceAccessToken namespace = startTransaction();
+		if (namespace == null) {
 			return false;
 		}
 		
@@ -716,7 +766,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		NodeRevisionDescriptor descriptor = null;
 		try {
 			structure.create(contentToken, node, path);
-			finishTransaction();
+			finishTransaction(namespace);
 		} catch (ObjectAlreadyExistsException e) {
 			descriptor = getRevisionDescriptor(path);
 			if (descriptor != null) {
@@ -729,12 +779,13 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return false;
 		} finally {
 			if (error) {
-				rollbackTransaction();
+				rollbackTransaction(namespace);
 			}
 		}
 		
 		try {
-			if (!startTransaction()) {
+			namespace = startTransaction();
+			if (namespace == null) {
 				return false;
 			}
 
@@ -743,7 +794,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			nodeContent.setContent(path.getBytes());
 			content.create(contentToken, path, descriptor, nodeContent);
 
-			finishTransaction();
+			finishTransaction(namespace);
 			
 			putValueIntoCache(CACHE_RESOURCE_EXISTANCE_NAME, -1, path, Boolean.TRUE);
 			putValueIntoCache(CACHE_RESOURCE_DESCRIPTOR_NAME, THREE_MINUTES, path, descriptor);
@@ -753,7 +804,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			LOGGER.log(Level.WARNING, "Error creating descriptor: " + path, t);
 		} finally {
 			if (error) {
-				rollbackTransaction();
+				rollbackTransaction(namespace);
 			}
 		}
 		
@@ -766,27 +817,107 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return false;
 		}
 		
-		NodeRevisionDescriptor descriptor = getRevisionDescriptor(path);
-		if (descriptor == null) {
+		NodeRevisionDescriptors descriptors = getNodeRevisionDescriptors(path);
+		if (descriptors == null) {
 			return false;
 		}
 		
-		if (!startTransaction()) {
+		NamespaceAccessToken namespace = startTransaction();
+		if (namespace == null) {
 			return false;
 		}
+		
+		boolean deleteXML = true;
 		try {
-			content.remove(getContentToken(), path, descriptor);
+			content.remove(getContentToken(), descriptors);
 			
 			removeValueFromCache(CACHE_RESOURCE_DESCRIPTORS_NAME, THREE_MINUTES, path);
 			removeValueFromCache(CACHE_RESOURCE_DESCRIPTOR_NAME, THREE_MINUTES, path);
 			removeValueFromCache(CACHE_RESOURCE_EXISTANCE_NAME, -1, path);
-		} catch (Exception e) {
-			LOGGER.log(Level.WARNING, "Unable to delete: " + path, e);
-			rollbackTransaction();
-			return false;
+		} catch (Throwable t) {
+			LOGGER.log(Level.WARNING, "Unable to delete: " + path, t);
+			deleteXML = t instanceof ObjectNotFoundException || t instanceof RevisionDescriptorNotFoundException;
+			if (!deleteXML) {
+				rollbackTransaction(namespace);
+				return false;
+			}
+		} finally {
+			if (deleteXML) {
+				deletetDefinitionFile(path);
+			}
 		}
-		finishTransaction();
+		
+		finishTransaction(namespace);
 		return true;
+	}
+	
+	public void deletetDefinitionFile(String path) {
+		String workingDir = System.getProperty("user.dir");
+		if (workingDir == null) {
+			LOGGER.warning("Unknown directory for Slide store!");
+			return;
+		}
+		
+		workingDir = workingDir.concat("/store/metadata");
+		String realPath = workingDir.concat(path).concat(DEFINITION_XML_FILE_ENDING);
+		String parentFile = null;
+		try {
+			File xml = new File(realPath);
+			if (xml != null && xml.exists()) {
+				parentFile = xml.getParent();
+				xml.delete();
+			}
+			
+			if (parentFile == null) {
+				int lastSlash = realPath.lastIndexOf(CoreConstants.SLASH);
+				if (lastSlash != -1) {
+					parentFile = realPath.substring(0, lastSlash);
+				}
+			}
+			if (StringUtil.isEmpty(parentFile)) {
+				LOGGER.warning("Parent file can not be found for: " + realPath);
+				return;
+			}
+			
+			String parentFileXMLURI = parentFile.concat(DEFINITION_XML_FILE_ENDING);
+			File parentXMLFile = new File(parentFileXMLURI);
+			if (parentXMLFile == null || !parentXMLFile.exists()) {
+				LOGGER.warning("File " + parentFileXMLURI + " does not exist!");
+				return;
+			}
+			
+			Document parentXML = XmlUtil.getJDOMXMLDocument(new FileInputStream(parentXMLFile));
+			if (parentXML == null) {
+				LOGGER.warning("XML document was not loaded from: " + parentFileXMLURI);
+				return;
+			}
+			
+			Namespace n = Namespace.getNamespace(CoreConstants.EMPTY, CoreConstants.EMPTY);
+			List<Element> children = XmlUtil.getElementsByXPath(parentXML.getRootElement(), "child", n);
+			if (ListUtil.isEmpty(children)) {
+				return;
+			}
+			
+			List<Element> toRemove = new ArrayList<Element>();
+			for (Element child: children) {
+				Attribute uuri = child.getAttribute("uuri");
+				if (path.equals(uuri.getValue())) {
+					toRemove.add(child);
+				}
+			}
+			
+			if (toRemove.size() > 0) {
+				for (Iterator<Element> toRemoveIter = toRemove.iterator(); toRemoveIter.hasNext();) {
+					toRemoveIter.next().detach();
+				}
+				InputStream stream = StringHandler.getStreamFromString(XmlUtil.getPrettyJDOMDocument(parentXML));
+				FileUtil.streamToFile(stream, parentXMLFile);
+			}
+			
+			//	TODO: delete indexed content and force to re-index
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, "Error deleting XML file (from metadata) for: " + path, e);
+		}
 	}
 
 	public void onSlideChange(IWContentEvent contentEvent) {
@@ -833,7 +964,8 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return resources;
 		}
 		
-		if (!startTransaction()) {
+		NamespaceAccessToken namespace = startTransaction();
+		if (namespace == null) {
 			return resources;
 		}
 		
@@ -842,8 +974,11 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			node = structure.retrieve(getContentToken(), path);
 		} catch (Exception e) {
 			LOGGER.log(Level.WARNING, "Error while trying to retrieve: " + path, e);
+			if (e instanceof ObjectNotFoundException) {
+				deletetDefinitionFile(((ObjectNotFoundException) e).getObjectUri());
+			}
 		} finally {
-			rollbackTransaction();
+			rollbackTransaction(namespace);
 		}
 		
 		if (node == null) {
@@ -862,12 +997,24 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 				if (child.indexOf(CoreConstants.SLASH) != -1) {
 					name = child.substring(child.lastIndexOf(CoreConstants.SLASH));
 				}
-				resources.addResource(name, slideService.getWebdavResourceAuthenticatedAsRoot(child));
+				
+				if (checkExistance(child)) {
+					resources.addResource(name, slideService.getWebdavResourceAuthenticatedAsRoot(child));
+				}
 			} catch (Exception e) {
 				LOGGER.log(Level.WARNING, "Error while adding resource: " + child + " to the " + path, e);
 			}
 		}
 		
 		return resources;
+	}
+	
+	private NamespaceAccessToken getNamespace() {
+		try {
+			return Domain.accessNamespace(new SecurityToken(CoreConstants.EMPTY), Domain.getDefaultNamespace());
+		} catch (Throwable t) {
+			LOGGER.log(Level.SEVERE, "Error getting namespace (instanceof "+NamespaceAccessToken.class+")", t);
+		}
+		return null;
 	}
 }

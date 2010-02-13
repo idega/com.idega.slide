@@ -41,4 +41,6 @@ public interface IWSimpleSlideService {
 	public NodeRevisionDescriptor getRevisionDescriptor(String path);
 	
 	public WebdavResources getResources(String path);
+	
+	public void deletetDefinitionFile(String path);
 }
