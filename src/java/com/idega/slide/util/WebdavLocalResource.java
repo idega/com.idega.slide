@@ -15,6 +15,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -36,6 +38,7 @@ import org.apache.slide.content.Content;
 import org.apache.slide.content.NodeProperty;
 import org.apache.slide.content.NodeRevisionDescriptor;
 import org.apache.slide.content.NodeRevisionDescriptors;
+import org.apache.slide.content.RevisionDescriptorNotFoundException;
 import org.apache.slide.security.NodePermission;
 import org.apache.slide.structure.ObjectNotFoundException;
 import org.apache.webdav.lib.Ace;
@@ -131,6 +134,12 @@ public class WebdavLocalResource extends WebdavExtendedResource {
         	resourcePath = resourcePath.substring(CoreConstants.WEBDAV_SERVLET_URI.length());
         }
         
+        try {
+	        if (!getSlideAPI().checkExistance(resourcePath)) {
+	        	return Collections.enumeration(new ArrayList<LocalResponse>());
+	        }
+        } catch (Exception e) {}
+        
         Vector<LocalResponse> responses = new Vector<LocalResponse>();
         LocalResponse response = new LocalResponse();
         response.setHref(path);
@@ -197,21 +206,27 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 	                properties.add(property);
 	            }
 	            response.setProperties(properties);
-	        } catch (ObjectNotFoundException onfe) {
-	        	HttpException he = new HttpException("Resource on path: "+path+" not found");
-	        	he.setReasonCode(WebdavStatus.SC_NOT_FOUND);
-	        	throw he;
 	        } catch (Exception e) {
-	            e.printStackTrace();
+	        	LOGGER.log(Level.WARNING, "Error getting properties for: ".concat(path), e);
+	        	
+	        	if (e instanceof ObjectNotFoundException) {
+	        		getSlideAPI().deletetDefinitionFile(((ObjectNotFoundException) e).getObjectUri());
+		        	HttpException he = new HttpException("Resource on path: "+path+" not found");
+		        	he.setReasonCode(WebdavStatus.SC_NOT_FOUND);
+		        	throw he;
+	        	}
+	        	if (e instanceof RevisionDescriptorNotFoundException) {
+	        		getSlideAPI().deletetDefinitionFile(((RevisionDescriptorNotFoundException) e).getObjectUri());
+	        	}
 	        } finally {
 	            this.namespace.rollback();
 	        }
 		}
 		catch (NotSupportedException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.WARNING, "Error getting properties for: ".concat(path), e);
 		}
 		catch (SystemException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.WARNING, "Error getting properties for: ".concat(path), e);
 		}
 		
 		return responses.elements();
@@ -256,7 +271,7 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 		try {
 			return putMethod(path, StringHandler.getStreamFromString(data));
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.log(Level.WARNING, "Error writing data '".concat(data).concat("' to: ").concat(path), e);
 		}
 		
 		return super.putMethod(path, data);
@@ -276,7 +291,7 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 		try {
 			return putMethod(StringHandler.getStreamFromString(data));
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.log(Level.WARNING, "Error writing data '".concat(data).concat("' to: ").concat(httpURL.getPath()), e);
 		}
 		
 		return super.putMethod(data);
@@ -301,7 +316,7 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 		try {
 			return getSlideAPI().getInputStream(path);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.log(Level.WARNING, "Error getting input stream from: ".concat(path), e);
 		}
 		
 		return super.getMethodData(path);
@@ -312,7 +327,7 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 		try {
 			return getSlideAPI().checkExistance(httpURL.getPath());
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.log(Level.WARNING, "Error checking if resource exists: " + this, e);
 		}
 		
 		return super.exists();
