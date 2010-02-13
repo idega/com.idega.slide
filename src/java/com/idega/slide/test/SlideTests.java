@@ -1,4 +1,4 @@
-package com.idega.slide.upload;
+package com.idega.slide.test;
 
 import java.io.InputStream;
 import java.util.Arrays;
@@ -18,41 +18,38 @@ import com.idega.idegaweb.IWMainSlideStartedEvent;
 import com.idega.slide.business.IWSlideService;
 import com.idega.util.StringHandler;
 
-@Service
+@Service("slideTestsExecutor")
 @Scope(BeanDefinition.SCOPE_SINGLETON)
-public class UploadTest extends DefaultSpringBean implements ApplicationListener {
+public class SlideTests extends DefaultSpringBean implements ApplicationListener {
 	
-	private Logger LOGGER;
+	private static final Logger LOGGER = Logger.getLogger(SlideTests.class.getName());
 
-	private Random random;
+	private Random random = new Random();
 	
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event instanceof IWMainSlideStartedEvent) {
 			IWMainSlideStartedEvent slideStartedEvent = (IWMainSlideStartedEvent) event;
 			if (slideStartedEvent.getIWMA().getSettings().getBoolean("test_mass_uploads", Boolean.FALSE)) {
-				LOGGER = LOGGER == null ? Logger.getLogger(UploadTest.class.getName()) : LOGGER;
-				random = random == null ? new Random() : random;
-				
-				executeUploads();
+				executeConcurentUploads(50);
 			}
 		}
 	}
 	
-	public void executeUploads() {
+	public boolean executeConcurentUploads(int threads) {
 		final IWSlideService slide = getServiceInstance(IWSlideService.class);
 		
 		String mainDir = "/files/public/concurent_uploads/";
 		String subDir1 = mainDir.concat("t1/");
 		final List<String> uploadPaths = Arrays.asList(mainDir, subDir1, mainDir.concat("t2/"), subDir1.concat("sub/"));		
 		final String fileName = "File_";
-		for (int i = 0; i < 50; i++) {
-			final int fileNumber = i+1;
+		for (int i = 0; i < threads; i++) {
+			final int threadNumber = i+1;
 			Thread worker = new Thread(new Runnable() {
 				public void run() {
 					String path = getRandomPath(uploadPaths);
-					String name = fileName.concat(String.valueOf(fileNumber)).concat(".txt");
+					String name = fileName.concat(String.valueOf(threadNumber)).concat(".txt");
 					try {
-						InputStream stream = StringHandler.getStreamFromString("File " + fileNumber + " with no content in folder: " + path);
+						InputStream stream = StringHandler.getStreamFromString("File " + threadNumber + " with no content in folder: " + path);
 						boolean result = slide.uploadFile(path, name, "text/plain", stream);
 						LOGGER.info("Uploaded file: " + path + name + ": " + result);
 					} catch (Exception e) {
@@ -61,7 +58,10 @@ public class UploadTest extends DefaultSpringBean implements ApplicationListener
 				}
 			});
 			worker.start();
+			LOGGER.info("Thread " + threadNumber + " has started: " + worker);
 		}
+		
+		return Boolean.TRUE;
 	}
 
 	private String getRandomPath(List<String> paths) {
