@@ -24,6 +24,7 @@ import org.apache.slide.authenticate.SecurityToken;
 import org.apache.slide.common.Domain;
 import org.apache.slide.common.NamespaceAccessToken;
 import org.apache.slide.common.ServiceAccessException;
+import org.apache.slide.common.SlideCommonUtil;
 import org.apache.slide.common.SlideToken;
 import org.apache.slide.common.SlideTokenImpl;
 import org.apache.slide.content.Content;
@@ -37,6 +38,8 @@ import org.apache.slide.event.AbstractEventMethod;
 import org.apache.slide.event.ContentEvent;
 import org.apache.slide.event.VetoException;
 import org.apache.slide.lock.ObjectLockedException;
+import org.apache.slide.macro.Macro;
+import org.apache.slide.macro.MacroImpl;
 import org.apache.slide.security.AccessDeniedException;
 import org.apache.slide.security.NodePermission;
 import org.apache.slide.security.Security;
@@ -817,11 +820,6 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return false;
 		}
 		
-		NodeRevisionDescriptors descriptors = getNodeRevisionDescriptors(path);
-		if (descriptors == null) {
-			return false;
-		}
-		
 		NamespaceAccessToken namespace = startTransaction();
 		if (namespace == null) {
 			return false;
@@ -829,7 +827,11 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		
 		boolean deleteXML = true;
 		try {
-			content.remove(getContentToken(), descriptors);
+			SlideToken token = getContentToken();
+			org.apache.slide.common.Namespace slideNamespace = SlideCommonUtil.getInstance().getDefaultNamespace();
+
+			Macro macro = new MacroImpl(slideNamespace, slideNamespace.getConfig(), security, content, structure, namespace.getLockHelper());
+			macro.delete(token, path);
 			
 			removeValueFromCache(CACHE_RESOURCE_DESCRIPTORS_NAME, THREE_MINUTES, path);
 			removeValueFromCache(CACHE_RESOURCE_DESCRIPTOR_NAME, THREE_MINUTES, path);
@@ -913,8 +915,6 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 				InputStream stream = StringHandler.getStreamFromString(XmlUtil.getPrettyJDOMDocument(parentXML));
 				FileUtil.streamToFile(stream, parentXMLFile);
 			}
-			
-			//	TODO: delete indexed content and force to re-index
 		} catch (Exception e) {
 			LOGGER.log(Level.WARNING, "Error deleting XML file (from metadata) for: " + path, e);
 		}
