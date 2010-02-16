@@ -901,8 +901,8 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @return
 	 */
 	private synchronized boolean uploadFile(String uploadPath, String fileName, String contentType, InputStream stream, boolean closeStream) {
-		if (StringUtil.isEmpty(uploadPath) || StringUtil.isEmpty(fileName) || !IOUtil.isStreamValid(stream)) {
-			LOGGER.warning("Unable to upload file: invalid parameters provided!");
+		if (StringUtil.isEmpty(uploadPath) || StringUtil.isEmpty(fileName) || stream == null) {
+			LOGGER.warning("Unable to upload file: invalid parameters provided: upload path: " + uploadPath + ", file name: " + fileName + ", stream: " + stream);
 			return false;
 		}
 		
