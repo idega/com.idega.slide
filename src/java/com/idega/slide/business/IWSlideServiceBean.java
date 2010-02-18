@@ -900,7 +900,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 * @param closeStream
 	 * @return
 	 */
-	private synchronized boolean uploadFile(String uploadPath, String fileName, String contentType, InputStream stream, boolean closeStream) {
+	private boolean uploadFile(String uploadPath, String fileName, String contentType, InputStream stream, boolean closeStream) {
 		if (StringUtil.isEmpty(uploadPath) || StringUtil.isEmpty(fileName) || stream == null) {
 			LOGGER.warning("Unable to upload file: invalid parameters provided: upload path: " + uploadPath + ", file name: " + fileName + ", stream: " + stream);
 			return false;
@@ -952,6 +952,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 			UploadInfo parentFolderActivity = getParentFolderActivityInfo(uploadPath);
 			if (parentFolderActivity != null) {
 				if (parentFolderActivity.isActive()) {
+					LOGGER.info("Parent folder is in action for: " + uploadPath);
 					return Boolean.TRUE;
 				}
 			}
@@ -961,6 +962,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 			if (!ListUtil.isEmpty(descendantFolders)) {
 				for (UploadInfo descendantFolder: descendantFolders) {
 					if (descendantFolder.isActive()) {
+						LOGGER.info("Descendant folder is in action: " + uploadPath);
 						return Boolean.TRUE;
 					}
 				}
@@ -974,6 +976,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 			}
 		}
 		
+		LOGGER.info("Returning default value - BUSY...");
 		return Boolean.TRUE;
 	}
 	
