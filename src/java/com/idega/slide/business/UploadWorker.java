@@ -5,6 +5,9 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.idega.core.file.util.MimeTypeUtil;
+import com.idega.util.StringUtil;
+
 public class UploadWorker implements Runnable {
 
 	private static final Logger LOGGER = Logger.getLogger(UploadWorker.class.getName());
@@ -64,6 +67,10 @@ public class UploadWorker implements Runnable {
 			if (uploadPath == null) {
 				LOGGER.warning("Can not upload: " + uploadPath + fileName);
 				return;
+			}
+			
+			if (StringUtil.isEmpty(contentType)) {
+				contentType = MimeTypeUtil.resolveMimeTypeFromFileName(fileName);
 			}
 			
 			result = slideService.getSimpleSlideService().upload(stream, fixedUploadPath, fileName, contentType, null, closeStream);
