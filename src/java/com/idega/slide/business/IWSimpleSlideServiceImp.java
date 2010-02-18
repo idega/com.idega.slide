@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -63,6 +64,7 @@ import org.springframework.stereotype.Service;
 
 import com.idega.core.business.DefaultSpringBean;
 import com.idega.slide.authentication.AuthenticationBusiness;
+import com.idega.slide.bean.SlideAction;
 import com.idega.slide.util.IWSlideConstants;
 import com.idega.slide.webdavservlet.DomainConfig;
 import com.idega.user.data.User;
@@ -98,6 +100,8 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 	private static final String DEFINITION_XML_FILE_ENDING = ".def.xml";
 	
 	private long THREE_MINUTES = 60 * 3;
+	
+	private Map<SlideAction, List<NamespaceAccessToken>> activeTransactions = new HashMap<SlideAction, List<NamespaceAccessToken>>();
 	
 	@Autowired
 	private DomainConfig domainConfig;
@@ -187,7 +191,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		uploadPath = uploadPath.concat(fileName);
 		uploadPath = getNormalizedPath(uploadPath);
 
-		NamespaceAccessToken namespace = startTransaction();
+		NamespaceAccessToken namespace = startTransaction(SlideAction.COMMIT);
 		if (namespace == null) {
 			return false;
 		}
@@ -253,7 +257,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			if (closeStream) {
 				IOUtil.closeInputStream(stream);
 			}
-			finishTransaction(namespace);
+			commitTransaction(namespace);
 		}
 		
 		return false;
@@ -278,7 +282,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return null;
 		}
 		
-		NamespaceAccessToken namespace = startTransaction();
+		NamespaceAccessToken namespace = startTransaction(SlideAction.ROLLBACK);
 		if (namespace == null) {
 			return null;
 		}
@@ -346,7 +350,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return null;
 		}
 		
-		NamespaceAccessToken namespace = startTransaction();
+		NamespaceAccessToken namespace = startTransaction(SlideAction.ROLLBACK);
 		if (namespace == null) {
 			return null;
 		}
@@ -377,7 +381,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return false;
 		}
 		
-		NamespaceAccessToken namespace = startTransaction();
+		NamespaceAccessToken namespace = startTransaction(SlideAction.COMMIT);
 		if (namespace == null) {
 			return false;
 		}
@@ -387,7 +391,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		try {
 			node = structure.retrieve(rootToken, pathToFile);
 			
-			finishTransaction(namespace);
+			commitTransaction(namespace);
 			rollback = false;
 			
 			Boolean exists = node == null ? false : true;
@@ -427,7 +431,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return null;
 		}
 		
-		NamespaceAccessToken namespace = startTransaction();
+		NamespaceAccessToken namespace = startTransaction(SlideAction.COMMIT);
 		if (namespace == null) {
 			return null;
 		}
@@ -446,7 +450,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			if (rollback) {
 				rollbackTransaction(namespace);
 			} else {
-				finishTransaction(namespace);
+				commitTransaction(namespace);
 			}
 		}
 		
@@ -489,7 +493,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		NodeRevisionDescriptors descriptors = getNodeRevisionDescriptors(pathToFile);
 		NodeRevisionDescriptor descriptor = getRevisionDescriptor(descriptors);
 		
-		NamespaceAccessToken namespace = startTransaction();
+		NamespaceAccessToken namespace = startTransaction(SlideAction.COMMIT);
 		if (namespace == null) {
 			return Boolean.FALSE;
 		}
@@ -516,7 +520,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			if (rollback) {
 				rollbackTransaction(namespace);
 			} else {
-				finishTransaction(namespace);
+				commitTransaction(namespace);
 			}
 		}
 		
@@ -543,7 +547,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return allPermissions;
 		}
 		
-		NamespaceAccessToken namespace = startTransaction();
+		NamespaceAccessToken namespace = startTransaction(SlideAction.COMMIT);
 		if (namespace == null) {
 			return allPermissions;
 		}
@@ -560,7 +564,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			
 			return allPermissions;
 		}
-		if (!finishTransaction(namespace)) {
+		if (!commitTransaction(namespace)) {
 			return allPermissions;
 		}
 		
@@ -610,7 +614,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		
 		path = getNormalizedPath(path);
 		
-		NamespaceAccessToken namespace = startTransaction();
+		NamespaceAccessToken namespace = startTransaction(SlideAction.COMMIT);
 		if (namespace == null) {
 			return false;
 		}
@@ -656,7 +660,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return false;
 		}
 		
-		finishTransaction(namespace);
+		commitTransaction(namespace);
 		return true;
 	}
 	
@@ -678,7 +682,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		return path;
 	}
 	
-	private NamespaceAccessToken startTransaction() {
+	private NamespaceAccessToken startTransaction(SlideAction action) {
 		initializeSimpleSlideServiceBean();
 		
 		NamespaceAccessToken namespace = getNamespace();
@@ -689,6 +693,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		try {
 			if (namespace.getStatus() == 0) {
 				//	Transaction was begun already!
+				LOGGER.info("************* TRANSACTION already has started!");
 				return namespace;
 			}
 			
@@ -696,9 +701,62 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		} catch(Throwable e) {
 			LOGGER.log(Level.WARNING, "Cannot start user transaction", e);
 			return null;
+		} finally {			
+			addTransaction(action, namespace);
 		}
 		
 		return namespace;
+	}
+	
+	private List<NamespaceAccessToken> getTransactions(SlideAction action) {
+		return activeTransactions.get(action);
+	}
+	
+	private void addTransaction(SlideAction action, NamespaceAccessToken namespace) {
+		synchronized (activeTransactions) {
+			List<NamespaceAccessToken> transactions = getTransactions(action);
+			if (transactions == null) {
+				transactions = new ArrayList<NamespaceAccessToken>();
+				activeTransactions.put(action, transactions);
+			}
+			synchronized (transactions) {
+				transactions.add(namespace);
+				
+				LOGGER.info("*********** actions for " + action + ": " + transactions);	//	TODO
+			}
+		}
+	}
+	
+	private boolean canRollback() {
+		return true;
+		/*List<NamespaceAccessToken> rollbacks = getTransactions(SlideAction.ROLLBACK);
+		if (rollbacks != null) {
+			synchronized (rollbacks) {
+				if (rollbacks.size() > 1) {
+					LOGGER.info("Can not ROLLBACK: " + rollbacks.size());	//	TODO
+					return false;
+				}
+			}
+		}
+		
+		synchronized (activeTransactions) {
+			List<NamespaceAccessToken> committs = getTransactions(SlideAction.COMMIT);
+			if (committs == null) {
+				LOGGER.info("ROLLBACK, there are no transactions for commit!");	//	TODO
+				return Boolean.TRUE;
+			}
+
+			synchronized (committs) {
+				if (committs.size() == 0) {
+					LOGGER.info("ROLLBACK, there are no transactions for commit!");	//	TODO
+					return Boolean.TRUE;
+				}
+				
+				LOGGER.info("Can not ROLLBACK, there are transactions for commit: " + committs);	//	TODO
+				//	We do not want to rollback if there are actions in progress that are going to commit changes in Slide
+				return Boolean.FALSE;
+			}
+		}*/
 	}
 	
 	private boolean rollbackTransaction(NamespaceAccessToken namespace) {
@@ -707,28 +765,88 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		}
 		
 		try {
-			namespace.rollback();
+			if (canRollback()) {
+				namespace.rollback();
+			}
 		} catch (Throwable e) {
 			LOGGER.log(Level.WARNING, "Cannot rollback user transaction", e);
 			return false;
+		} finally {
+			finishTransaction(namespace, SlideAction.ROLLBACK);
 		}
 		
 		return true;
 	}
 	
-	private boolean finishTransaction(NamespaceAccessToken namespace) {
+	private boolean canCommit(NamespaceAccessToken namespace) {
+		return Boolean.TRUE;
+		
+		/*List<NamespaceAccessToken> commits = getTransactions(SlideAction.COMMIT);
+		if (commits == null) {
+			LOGGER.info("COMMITTING, there are no more transactions for commit: " + commits);	//	TODO
+			return Boolean.TRUE;
+		}
+		
+		synchronized (commits) {
+			if (commits.size() == 1 && commits.contains(namespace)) {
+				LOGGER.info("COMMITTING, there is only one transaction to commit: " + commits + " OR current transaction " + namespace + " is not in a list!");	//	TODO
+				return Boolean.TRUE;
+			} else {
+				LOGGER.info("NOT committing transaction " + namespace + ", there are more transactions to commit: " + commits);	//	TODO
+				return Boolean.FALSE;
+			}
+		}*/
+	}
+	
+	private boolean commitTransaction(NamespaceAccessToken namespace) {
 		if (namespace == null) {
 			return false;
 		}
 		
 		try {
-			namespace.commit();
+			if (canCommit(namespace)) {
+				namespace.commit();
+			}
 		} catch (Throwable e) {
 			LOGGER.log(Level.WARNING, "Cannot finish user transaction", e);
 			return false;
+		} finally {
+			finishTransaction(namespace, SlideAction.COMMIT);
 		}
 		
 		return true;
+	}
+	
+	private void finishTransaction(NamespaceAccessToken namespace, SlideAction action) {
+		if (!removeTransaction(namespace, action)) {
+			LOGGER.info("Namespace " +namespace+ " was not found in: " + getTransactions(action) + " will try with oposite action");	//	TODO
+			
+			// Transaction was started for commit but now trying to rollback!
+			SlideAction intendedAction = SlideAction.COMMIT == action ? SlideAction.ROLLBACK : SlideAction.COMMIT;
+			removeTransaction(namespace, intendedAction);
+		}
+	}
+	
+	private boolean removeTransaction(NamespaceAccessToken namespace, SlideAction action) {
+		synchronized (activeTransactions) {
+			List<NamespaceAccessToken> transactions = getTransactions(action);
+			if (transactions == null) {
+				return Boolean.FALSE;
+			}
+			
+			synchronized (transactions) {
+				if (transactions.contains(namespace)) {
+					LOGGER.info("REMOVING transaction " + namespace + " from " + transactions + ", action: " + action);
+					transactions.remove(namespace);
+					
+					return Boolean.TRUE;
+				} else {
+					LOGGER.info("Transactions " + transactions + " does not contain this: " + namespace + ", try oposite action?");
+				}
+			}
+		}
+		
+		return Boolean.FALSE;
 	}
 
 	public boolean createStructure(String path) {
@@ -759,7 +877,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return true;
 		}
 		
-		NamespaceAccessToken namespace = startTransaction();
+		NamespaceAccessToken namespace = startTransaction(SlideAction.COMMIT);
 		if (namespace == null) {
 			return false;
 		}
@@ -769,7 +887,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		NodeRevisionDescriptor descriptor = null;
 		try {
 			structure.create(contentToken, node, path);
-			finishTransaction(namespace);
+			commitTransaction(namespace);
 		} catch (ObjectAlreadyExistsException e) {
 			descriptor = getRevisionDescriptor(path);
 			if (descriptor != null) {
@@ -787,7 +905,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		}
 		
 		try {
-			namespace = startTransaction();
+			namespace = startTransaction(SlideAction.COMMIT);
 			if (namespace == null) {
 				return false;
 			}
@@ -797,7 +915,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			nodeContent.setContent(path.getBytes());
 			content.create(contentToken, path, descriptor, nodeContent);
 
-			finishTransaction(namespace);
+			commitTransaction(namespace);
 			
 			putValueIntoCache(CACHE_RESOURCE_EXISTANCE_NAME, -1, path, Boolean.TRUE);
 			putValueIntoCache(CACHE_RESOURCE_DESCRIPTOR_NAME, THREE_MINUTES, path, descriptor);
@@ -820,7 +938,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return false;
 		}
 		
-		NamespaceAccessToken namespace = startTransaction();
+		NamespaceAccessToken namespace = startTransaction(SlideAction.COMMIT);
 		if (namespace == null) {
 			return false;
 		}
@@ -849,7 +967,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			}
 		}
 		
-		finishTransaction(namespace);
+		commitTransaction(namespace);
 		return true;
 	}
 	
@@ -964,7 +1082,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return resources;
 		}
 		
-		NamespaceAccessToken namespace = startTransaction();
+		NamespaceAccessToken namespace = startTransaction(SlideAction.ROLLBACK);
 		if (namespace == null) {
 			return resources;
 		}
