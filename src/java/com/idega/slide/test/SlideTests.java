@@ -14,9 +14,11 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import com.idega.core.business.DefaultSpringBean;
+import com.idega.idegaweb.IWBundle;
 import com.idega.idegaweb.IWMainSlideStartedEvent;
+import com.idega.slide.SlideConstants;
 import com.idega.slide.business.IWSlideService;
-import com.idega.util.StringHandler;
+import com.idega.util.CoreConstants;
 
 @Service("slideTestsExecutor")
 @Scope(BeanDefinition.SCOPE_SINGLETON)
@@ -37,23 +39,33 @@ public class SlideTests extends DefaultSpringBean implements ApplicationListener
 	
 	public boolean executeConcurentUploads(int threads) {
 		final IWSlideService slide = getServiceInstance(IWSlideService.class);
+		final IWBundle bundle = getBundle(SlideConstants.BUNDLE_IDENTIFIER);
 		
 		String mainDir = "/files/public/concurent_uploads/";
 		String subDir1 = mainDir.concat("t1/");
-		final List<String> uploadPaths = Arrays.asList(mainDir, subDir1, mainDir.concat("t2/"), subDir1.concat("sub/"));		
+		final List<String> uploadPaths = Arrays.asList(mainDir, subDir1, mainDir.concat("t2/"), subDir1.concat("sub/"), "/files/cms/", "/files/dropbox/",
+				"/files/bpm/", "/files/users/");	
+		final List<String> testFiles = Arrays.asList("/resources/images/test.jpg", "/resources/test.pdf");				
 		final String fileName = "File_";
 		for (int i = 0; i < threads; i++) {
 			final int threadNumber = i+1;
 			Thread worker = new Thread(new Runnable() {
 				public void run() {
-					String path = getRandomPath(uploadPaths);
-					String name = fileName.concat(String.valueOf(threadNumber)).concat(".txt");
+					long start = System.currentTimeMillis();
+					
+					String path = getRandomValue(uploadPaths);
+					String file = getRandomValue(testFiles);
+					String name = fileName.concat(String.valueOf(threadNumber)).concat(CoreConstants.UNDER)
+						.concat(file.substring(file.lastIndexOf(CoreConstants.SLASH) + 1));
 					try {
-						InputStream stream = StringHandler.getStreamFromString("File " + threadNumber + " with no content in folder: " + path);
-						boolean result = slide.uploadFile(path, name, "text/plain", stream);
+						InputStream stream = bundle.getResourceInputStream(file);
+						boolean result = slide.uploadFile(path, name, null, stream);
 						LOGGER.info("Uploaded file: " + path + name + ": " + result);
 					} catch (Exception e) {
 						LOGGER.log(Level.WARNING, "Error while uploading file: " + path + name, e);
+					} finally {
+						long end = System.currentTimeMillis();
+						LOGGER.info("Took time to upload ".concat(path).concat(name).concat(": ").concat(String.valueOf(end-start)).concat(" ms"));
 					}
 				}
 			});
@@ -64,7 +76,7 @@ public class SlideTests extends DefaultSpringBean implements ApplicationListener
 		return Boolean.TRUE;
 	}
 
-	private String getRandomPath(List<String> paths) {
-		return paths.get(random.nextInt(paths.size()));
+	private String getRandomValue(List<String> values) {
+		return values.get(random.nextInt(values.size()));
 	}
 }
