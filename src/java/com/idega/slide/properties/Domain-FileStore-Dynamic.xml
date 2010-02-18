@@ -22,14 +22,17 @@
 			    <parameter name="tx-content-cache-bytes">1000000</parameter>
 			    <parameter name="max-content-bytes-per-entry">150000</parameter>
 			    <!-- 150 Kb maximum size per cache entry -->    
-            
-                <parameter name="tlock-timeout">120</parameter>
                 
+           	            
+                <parameter name="tlock-timeout">120</parameter>
+                	
                 <nodestore classname="org.apache.slide.store.txfile.TxXMLFileDescriptorsStore">
                     <parameter name="rootpath">@slide.basepath@/store/metadata</parameter>
                     <parameter name="workpath">@slide.basepath@/work/metadata</parameter>
-                    <parameter name="defer-saving">true</parameter>
-                    <parameter name="timeout">120</parameter>
+                    <!-- defer-saving set to false helps avoid deadlock problems -->
+                    <parameter name="defer-saving">false</parameter>
+                    <!-- this is a very long timeout but could help if the cpu very busy which makes transaction take longer -->
+                    <parameter name="timeout">240</parameter>
                 </nodestore>
                 <sequencestore classname="org.apache.slide.store.txfile.FileSequenceStore">
                     <parameter name="rootpath">@slide.basepath@/store/sequence</parameter>
@@ -49,8 +52,10 @@
                 <contentstore classname="org.apache.slide.store.txfile.TxFileContentStore">
                     <parameter name="rootpath">@slide.basepath@/store/content</parameter>
                     <parameter name="workpath">@slide.basepath@/work/content</parameter>
-                    <parameter name="defer-saving">true</parameter>
-                    <parameter name="timeout">120</parameter>
+                    <!-- this is a very long timeout but could help if the cpu very busy which makes transaction take longer -->
+                    <parameter name="defer-saving">false</parameter>
+                      <!-- defer-saving set to false helps avoid deadlock problems -->
+                    <parameter name="timeout">240</parameter>
                 </contentstore>
 				<contentindexer classname="org.apache.slide.index.lucene.LuceneContentIndexer">
 					<parameter name="indexpath">
@@ -248,14 +253,20 @@
 			<parameter name="nested_roles_maxdepth">
 				0 
 			</parameter>
-<!-- Can be "off", "write" and "full" -->
+			
+<!--  concurrency issues http://wiki.apache.org/jakarta-slide/ConcurrencyIssues -->
+<!-- Can be "off", "write", "full" and "fine-grain" -->
 			<parameter name="sequential-mode">
 				write 
 			</parameter>
-<!-- "false" lets all read-only methods be executed outside of transactions -->
+<!-- "false" lets all read-only methods be executed outside of transactions, we use auto create users, slide user list recommends having this true for that -->
 			<parameter name="all-methods-in-transactions">
-				false 
+				true 
 			</parameter>
+			
+			<parameter name="repeat-upon-conflict">true</parameter>
+			<parameter name="max-retry-repeat">5</parameter>
+			 
 <!-- Setting this to true will force Slide to internally convert the username a user
                  enters at login to lowercase. This is useful for users who can't be bothered
                  with turning off their capslock key before logging in. -->
