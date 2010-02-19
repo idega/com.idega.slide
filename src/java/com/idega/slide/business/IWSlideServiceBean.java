@@ -952,7 +952,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 			UploadInfo parentFolderActivity = getParentFolderActivityInfo(uploadPath);
 			if (parentFolderActivity != null) {
 				if (parentFolderActivity.isActive()) {
-					LOGGER.info("Parent folder is in action for: " + uploadPath);
+					LOGGER.fine("Parent folder is in action for: " + uploadPath);
 					return Boolean.TRUE;
 				}
 			}
@@ -962,7 +962,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 			if (!ListUtil.isEmpty(descendantFolders)) {
 				for (UploadInfo descendantFolder: descendantFolders) {
 					if (descendantFolder.isActive()) {
-						LOGGER.info("Descendant folder is in action: " + uploadPath);
+						LOGGER.fine("Descendant folder is in action: " + uploadPath);
 						return Boolean.TRUE;
 					}
 				}
@@ -976,7 +976,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 			}
 		}
 		
-		LOGGER.info("Returning default value - BUSY...");
+		LOGGER.fine("Returning default value - BUSY...");
 		return Boolean.TRUE;
 	}
 	

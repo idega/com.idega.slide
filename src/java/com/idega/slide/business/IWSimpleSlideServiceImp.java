@@ -693,7 +693,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		try {
 			if (namespace.getStatus() == 0) {
 				//	Transaction was begun already!
-				LOGGER.info("************* TRANSACTION already has started!");
+				LOGGER.fine("************* TRANSACTION already has started!");
 				return namespace;
 			}
 			
@@ -722,7 +722,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			synchronized (transactions) {
 				transactions.add(namespace);
 				
-				LOGGER.info("*********** actions for " + action + ": " + transactions);	//	TODO
+				LOGGER.fine("*********** actions for " + action + ": " + transactions);	//	TODO
 			}
 		}
 	}
@@ -819,7 +819,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 	
 	private void finishTransaction(NamespaceAccessToken namespace, SlideAction action) {
 		if (!removeTransaction(namespace, action)) {
-			LOGGER.info("Namespace " +namespace+ " was not found in: " + getTransactions(action) + " will try with oposite action");	//	TODO
+			LOGGER.fine("Namespace " +namespace+ " was not found in: " + getTransactions(action) + " will try with oposite action");	//	TODO
 			
 			// Transaction was started for commit but now trying to rollback!
 			SlideAction intendedAction = SlideAction.COMMIT == action ? SlideAction.ROLLBACK : SlideAction.COMMIT;
@@ -836,12 +836,12 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			
 			synchronized (transactions) {
 				if (transactions.contains(namespace)) {
-					LOGGER.info("REMOVING transaction " + namespace + " from " + transactions + ", action: " + action);
+					LOGGER.fine("REMOVING transaction " + namespace + " from " + transactions + ", action: " + action);
 					transactions.remove(namespace);
 					
 					return Boolean.TRUE;
 				} else {
-					LOGGER.info("Transactions " + transactions + " does not contain this: " + namespace + ", try oposite action?");
+					LOGGER.fine("Transactions " + transactions + " does not contain this: " + namespace + ", try oposite action?");
 				}
 			}
 		}
