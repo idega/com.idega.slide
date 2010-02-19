@@ -45,7 +45,7 @@ public class SlideTests extends DefaultSpringBean implements ApplicationListener
 		String subDir1 = mainDir.concat("t1/");
 		final List<String> uploadPaths = Arrays.asList(mainDir, subDir1, mainDir.concat("t2/"), subDir1.concat("sub/"), "/files/cms/", "/files/dropbox/",
 				"/files/bpm/", "/files/users/");	
-		final List<String> testFiles = Arrays.asList("/resources/images/test.jpg", "/resources/test.pdf");				
+		final List<String> testFiles = Arrays.asList("images/test.jpg", "test.pdf");				
 		final String fileName = "File_";
 		for (int i = 0; i < threads; i++) {
 			final int threadNumber = i+1;
