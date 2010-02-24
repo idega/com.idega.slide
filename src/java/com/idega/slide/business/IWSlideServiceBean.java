@@ -65,8 +65,8 @@ import com.idega.idegaweb.IWMainApplication;
 import com.idega.io.ZipInstaller;
 import com.idega.servlet.filter.RequestResponseProvider;
 import com.idega.slide.authentication.AuthenticationBusiness;
+import com.idega.slide.bean.WorkerInfo;
 import com.idega.slide.schema.SlideSchemaCreator;
-import com.idega.slide.upload.UploadInfo;
 import com.idega.slide.util.AccessControlEntry;
 import com.idega.slide.util.AccessControlList;
 import com.idega.slide.util.IWSlideConstants;
@@ -124,7 +124,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 
 	private static final Logger LOGGER = Logger.getLogger(IWSlideServiceBean.class.getName());
 
-	private Map<String, UploadInfo> uploadsQueue = new HashMap<String, UploadInfo>();
+	private Map<String, WorkerInfo> queue = new HashMap<String, WorkerInfo>();
 	
 	@Autowired
 	private IWSimpleSlideService simpleSlideService;
@@ -392,9 +392,8 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		try {
 			RequestResponseProvider requestProvider = ELUtil.getInstance().getBean(RequestResponseProvider.class);
 			return requestProvider.getRequest().getSession(Boolean.FALSE);
-		} catch (Exception e) {
-			LOGGER.warning("Error getting current session: " + e.getMessage());
-		}
+		} catch (Exception e) {}
+		
 		return null;
 	}
 	
@@ -910,11 +909,11 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		try {
 			Thread uploader = new Thread(uw);
 			uploader.run();	//	We want "synchronous" execution
-			return uw.getUploadResult();
+			return uw.isWorkFinishedSuccessfully();
 		} catch (Throwable t) {
 			LOGGER.log(Level.WARNING, "Error while uploading: ".concat(uploadPath).concat(fileName), t);
 		} finally {
-			removeFromUploadFromQueue(uploadPath, uw.getUploadId());
+			removeFromQueue(uploadPath, uw.getWorkId());
 			
 			if (closeStream) {
 				IOUtil.close(stream);
@@ -923,46 +922,44 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		return Boolean.FALSE;
 	}
 
-	boolean isBusyUploader(String uploadPath, String uploadId) {
-		UploadInfo info = null;
-		synchronized (uploadsQueue) {
-			info = uploadsQueue.get(uploadPath);
+	boolean isBusyWorker(String path, String workId) {
+		WorkerInfo info = null;
+		synchronized (queue) {
+			info = queue.get(path);
 		}
 		
 		if (info == null) {
-			info = new UploadInfo();
-			synchronized (uploadsQueue) {
-				uploadsQueue.put(uploadPath, info);
+			info = new WorkerInfo();
+			synchronized (queue) {
+				queue.put(path, info);
 			}
 		}
 		
-		info.addToQueue(uploadId);
+		info.addToQueue(workId);
 		
 		boolean busy = Boolean.TRUE;
 		if (info.isQueueEmpty()) {
-			busy = Boolean.FALSE;		//	The first attempt to upload a file
-		} else if (info.isFirstInAQueue(uploadId)) {
-			busy = Boolean.FALSE;		//	If the upload work id is the first and a lock is unlocked, worker can upload
+			busy = Boolean.FALSE;		//	The first attempt to change repository
+		} else if (info.isFirstInAQueue(workId)) {
+			busy = Boolean.FALSE;		//	If the work id is the first and a lock is unlocked, worker can proceed
 		} else if (info.isLockedByCurrentThread()) {
-			return Boolean.FALSE;		//	Current thread has locked, worker can upload
+			return Boolean.FALSE;		//	Current thread has locked, worker can proceed
 		}
 		
 		if (!busy) {
-			//	1.	Check if not uploading to the parent folder (to some sibling folder) currently
-			UploadInfo parentFolderActivity = getParentFolderActivityInfo(uploadPath);
+			//	1.	Check if not working on the parent folder (or some sibling folder) currently
+			WorkerInfo parentFolderActivity = getParentFolderActivityInfo(path);
 			if (parentFolderActivity != null) {
 				if (parentFolderActivity.isActive()) {
-					LOGGER.fine("Parent folder is in action for: " + uploadPath);
 					return Boolean.TRUE;
 				}
 			}
 			
-			//	2.	Check if not uploading to the descendant folder currently
-			List<UploadInfo> descendantFolders = getDescendantFoldersActivityInfo(uploadPath);
+			//	2.	Check if not working on the descendant folder currently
+			List<WorkerInfo> descendantFolders = getDescendantFoldersActivityInfo(path);
 			if (!ListUtil.isEmpty(descendantFolders)) {
-				for (UploadInfo descendantFolder: descendantFolders) {
+				for (WorkerInfo descendantFolder: descendantFolders) {
 					if (descendantFolder.isActive()) {
-						LOGGER.fine("Descendant folder is in action: " + uploadPath);
 						return Boolean.TRUE;
 					}
 				}
@@ -970,29 +967,28 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		}
 		
 		if (!busy) {
-			synchronized (uploadsQueue) {
+			synchronized (queue) {
 				info.lock();
 				return Boolean.FALSE;
 			}
 		}
 		
-		LOGGER.fine("Returning default value - BUSY...");
 		return Boolean.TRUE;
 	}
 	
-	private List<UploadInfo> getDescendantFoldersActivityInfo(String uploadPath) {
+	private List<WorkerInfo> getDescendantFoldersActivityInfo(String uploadPath) {
 		Set<String> currentActivities = null;
-		synchronized (uploadsQueue) {
-			currentActivities = uploadsQueue.keySet();
+		synchronized (queue) {
+			currentActivities = queue.keySet();
 		}
 		if (ListUtil.isEmpty(currentActivities)) {
 			return null;
 		}
 		
-		List<UploadInfo> descendantFolders = new ArrayList<UploadInfo>();
+		List<WorkerInfo> descendantFolders = new ArrayList<WorkerInfo>();
 		for (String folderActivity: currentActivities) {
 			if (folderActivity.startsWith(uploadPath) && !folderActivity.equals(uploadPath)) {
-				UploadInfo descendantFolder = uploadsQueue.get(folderActivity);
+				WorkerInfo descendantFolder = queue.get(folderActivity);
 				if (descendantFolder != null) {
 					descendantFolders.add(descendantFolder);
 				}
@@ -1001,7 +997,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		return descendantFolders;
 	}
 	
-	private UploadInfo getParentFolderActivityInfo(String uploadPath) {
+	private WorkerInfo getParentFolderActivityInfo(String uploadPath) {
 		if (uploadPath.endsWith(CoreConstants.SLASH)) {
 			uploadPath = uploadPath.substring(0, uploadPath.length() - 1);
 		}
@@ -1013,19 +1009,19 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		if (!parentFolder.endsWith(CoreConstants.SLASH)) {
 			parentFolder = parentFolder.concat(CoreConstants.SLASH);
 		}
-		synchronized (uploadsQueue) {
-			return uploadsQueue.get(parentFolder);
+		synchronized (queue) {
+			return queue.get(parentFolder);
 		}
 	}
 	
-	void removeFromUploadFromQueue(String uploadPath, String uploadId) {
-		synchronized (uploadsQueue) {
-			UploadInfo info = uploadsQueue.get(uploadPath);
+	void removeFromQueue(String path, String workId) {
+		synchronized (queue) {
+			WorkerInfo info = queue.get(path);
 			if (info != null) {
-				info.removeFromQueue(uploadId);
+				info.removeFromQueue(workId);
 				
 				if (info.isQueueEmpty()) {
-					uploadsQueue.remove(uploadPath);
+					queue.remove(path);
 				}
 			}
 		}
@@ -1623,13 +1619,11 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		
 		try {
 			WebdavResource resource = getWebdavResourceAuthenticatedAsRoot(path);
-			resource.deleteMethod();
+			return resource.deleteMethod();
 		} catch (Exception e) {
 			LOGGER.log(Level.WARNING, "Error deleting: " + path, e);
 			return false;
 		}
-		
-		return true;
 	}
 
 	public boolean delete(String path, UsernamePasswordCredentials credentials) throws RemoteException {

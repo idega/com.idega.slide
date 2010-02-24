@@ -25,7 +25,6 @@ import org.apache.slide.authenticate.SecurityToken;
 import org.apache.slide.common.Domain;
 import org.apache.slide.common.NamespaceAccessToken;
 import org.apache.slide.common.ServiceAccessException;
-import org.apache.slide.common.SlideCommonUtil;
 import org.apache.slide.common.SlideToken;
 import org.apache.slide.common.SlideTokenImpl;
 import org.apache.slide.content.Content;
@@ -39,8 +38,6 @@ import org.apache.slide.event.AbstractEventMethod;
 import org.apache.slide.event.ContentEvent;
 import org.apache.slide.event.VetoException;
 import org.apache.slide.lock.ObjectLockedException;
-import org.apache.slide.macro.Macro;
-import org.apache.slide.macro.MacroImpl;
 import org.apache.slide.security.AccessDeniedException;
 import org.apache.slide.security.NodePermission;
 import org.apache.slide.security.Security;
@@ -93,13 +90,13 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 	private static final long serialVersionUID = 8065146986117553218L;
 	private static final Logger LOGGER = Logger.getLogger(IWSimpleSlideServiceImp.class.getName());
 	
-	private static final String CACHE_RESOURCE_EXISTANCE_NAME = "slide_resource_existance_cache";
-	private static final String CACHE_RESOURCE_DESCRIPTOR_NAME = "slide_resource_descriptor_cache";
-	private static final String CACHE_RESOURCE_DESCRIPTORS_NAME = "slide_resource_descriptors_cache";
+	static final String CACHE_RESOURCE_EXISTANCE_NAME = "slide_resource_existance_cache";
+	static final String CACHE_RESOURCE_DESCRIPTOR_NAME = "slide_resource_descriptor_cache";
+	static final String CACHE_RESOURCE_DESCRIPTORS_NAME = "slide_resource_descriptors_cache";
 	
 	private static final String DEFINITION_XML_FILE_ENDING = ".def.xml";
 	
-	private long THREE_MINUTES = 60 * 3;
+	static final long THREE_MINUTES = 60 * 3;
 	
 	private Map<SlideAction, List<NamespaceAccessToken>> activeTransactions = new HashMap<SlideAction, List<NamespaceAccessToken>>();
 	
@@ -145,7 +142,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		return authenticationBusiness;
 	}
 	
-	private SlideToken getContentToken() {
+	SlideToken getContentToken() {
 		initializeSimpleSlideServiceBean();
 		
 		String userPrincipals = null;
@@ -682,7 +679,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		return path;
 	}
 	
-	private NamespaceAccessToken startTransaction(SlideAction action) {
+	NamespaceAccessToken startTransaction(SlideAction action) {
 		initializeSimpleSlideServiceBean();
 		
 		NamespaceAccessToken namespace = getNamespace();
@@ -693,7 +690,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		try {
 			if (namespace.getStatus() == 0) {
 				//	Transaction was begun already!
-				LOGGER.fine("************* TRANSACTION already has started!");
+				LOGGER.warning("TRANSACTION " + namespace + " already has started!");
 				return namespace;
 			}
 			
@@ -721,45 +718,15 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			}
 			synchronized (transactions) {
 				transactions.add(namespace);
-				
-				LOGGER.fine("*********** actions for " + action + ": " + transactions);	//	TODO
 			}
 		}
 	}
 	
 	private boolean canRollback() {
-		return true;
-		/*List<NamespaceAccessToken> rollbacks = getTransactions(SlideAction.ROLLBACK);
-		if (rollbacks != null) {
-			synchronized (rollbacks) {
-				if (rollbacks.size() > 1) {
-					LOGGER.info("Can not ROLLBACK: " + rollbacks.size());	//	TODO
-					return false;
-				}
-			}
-		}
-		
-		synchronized (activeTransactions) {
-			List<NamespaceAccessToken> committs = getTransactions(SlideAction.COMMIT);
-			if (committs == null) {
-				LOGGER.info("ROLLBACK, there are no transactions for commit!");	//	TODO
-				return Boolean.TRUE;
-			}
-
-			synchronized (committs) {
-				if (committs.size() == 0) {
-					LOGGER.info("ROLLBACK, there are no transactions for commit!");	//	TODO
-					return Boolean.TRUE;
-				}
-				
-				LOGGER.info("Can not ROLLBACK, there are transactions for commit: " + committs);	//	TODO
-				//	We do not want to rollback if there are actions in progress that are going to commit changes in Slide
-				return Boolean.FALSE;
-			}
-		}*/
+		return Boolean.TRUE;
 	}
 	
-	private boolean rollbackTransaction(NamespaceAccessToken namespace) {
+	boolean rollbackTransaction(NamespaceAccessToken namespace) {
 		if (namespace == null) {
 			return false;
 		}
@@ -780,25 +747,9 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 	
 	private boolean canCommit(NamespaceAccessToken namespace) {
 		return Boolean.TRUE;
-		
-		/*List<NamespaceAccessToken> commits = getTransactions(SlideAction.COMMIT);
-		if (commits == null) {
-			LOGGER.info("COMMITTING, there are no more transactions for commit: " + commits);	//	TODO
-			return Boolean.TRUE;
-		}
-		
-		synchronized (commits) {
-			if (commits.size() == 1 && commits.contains(namespace)) {
-				LOGGER.info("COMMITTING, there is only one transaction to commit: " + commits + " OR current transaction " + namespace + " is not in a list!");	//	TODO
-				return Boolean.TRUE;
-			} else {
-				LOGGER.info("NOT committing transaction " + namespace + ", there are more transactions to commit: " + commits);	//	TODO
-				return Boolean.FALSE;
-			}
-		}*/
 	}
 	
-	private boolean commitTransaction(NamespaceAccessToken namespace) {
+	boolean commitTransaction(NamespaceAccessToken namespace) {
 		if (namespace == null) {
 			return false;
 		}
@@ -819,8 +770,6 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 	
 	private void finishTransaction(NamespaceAccessToken namespace, SlideAction action) {
 		if (!removeTransaction(namespace, action)) {
-			LOGGER.fine("Namespace " +namespace+ " was not found in: " + getTransactions(action) + " will try with oposite action");	//	TODO
-			
 			// Transaction was started for commit but now trying to rollback!
 			SlideAction intendedAction = SlideAction.COMMIT == action ? SlideAction.ROLLBACK : SlideAction.COMMIT;
 			removeTransaction(namespace, intendedAction);
@@ -938,37 +887,20 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return false;
 		}
 		
-		NamespaceAccessToken namespace = startTransaction(SlideAction.COMMIT);
-		if (namespace == null) {
+		IWSlideServiceBean repositoryService = (IWSlideServiceBean) getServiceInstance(IWSlideService.class);
+		if (repositoryService == null) {
 			return false;
 		}
 		
-		boolean deleteXML = true;
+		DeleteWorker deleter = new DeleteWorker(repositoryService, this, path);
 		try {
-			SlideToken token = getContentToken();
-			org.apache.slide.common.Namespace slideNamespace = SlideCommonUtil.getInstance().getDefaultNamespace();
-
-			Macro macro = new MacroImpl(slideNamespace, slideNamespace.getConfig(), security, content, structure, namespace.getLockHelper());
-			macro.delete(token, path);
-			
-			removeValueFromCache(CACHE_RESOURCE_DESCRIPTORS_NAME, THREE_MINUTES, path);
-			removeValueFromCache(CACHE_RESOURCE_DESCRIPTOR_NAME, THREE_MINUTES, path);
-			removeValueFromCache(CACHE_RESOURCE_EXISTANCE_NAME, -1, path);
+			deleter.run();
+			return deleter.isWorkFinishedSuccessfully();
 		} catch (Throwable t) {
-			LOGGER.log(Level.WARNING, "Unable to delete: " + path, t);
-			deleteXML = t instanceof ObjectNotFoundException || t instanceof RevisionDescriptorNotFoundException;
-			if (!deleteXML) {
-				rollbackTransaction(namespace);
-				return false;
-			}
-		} finally {
-			if (deleteXML) {
-				deletetDefinitionFile(path);
-			}
+			LOGGER.log(Level.WARNING, "Error while deleting: " + path, t);
 		}
 		
-		commitTransaction(namespace);
-		return true;
+		return false;
 	}
 	
 	public void deletetDefinitionFile(String path) {
@@ -1066,7 +998,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		return null;
 	}
 	
-	private <K extends Serializable, V> V removeValueFromCache(String cacheName, long ttl, K key) {
+	<K extends Serializable, V> V removeValueFromCache(String cacheName, long ttl, K key) {
 		Map<K, V> cache = getCache(cacheName, ttl);
 		if (cache != null) {
 			return cache.remove(key);
@@ -1134,5 +1066,17 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			LOGGER.log(Level.SEVERE, "Error getting namespace (instanceof "+NamespaceAccessToken.class+")", t);
 		}
 		return null;
+	}
+	
+	Security getSecurity() {
+		return security;
+	}
+	
+	Content getContent() {
+		return content;
+	}
+	
+	Structure getStructure() {
+		return structure;
 	}
 }

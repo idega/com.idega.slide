@@ -1,33 +1,33 @@
-package com.idega.slide.upload;
+package com.idega.slide.bean;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class UploadInfo {
+public class WorkerInfo {
 
-	private List<String> uploadsQueue = new ArrayList<String>();
+	private List<String> queue = new ArrayList<String>();
 	private ReentrantLock lock;
 	
-	public void addToQueue(String uploadId) {
-		synchronized (uploadsQueue) {
-			if (!uploadsQueue.contains(uploadId)) {
-				uploadsQueue.add(uploadId);
+	public void addToQueue(String workId) {
+		synchronized (queue) {
+			if (!queue.contains(workId)) {
+				queue.add(workId);
 			}
 		}
 	}
 	
-	public void removeFromQueue(String uploadId) {
-		synchronized (uploadsQueue) {
-			uploadsQueue.remove(uploadId);
+	public void removeFromQueue(String workId) {
+		synchronized (queue) {
+			queue.remove(workId);
 		}
 		
 		unlock();
 	}
 	
 	public boolean isQueueEmpty() {
-		synchronized (uploadsQueue) {
-			if (uploadsQueue.size() == 0) {
+		synchronized (queue) {
+			if (queue.size() == 0) {
 				return Boolean.TRUE;
 			}
 		}
@@ -56,13 +56,13 @@ public class UploadInfo {
 		}
 	}
 	
-	public boolean isFirstInAQueue(String uploadId) {
-		synchronized (uploadsQueue) {
-			if (uploadsQueue.size() == 0) {
+	public boolean isFirstInAQueue(String workId) {
+		synchronized (queue) {
+			if (queue.size() == 0) {
 				return Boolean.FALSE;
 			}
 			
-			if (uploadId.equals(uploadsQueue.get(0)) && !isActive()) {
+			if (workId.equals(queue.get(0)) && !isActive()) {
 				return Boolean.TRUE;
 			}
 		}
@@ -93,6 +93,6 @@ public class UploadInfo {
 	
 	@Override
 	public String toString() {
-		return "Uploads queue: " + uploadsQueue + ", lock: " + lock;
+		return "Queue: " + queue + ", lock: " + lock;
 	}
 }
