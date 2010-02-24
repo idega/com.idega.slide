@@ -57,15 +57,28 @@ public class SlideTests extends DefaultSpringBean implements ApplicationListener
 					String file = getRandomValue(testFiles);
 					String name = fileName.concat(String.valueOf(threadNumber)).concat(CoreConstants.UNDER)
 						.concat(file.substring(file.lastIndexOf(CoreConstants.SLASH) + 1));
+					
+					boolean deleted = false;
+					try {
+						deleted = slide.deleteAsRootUser(path.concat(name));
+						if (deleted) {
+							LOGGER.info("Deleted file: " + path + name + ": " + deleted);
+						}
+					} catch (Exception e) {
+						deleted = false;
+						LOGGER.log(Level.WARNING, "Error deleting: ".concat(path).concat(name), e);
+					}
+					
 					try {
 						InputStream stream = bundle.getResourceInputStream(file);
-						boolean result = slide.uploadFile(path, name, null, stream);
-						LOGGER.info("Uploaded file: " + path + name + ": " + result);
+						boolean uploaded = slide.uploadFile(path, name, null, stream);
+						LOGGER.info("Uploaded file: " + path + name + ": " + uploaded);
 					} catch (Exception e) {
 						LOGGER.log(Level.WARNING, "Error while uploading file: " + path + name, e);
 					} finally {
 						long end = System.currentTimeMillis();
-						LOGGER.info("Took time to upload ".concat(path).concat(name).concat(": ").concat(String.valueOf(end-start)).concat(" ms"));
+						LOGGER.info("Took time to ".concat(deleted ? "DELETE and " : "").concat("UPLOAD ").concat(path).concat(name).concat(": ")
+								.concat(String.valueOf(end-start)).concat(" ms"));
 					}
 				}
 			});
@@ -77,6 +90,10 @@ public class SlideTests extends DefaultSpringBean implements ApplicationListener
 	}
 
 	private String getRandomValue(List<String> values) {
-		return values.get(random.nextInt(values.size()));
+		return values.get(getRandomValue(values.size()));
+	}
+	
+	private int getRandomValue(int max) {
+		return random.nextInt(max);
 	}
 }
