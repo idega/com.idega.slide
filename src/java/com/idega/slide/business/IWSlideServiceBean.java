@@ -75,6 +75,7 @@ import com.idega.slide.util.WebdavLocalResource;
 import com.idega.slide.util.WebdavOutputStream;
 import com.idega.slide.util.WebdavRootResource;
 import com.idega.slide.webdavservlet.DomainConfig;
+import com.idega.slide.webdavservlet.WebdavExtendedServlet;
 import com.idega.util.CoreConstants;
 import com.idega.util.IOUtil;
 import com.idega.util.IWTimestamp;
@@ -938,7 +939,9 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 		info.addToQueue(workId);
 		
 		boolean busy = Boolean.TRUE;
-		if (info.isQueueEmpty()) {
+		if (WebdavExtendedServlet.isLocked()) {
+			return Boolean.TRUE;		//	Slide is being used via HTTP
+		} else if (info.isQueueEmpty()) {
 			busy = Boolean.FALSE;		//	The first attempt to change repository
 		} else if (info.isFirstInAQueue(workId)) {
 			busy = Boolean.FALSE;		//	If the work id is the first and a lock is unlocked, worker can proceed
@@ -963,6 +966,11 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 						return Boolean.TRUE;
 					}
 				}
+			}
+			
+			//	3.	Checking if Slide is being used via HTTP again
+			if (WebdavExtendedServlet.isLocked()) {
+				return Boolean.TRUE;
 			}
 		}
 		
@@ -1034,11 +1042,16 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 */
 	public boolean uploadFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName, InputStream fileInputStream, String contentType,
 			boolean deletePredecessor) {
-		if (uploadFile(parentPath, fileName, contentType, fileInputStream, false)) { // Trying with Slide API firstly
+		return uploadFileAndCreateFoldersFromStringAsRoot(parentPath, fileName, fileInputStream, contentType, deletePredecessor, Boolean.TRUE);
+	}
+		
+	public boolean uploadFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName, InputStream fileInputStream, String contentType,
+				boolean deletePredecessor, boolean useSlideAPI) {
+		if (useSlideAPI && uploadFile(parentPath, fileName, contentType, fileInputStream, false)) { // Trying with Slide API firstly
 			return true;
 		}
 
-		// Slide API failed - using old way to do it
+		// Using old way to do it
 		try {
 			parentPath = createFoldersAndPreparedUploadPath(parentPath, false);
 			if (parentPath == null) {

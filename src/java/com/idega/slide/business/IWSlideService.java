@@ -231,6 +231,9 @@ public interface IWSlideService extends IBOService, IWSlideChangeListener {
 			String contentType, boolean deletePredecessor)
 			throws RemoteException;
 	
+	public boolean uploadFileAndCreateFoldersFromStringAsRoot(String parentPath, String fileName, InputStream fileInputStream, String contentType,
+			boolean deletePredecessor, boolean useSlideAPI) throws RemoteException;
+	
 	public boolean uploadFile(String uploadPath, String fileName, String contentType, InputStream fileInputStream);
 
 	/**
