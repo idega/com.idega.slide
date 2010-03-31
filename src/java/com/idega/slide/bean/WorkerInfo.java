@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.idega.slide.webdavservlet.WebdavExtendedServlet;
+
 public class WorkerInfo {
 
 	private List<String> queue = new ArrayList<String>();
@@ -70,6 +72,10 @@ public class WorkerInfo {
 	}
 	
 	public synchronized boolean isActive() {
+		if (WebdavExtendedServlet.isLocked()) {
+			return Boolean.TRUE;
+		}
+		
 		if (lock == null) {
 			return Boolean.FALSE;
 		}
