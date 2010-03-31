@@ -9,8 +9,13 @@
  */
 package com.idega.slide.webdavservlet;
 
+import java.io.IOException;
+import java.util.concurrent.locks.ReentrantLock;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 
 import org.apache.slide.webdav.WebdavServlet;
 
@@ -30,18 +35,14 @@ import com.idega.util.expression.ELUtil;
  */
 public class WebdavExtendedServlet extends ServletWrapper {
 	
-	/**
-	 * Comment for <code>serialVersionUID</code>
-	 */
 	private static final long serialVersionUID = 8066220379268246523L;
-
 	
+	private static ReentrantLock LOCK = new ReentrantLock();
 	
 	@Override
 	protected void initializeServletWrapper(ServletConfig config) {
 		setServlet(new WebdavServlet());
 	}
-	
 	
 	@Override
 	public void init() throws ServletException{
@@ -73,7 +74,6 @@ public class WebdavExtendedServlet extends ServletWrapper {
 		super.init(newConfig);
 	}
 
-
 	/**
 	 * <p>
 	 * Set default init-properties for Slide for idegaWeb if they are not set in web.xml
@@ -97,5 +97,19 @@ public class WebdavExtendedServlet extends ServletWrapper {
 		newConfig.setInitParameterIfNotSet("updateLastModified","true");
 	}
 	
+	public static synchronized boolean isLocked() {
+		return LOCK.isLocked();
+	}
 	
+	@Override
+	public void service(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+		LOCK.lock();
+		try {
+			super.service(request, response);
+		} finally {
+			try {
+				LOCK.unlock();
+			} catch (IllegalMonitorStateException e) {}
+		}
+	}
 }
