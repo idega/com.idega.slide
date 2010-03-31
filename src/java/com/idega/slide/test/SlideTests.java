@@ -71,13 +71,15 @@ public class SlideTests extends DefaultSpringBean implements ApplicationListener
 					
 					try {
 						InputStream stream = bundle.getResourceInputStream(file);
-						boolean uploaded = slide.uploadFile(path, name, null, stream);
-						LOGGER.info("Uploaded file: " + path + name + ": " + uploaded);
+						boolean useSlideAPI = getRandomValue(2) == 0;
+						boolean uploaded = slide.uploadFileAndCreateFoldersFromStringAsRoot(path, name, stream, null, true, useSlideAPI);
+						LOGGER.info("Thread nr. " + threadNumber + " uploaded file: " + path + name + " successfully=" + uploaded +
+								(useSlideAPI ? " using Slide API" : " using Slide via HTTP"));
 					} catch (Exception e) {
 						LOGGER.log(Level.WARNING, "Error while uploading file: " + path + name, e);
 					} finally {
 						long end = System.currentTimeMillis();
-						LOGGER.info("Took time to ".concat(deleted ? "DELETE and " : "").concat("UPLOAD ").concat(path).concat(name).concat(": ")
+						LOGGER.info("Took time to ".concat(deleted ? "DELETE and " : CoreConstants.EMPTY).concat("UPLOAD ").concat(path).concat(name).concat(": ")
 								.concat(String.valueOf(end-start)).concat(" ms"));
 					}
 				}
