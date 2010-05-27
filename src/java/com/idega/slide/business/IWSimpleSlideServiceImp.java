@@ -871,7 +871,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return true;
 		} catch (Throwable t) {
 			error = true;
-			LOGGER.log(Level.WARNING, "Error creating descriptor: " + path, t);
+			LOGGER.log(Level.WARNING, "Error creating descriptor: " + path + " - " + t.getMessage());
 		} finally {
 			if (error) {
 				rollbackTransaction(namespace);

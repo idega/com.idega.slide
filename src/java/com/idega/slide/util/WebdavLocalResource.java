@@ -207,7 +207,7 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 	            }
 	            response.setProperties(properties);
 	        } catch (Exception e) {
-	        	LOGGER.log(Level.WARNING, "Error getting properties for: ".concat(path), e);
+	        	LOGGER.log(Level.WARNING, "Error getting properties for: ".concat(path) + " - " + e.getMessage());
 	        	
 	        	if (e instanceof ObjectNotFoundException) {
 	        		getSlideAPI().deletetDefinitionFile(((ObjectNotFoundException) e).getObjectUri());
