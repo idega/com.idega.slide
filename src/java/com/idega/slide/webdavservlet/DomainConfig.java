@@ -221,9 +221,6 @@ public class DomainConfig {
 
 	private static Context getEnvContext()throws NamingException{
 		InitialContext initialContext = new InitialContext();
-		if(initialContext==null){
-			initialContext = new InitialContext();
-		}
 		return (Context) initialContext.lookup("java:comp/env");
 	}
 	
@@ -306,11 +303,6 @@ public class DomainConfig {
         				new File(target).getAbsolutePath());
         	}
             InputStream fileIS = new FileInputStream(source);
-            if (fileIS == null)
-            {
-                throw new IOException("File [" + source + "] not found");
-            }
-
 		    FileWriter outWriter = new FileWriter(target);
 
             replaceConfigfileStream(fileIS,outWriter, filterChain);
