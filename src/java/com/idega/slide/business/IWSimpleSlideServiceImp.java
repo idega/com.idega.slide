@@ -179,7 +179,6 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		return DigestUtils.md5Hex(result.toString());
 	}
 	
-	@SuppressWarnings("unchecked")
 	public boolean upload(InputStream stream, String uploadPath, String fileName, String contentType, User user, boolean closeStream) throws Exception {
 		if (stream == null || uploadPath == null || fileName == null) {
 			return false;
@@ -212,6 +211,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			
 			//	Node revision descriptor
 			IWTimestamp now = IWTimestamp.RightNow();
+			@SuppressWarnings("rawtypes")
 			NodeRevisionDescriptor revisionDescriptor = new NodeRevisionDescriptor(lastRevision, NodeRevisionDescriptors.MAIN_BRANCH, new Vector(),
 					new ArrayList());
 			revisionDescriptor.setResourceType(CoreConstants.EMPTY);
