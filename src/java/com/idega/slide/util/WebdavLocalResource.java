@@ -18,26 +18,17 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.transaction.NotSupportedException;
-import javax.transaction.SystemException;
-import javax.xml.parsers.DocumentBuilder;
-
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.slide.authenticate.CredentialsToken;
-import org.apache.slide.authenticate.SecurityToken;
-import org.apache.slide.common.Domain;
 import org.apache.slide.common.NamespaceAccessToken;
 import org.apache.slide.common.SlideToken;
-import org.apache.slide.common.SlideTokenImpl;
-import org.apache.slide.content.Content;
 import org.apache.slide.content.NodeProperty;
 import org.apache.slide.content.NodeRevisionDescriptor;
-import org.apache.slide.content.NodeRevisionDescriptors;
 import org.apache.slide.content.RevisionDescriptorNotFoundException;
 import org.apache.slide.security.NodePermission;
 import org.apache.slide.structure.ObjectNotFoundException;
@@ -51,11 +42,12 @@ import org.apache.webdav.lib.util.WebdavStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import com.idega.slide.business.IWSimpleSlideService;
 import com.idega.util.CoreConstants;
+import com.idega.util.ListUtil;
 import com.idega.util.StringHandler;
+import com.idega.util.StringUtil;
 import com.idega.util.expression.ELUtil;
 import com.idega.util.xml.XmlUtil;
 
@@ -74,6 +66,16 @@ import com.idega.util.xml.XmlUtil;
 public class WebdavLocalResource extends WebdavExtendedResource {
 	
 	private static final Logger LOGGER = Logger.getLogger(WebdavLocalResource.class.getName());
+	
+	private Element emptyElement, collectionElement;
+	
+	private String displayName, name, contentType;
+	
+	private Long length;
+	
+	private Boolean collection, exists;
+	
+	private WebdavResources children;
 	
 	@Autowired
 	private IWSimpleSlideService slideAPI;
@@ -125,10 +127,6 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 		
 	@Override
 	public Enumeration<LocalResponse> propfindMethod(String path, int depth, Vector presetProperties) throws HttpException, IOException {
-        this.namespace = Domain.accessNamespace(new SecurityToken(CoreConstants.EMPTY), Domain.getDefaultNamespace());
-        String userPrincipal = "root";
-        this.token = new SlideTokenImpl(new CredentialsToken(userPrincipal));
-        this.token.setForceStoreEnlistment(true);
         String resourcePath = getPath();
         if (resourcePath.startsWith(CoreConstants.WEBDAV_SERVLET_URI)) {
         	resourcePath = resourcePath.substring(CoreConstants.WEBDAV_SERVLET_URI.length());
@@ -145,91 +143,93 @@ public class WebdavLocalResource extends WebdavExtendedResource {
         response.setHref(path);
         responses.add(response);
         try {
-			this.namespace.begin();
-	        try {
-	            Content c = this.namespace.getContentHelper();
+        	NodeRevisionDescriptor rev = getSlideAPI().getRevisionDescriptor(resourcePath);
+        	
+        	@SuppressWarnings("unchecked")
+			List<NodeProperty> nodeProperties = Collections.list(rev.enumerateProperties());
+	        List<Property> properties = new ArrayList<Property>();
+	        for (NodeProperty p: nodeProperties) {
+	            String localName = p.getPropertyName().getName();
+	            Property property = null;
 	            
-	            NodeRevisionDescriptors revs = c.retrieve(this.token, resourcePath);
-	            NodeRevisionDescriptor rev = c.retrieve(this.token, revs, revs.getLatestRevision());
-	           
-	            Enumeration<NodeProperty> e = rev.enumerateProperties();
-	            Vector<Property> properties = new Vector<Property>();
-	            while (e.hasMoreElements()) {
-	                NodeProperty p = e.nextElement();
-	                String localName = p.getPropertyName().getName();
-	                Property property = null;
-	                if (localName.equals(RESOURCETYPE)) {
-	                	DocumentBuilder builder = XmlUtil.getDocumentBuilder();
-		                Object oValue = p.getValue();
-		                String value = null;
-		                if (oValue != null) {
-		                	value=oValue.toString();
-		                }
-		                Document doc = builder.newDocument();
-		                String namespace = p.getNamespace();
-		                String tagName = p.getName();
-		                Element element = doc.createElementNS(namespace,tagName);
-		                Node child=null;
-		                if (value.equals("<collection/>")) {
-		                	child = doc.createElementNS(namespace,"collection");
-		                }
-		                else {
-		                	child = doc.createTextNode(value);
-		                }
-		                element.appendChild(child);
-	                    property = new ResourceTypeProperty(response, element);
-	                }
-	                else if (localName.equals(LOCKDISCOVERY)) {
-	                    /*DocumentBuilderFactory factory =
-	                        DocumentBuilderFactory.newInstance();
-	                    factory.setNamespaceAware(true);
-	                    DocumentBuilder builder = factory.newDocumentBuilder();
-	                    Document doc = builder.newDocument();
-	                    Element element = doc.createElement("collection");
-	                    property = new LockDiscoveryProperty(response,element);*/
-	                		throw new RuntimeException("LockDiscoveryProperty not yet implemented for:"+path);
-	                }
-	                else {
-		                LocalProperty lProperty = new LocalProperty(response);
-		                property = lProperty;
-		                lProperty.setName(p.getName());
-		                lProperty.setNamespaceURI(p.getNamespace());
-		                lProperty.setLocalName(p.getName());
-		                Object oValue = p.getValue();
-		                String value = null;
-		                if (oValue != null) {
-		                	value = oValue.toString();
-		                }
-		                lProperty.setPropertyAsString(value);
-	                }
-
-	                properties.add(property);
+	            if (localName.equals(RESOURCETYPE)) {
+	            	Object oValue = p.getValue();
+		            String value = oValue == null ? null : oValue.toString();
+		            
+		            Element element = null;
+		            if ("<collection/>".equals(value)) {
+		            	element = getCollectionElement();
+		            } else if (CoreConstants.EMPTY.equals(value)) {
+		            	element = getEmptyElement();
+		            } else {
+			            Document doc = XmlUtil.getDocumentBuilder().newDocument();
+			            String namespace = p.getNamespace();
+			            String tagName = p.getName();
+			            element = doc.createElementNS(namespace, tagName);
+		                element.appendChild(doc.createTextNode(value));
+		            }
+                    property = new ResourceTypeProperty(response, element);
+                } else if (localName.equals(LOCKDISCOVERY)) {
+                	/*DocumentBuilderFactory factory =
+	                DocumentBuilderFactory.newInstance();
+	                factory.setNamespaceAware(true);
+	                DocumentBuilder builder = factory.newDocumentBuilder();
+	                Document doc = builder.newDocument();
+	                Element element = doc.createElement("collection");
+	                property = new LockDiscoveryProperty(response,element);*/
+	                throw new RuntimeException("LockDiscoveryProperty not yet implemented for:"+path);
+	            } else {
+	            	LocalProperty lProperty = new LocalProperty(response);
+		            property = lProperty;
+		            lProperty.setName(p.getName());
+		            lProperty.setNamespaceURI(p.getNamespace());
+		            lProperty.setLocalName(p.getName());
+		            Object oValue = p.getValue();
+		            String value = oValue == null ? null : oValue.toString();
+		            lProperty.setPropertyAsString(value);
 	            }
-	            response.setProperties(properties);
-	        } catch (Exception e) {
-	        	LOGGER.log(Level.WARNING, "Error getting properties for: ".concat(path) + " - " + e.getMessage());
-	        	
-	        	if (e instanceof ObjectNotFoundException) {
-	        		getSlideAPI().deletetDefinitionFile(((ObjectNotFoundException) e).getObjectUri());
-		        	HttpException he = new HttpException("Resource on path: "+path+" not found");
-		        	he.setReasonCode(WebdavStatus.SC_NOT_FOUND);
-		        	throw he;
-	        	}
-	        	if (e instanceof RevisionDescriptorNotFoundException) {
-	        		getSlideAPI().deletetDefinitionFile(((RevisionDescriptorNotFoundException) e).getObjectUri());
-	        	}
-	        } finally {
-	            this.namespace.rollback();
+
+	            if (property != null) {
+	            	properties.add(property);
+	            }
 	        }
-		}
-		catch (NotSupportedException e) {
-			LOGGER.log(Level.WARNING, "Error getting properties for: ".concat(path), e);
-		}
-		catch (SystemException e) {
-			LOGGER.log(Level.WARNING, "Error getting properties for: ".concat(path), e);
-		}
+	        
+	        if (!ListUtil.isEmpty(properties)) {
+	        	response.setProperties(new Vector<Property>(properties));
+	        }
+        } catch (Exception e) {
+	      	LOGGER.log(Level.WARNING, "Error getting properties for: ".concat(path) + ": " + e.getMessage(), e);
+	       	
+	       	if (e instanceof ObjectNotFoundException) {
+	       		getSlideAPI().deletetDefinitionFile(((ObjectNotFoundException) e).getObjectUri());
+		      	HttpException he = new HttpException("Resource on path: " + path + " not found");
+	        	he.setReasonCode(WebdavStatus.SC_NOT_FOUND);
+	        	throw he;
+	       	}
+	       	if (e instanceof RevisionDescriptorNotFoundException) {
+	       		getSlideAPI().deletetDefinitionFile(((RevisionDescriptorNotFoundException) e).getObjectUri());
+	       	}
+	    }
 		
 		return responses.elements();
+	}
+	
+	private Element getEmptyElement() {
+		if (emptyElement == null) {
+			Document doc = XmlUtil.getXMLBuilder().newDocument();
+			emptyElement = doc.createElementNS("DAV:", "resourcetype");
+			emptyElement.appendChild(doc.createTextNode(CoreConstants.EMPTY));
+		}
+		return emptyElement;
+	}
+	
+	private Element getCollectionElement() {
+		if (collectionElement == null) {
+			Document doc = XmlUtil.getXMLBuilder().newDocument();
+			collectionElement = doc.createElementNS("DAV:", "resourcetype");
+			collectionElement.appendChild(doc.createElementNS("DAV:", "collection"));
+		}
+		return collectionElement;
 	}
 
 	@Override
@@ -324,13 +324,17 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 	
 	@Override
 	public boolean exists() {
-		try {
-			return getSlideAPI().checkExistance(httpURL.getPath());
-		} catch (Exception e) {
-			LOGGER.log(Level.WARNING, "Error checking if resource exists: " + this, e);
+		if (exists == null) {
+			try {
+				exists = getSlideAPI().checkExistance(httpURL.getPath());
+			} catch (Exception e) {
+				LOGGER.log(Level.WARNING, "Error checking if resource exists: " + this, e);
+			}
+			if (exists == null) {
+				exists = super.exists();
+			}
 		}
-		
-		return super.exists();
+		return exists;
 	}
 	
 	@Override
@@ -391,46 +395,75 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 	
 	@Override
 	public long getGetContentLength() {
-		NodeRevisionDescriptor descriptor = null;
-		try {
-			descriptor = getSlideAPI().getRevisionDescriptor(httpURL.getPath());
-		} catch (Exception e) {
-			LOGGER.log(Level.WARNING, "Error getting content length for resource: " + httpURL);
+		if (length == null) {
+			NodeRevisionDescriptor descriptor = null;
+			try {
+				descriptor = getSlideAPI().getRevisionDescriptor(httpURL.getPath());
+			} catch (Exception e) {
+				LOGGER.log(Level.WARNING, "Error getting content length for resource: " + httpURL, e);
+			}
+			
+			length = descriptor == null ? super.getGetContentLength() : descriptor.getContentLength();
 		}
-		if (descriptor == null) {
-			return super.getGetContentLength();
-		}
-		
-		return descriptor.getContentLength();
+		return length;
 	}
 	
 	@Override
 	public String getGetContentType() {
-		NodeRevisionDescriptor descriptor = null;
-		try {
-			descriptor = getSlideAPI().getRevisionDescriptor(httpURL.getPath());
-		} catch (Exception e) {
-			LOGGER.log(Level.WARNING, "Error getting content length for resource: " + httpURL);
+		if (contentType == null) {
+			NodeRevisionDescriptor descriptor = null;
+			try {
+				descriptor = getSlideAPI().getRevisionDescriptor(httpURL.getPath());
+			} catch (Exception e) {
+				LOGGER.log(Level.WARNING, "Error getting content type for resource: " + httpURL,e );
+			}
+			
+			contentType = descriptor == null ? super.getGetContentType() : descriptor.getContentType();
 		}
-		if (descriptor == null) {
-			return super.getGetContentType();
-		}
-		
-		return descriptor.getContentType();
+		return contentType;
 	}
 	
 	@Override
+	public boolean isCollection() {
+		if (collection == null) {
+			NodeRevisionDescriptor descriptor = null;
+			try {
+				descriptor = getSlideAPI().getRevisionDescriptor(httpURL.getPath());
+			} catch (Exception e) {
+				LOGGER.log(Level.WARNING, "Error resolving if resource is a directory: " + httpURL, e);
+			}
+			
+			if (descriptor == null) {
+				collection = super.isCollection();
+			} else {
+				String resourceType = descriptor.getResourceType();
+				collection = !StringUtil.isEmpty(resourceType) && resourceType.indexOf("collection") != -1;
+			}
+		}
+		return collection;
+	}
+
+	@Override
 	public String getDisplayName() {
-		return super.getDisplayName();
+		if (displayName == null) {
+			displayName = super.getDisplayName();
+		}
+		return displayName;
 	}
 	
 	@Override
 	public String getName() {
-		return super.getName();
+		if (name == null) {
+			name = super.getName();
+		}
+		return name;
 	}
 	
 	@Override
 	public WebdavResources getChildResources() throws HttpException, IOException {
-		return getSlideAPI().getResources(httpURL.getPath());
+		if (children == null) {
+			children = getSlideAPI().getResources(httpURL.getPath());
+		}
+		return children;
 	}
 }

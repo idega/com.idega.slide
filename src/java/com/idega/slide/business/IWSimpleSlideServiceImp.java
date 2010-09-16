@@ -335,7 +335,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 	private NodeRevisionDescriptor getNodeRevisionDescriptor(NodeRevisionDescriptors revisionDescriptors)
 		throws AccessDeniedException, LinkedObjectNotFoundException, RevisionDescriptorNotFoundException, ObjectLockedException,
 				ServiceAccessException, VetoException {
-		
+
 		String path = getNormalizedPath(revisionDescriptors.getUri());
 		NodeRevisionDescriptor descriptor = getValueFromCache(CACHE_RESOURCE_DESCRIPTOR_NAME, THREE_MINUTES, path);
 		if (descriptor != null) {
@@ -353,7 +353,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 		}
 		
 		try {
-			descriptor = content.retrieve(rootToken, revisionDescriptors);
+			descriptor = content.retrieve(rootToken, revisionDescriptors, revisionDescriptors.getLatestRevision());
 			
 			putValueIntoCache(CACHE_RESOURCE_DESCRIPTOR_NAME, THREE_MINUTES, path, descriptor);
 			return descriptor;
@@ -984,7 +984,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 	}
 	
 	private <K extends Serializable, V> void putValueIntoCache(String cacheName, long ttl, K key, V value) {
-		Map<K, V> cache = getCache(cacheName, ttl);
+		Map<K, V> cache = getCache(cacheName, ttl, 100000);
 		if (cache != null) {
 			cache.put(key, value);
 		}
