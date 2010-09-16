@@ -90,9 +90,10 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 	private static final long serialVersionUID = 8065146986117553218L;
 	private static final Logger LOGGER = Logger.getLogger(IWSimpleSlideServiceImp.class.getName());
 	
-	static final String CACHE_RESOURCE_EXISTANCE_NAME = "slide_resource_existance_cache";
-	static final String CACHE_RESOURCE_DESCRIPTOR_NAME = "slide_resource_descriptor_cache";
-	static final String CACHE_RESOURCE_DESCRIPTORS_NAME = "slide_resource_descriptors_cache";
+	private static final int CACHE_SIZE = 100000;
+	static final String CACHE_RESOURCE_EXISTANCE_NAME = "slide_resource_existance_cache",
+						CACHE_RESOURCE_DESCRIPTOR_NAME = "slide_resource_descriptor_cache",
+						CACHE_RESOURCE_DESCRIPTORS_NAME = "slide_resource_descriptors_cache";
 	
 	private static final String DEFINITION_XML_FILE_ENDING = ".def.xml";
 	
@@ -984,14 +985,14 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 	}
 	
 	private <K extends Serializable, V> void putValueIntoCache(String cacheName, long ttl, K key, V value) {
-		Map<K, V> cache = getCache(cacheName, ttl, 100000);
+		Map<K, V> cache = getCache(cacheName, ttl, CACHE_SIZE);
 		if (cache != null) {
 			cache.put(key, value);
 		}
 	}
 	
 	private <K extends Serializable, V> V getValueFromCache(String cacheName, long ttl,  K key) {
-		Map<K, V> cache = getCache(cacheName, ttl);
+		Map<K, V> cache = getCache(cacheName, ttl, CACHE_SIZE);
 		if (cache != null) {
 			return cache.get(key);
 		}
@@ -999,7 +1000,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 	}
 	
 	<K extends Serializable, V> V removeValueFromCache(String cacheName, long ttl, K key) {
-		Map<K, V> cache = getCache(cacheName, ttl);
+		Map<K, V> cache = getCache(cacheName, ttl, CACHE_SIZE);
 		if (cache != null) {
 			return cache.remove(key);
 		}
