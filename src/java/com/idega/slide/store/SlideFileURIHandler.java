@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import org.apache.commons.httpclient.HttpException;
 import org.apache.webdav.lib.WebdavResources;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +37,7 @@ import com.idega.util.CoreConstants;
  *
  */
 @Service
-@Scope("singleton")
+@Scope(BeanDefinition.SCOPE_SINGLETON)
 public class SlideFileURIHandler implements FileURIHandler {
 	
 	public String getSupportedScheme() {
@@ -44,16 +45,21 @@ public class SlideFileURIHandler implements FileURIHandler {
 	}
 
 	public InputStream getFile(URI uri) throws FileNotFoundException {
-
 		try {
-			final WebdavExtendedResource resource = getWebdavExtendedResource(uri);
-
-			if (resource == null || !resource.exists())
-				throw new IllegalArgumentException("Expected webdav resource wasn't found by uri provided="+uri);
+			InputStream stream = getIWSlideService().getInputStream(getRealPath(uri, true));
+			if (stream == null) {
+				stream = getIWSlideService().getInputStream(getRealPath(uri, false));
+			}
+			if (stream == null) {
+				WebdavExtendedResource resource = getWebdavExtendedResource(uri);
+				if (resource == null || !resource.exists()) {
+					throw new IllegalArgumentException("Expected webdav resource was not found by uri provided =" + uri);
+				} else {
+					stream = resource.getMethodData();
+				}
+			}
 			
-			InputStream is = resource.getMethodData();
-			return is;
-			
+			return stream;
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
