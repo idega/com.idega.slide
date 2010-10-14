@@ -2,8 +2,10 @@ package com.idega.slide.jcr;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.Calendar;
 
+import javax.jcr.Binary;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
@@ -86,5 +88,18 @@ public class SlideContentPropertyValue implements Value {
 	
 	public SlideContentProperty getSlideContentProperty(){
 		return this.slideContentProperty;
+	}
+
+	@Override
+	public Binary getBinary() throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BigDecimal getDecimal() throws ValueFormatException,
+			RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

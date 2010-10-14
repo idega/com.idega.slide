@@ -37,4 +37,10 @@ public class SlideQueryResult implements QueryResult {
 		return null;
 	}
 
+	@Override
+	public String[] getSelectorNames() throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
+import javax.jcr.observation.EventJournal;
 import javax.jcr.observation.EventListener;
 import javax.jcr.observation.EventListenerIterator;
 import javax.jcr.observation.ObservationManager;
@@ -41,6 +42,26 @@ public class SlideObservationManager implements ObservationManager {
 	public void removeEventListener(EventListener listener)
 			throws RepositoryException {
 		listeners.remove(listener);
+	}
+
+	@Override
+	public void setUserData(String userData) throws RepositoryException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public EventJournal getEventJournal() throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public EventJournal getEventJournal(int eventTypes, String absPath,
+			boolean isDeep, String[] uuid, String[] nodeTypeName)
+			throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

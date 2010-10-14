@@ -5,6 +5,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.query.InvalidQueryException;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
+import javax.jcr.query.qom.QueryObjectModelFactory;
 
 import org.apache.slide.search.Search;
 /**
@@ -58,6 +59,12 @@ public class SlideQueryManager implements QueryManager {
 	}
 
 	public String[] getSupportedQueryLanguages() throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public QueryObjectModelFactory getQOMFactory() {
 		// TODO Auto-generated method stub
 		return null;
 	}

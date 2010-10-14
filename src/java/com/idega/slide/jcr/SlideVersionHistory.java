@@ -1,13 +1,16 @@
 package com.idega.slide.jcr;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.List;
 
 import javax.jcr.AccessDeniedException;
+import javax.jcr.Binary;
 import javax.jcr.InvalidItemStateException;
+import javax.jcr.InvalidLifecycleTransitionException;
 import javax.jcr.Item;
 import javax.jcr.ItemExistsException;
 import javax.jcr.ItemNotFoundException;
@@ -579,6 +582,128 @@ public class SlideVersionHistory implements VersionHistory {
 			NoSuchNodeTypeException, RepositoryException {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public Property setProperty(String name, Binary value)
+			throws ValueFormatException, VersionException, LockException,
+			ConstraintViolationException, RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Property setProperty(String name, BigDecimal value)
+			throws ValueFormatException, VersionException, LockException,
+			ConstraintViolationException, RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public NodeIterator getNodes(String[] nameGlobs) throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PropertyIterator getProperties(String[] nameGlobs)
+			throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getIdentifier() throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PropertyIterator getReferences(String name)
+			throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PropertyIterator getWeakReferences() throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PropertyIterator getWeakReferences(String name)
+			throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setPrimaryType(String nodeTypeName)
+			throws NoSuchNodeTypeException, VersionException,
+			ConstraintViolationException, LockException, RepositoryException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public NodeIterator getSharedSet() throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void removeSharedSet() throws VersionException, LockException,
+			ConstraintViolationException, RepositoryException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeShare() throws VersionException, LockException,
+			ConstraintViolationException, RepositoryException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void followLifecycleTransition(String transition)
+			throws UnsupportedRepositoryOperationException,
+			InvalidLifecycleTransitionException, RepositoryException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String[] getAllowedLifecycleTransistions()
+			throws UnsupportedRepositoryOperationException, RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getVersionableIdentifier() throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public VersionIterator getAllLinearVersions() throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public NodeIterator getAllLinearFrozenNodes() throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public NodeIterator getAllFrozenNodes() throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

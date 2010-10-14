@@ -1,5 +1,7 @@
 package com.idega.slide.jcr;
 
+import java.util.Map;
+
 import javax.jcr.RepositoryException;
 import javax.jcr.observation.Event;
 
@@ -65,6 +67,30 @@ public class SlideJCREvent implements Event {
 	
 	public void setUserID(String userid){
 		this.userID=userid;
+	}
+
+	@Override
+	public String getIdentifier() throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Map getInfo() throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getUserData() throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public long getDate() throws RepositoryException {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }

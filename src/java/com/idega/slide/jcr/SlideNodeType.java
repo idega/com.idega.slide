@@ -3,6 +3,7 @@ package com.idega.slide.jcr;
 import javax.jcr.Value;
 import javax.jcr.nodetype.NodeDefinition;
 import javax.jcr.nodetype.NodeType;
+import javax.jcr.nodetype.NodeTypeIterator;
 import javax.jcr.nodetype.PropertyDefinition;
 /**
  * <p>
@@ -100,6 +101,55 @@ public class SlideNodeType implements NodeType {
 	public boolean isNodeType(String nodeTypeName) {
 		// TODO Auto-generated method stub
 		return this.node.type.equals(nodeTypeName);
+	}
+
+
+	@Override
+	public String[] getDeclaredSupertypeNames() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public boolean isAbstract() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	@Override
+	public boolean isQueryable() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	@Override
+	public NodeTypeIterator getSubtypes() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public NodeTypeIterator getDeclaredSubtypes() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public boolean canRemoveNode(String nodeName) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	@Override
+	public boolean canRemoveProperty(String propertyName) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

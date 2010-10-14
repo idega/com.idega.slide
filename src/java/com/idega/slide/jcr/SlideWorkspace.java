@@ -15,12 +15,14 @@ import javax.jcr.Session;
 import javax.jcr.UnsupportedRepositoryOperationException;
 import javax.jcr.Workspace;
 import javax.jcr.lock.LockException;
+import javax.jcr.lock.LockManager;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NodeTypeManager;
 import javax.jcr.observation.ObservationManager;
 import javax.jcr.query.QueryManager;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionException;
+import javax.jcr.version.VersionManager;
 
 import org.xml.sax.ContentHandler;
 
@@ -147,6 +149,44 @@ public class SlideWorkspace implements Workspace {
 			LockException, InvalidItemStateException, RepositoryException {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public LockManager getLockManager()
+			throws UnsupportedRepositoryOperationException, RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public VersionManager getVersionManager()
+			throws UnsupportedRepositoryOperationException, RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void createWorkspace(String name) throws AccessDeniedException,
+			UnsupportedRepositoryOperationException, RepositoryException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void createWorkspace(String name, String srcWorkspace)
+			throws AccessDeniedException,
+			UnsupportedRepositoryOperationException, NoSuchWorkspaceException,
+			RepositoryException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deleteWorkspace(String name) throws AccessDeniedException,
+			UnsupportedRepositoryOperationException, NoSuchWorkspaceException,
+			RepositoryException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

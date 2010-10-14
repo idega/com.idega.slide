@@ -6,6 +6,7 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.UnsupportedRepositoryOperationException;
+import javax.jcr.Value;
 import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.query.Query;
@@ -59,6 +60,31 @@ public class SlideQuery implements Query {
 
 	public SlideQueryManager getSlideQueryManager() {
 		return slideQueryManager;
+	}
+
+	@Override
+	public void setLimit(long limit) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setOffset(long offset) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void bindValue(String varName, Value value)
+			throws IllegalArgumentException, RepositoryException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String[] getBindVariableNames() throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

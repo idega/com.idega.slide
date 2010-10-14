@@ -6,6 +6,7 @@ import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.Value;
 import javax.jcr.observation.ObservationManager;
 import javax.jcr.query.QueryManager;
 
@@ -163,6 +164,30 @@ public class SlideRepository implements Repository {
 	public void setDefaultObservationManager(
 			ObservationManager defaultObservationManager) {
 		this.defaultObservationManager = defaultObservationManager;
+	}
+
+	@Override
+	public boolean isStandardDescriptor(String key) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isSingleValueDescriptor(String key) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Value getDescriptorValue(String key) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Value[] getDescriptorValues(String key) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

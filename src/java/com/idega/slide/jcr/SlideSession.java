@@ -16,6 +16,7 @@ import javax.jcr.LoginException;
 import javax.jcr.NamespaceException;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
+import javax.jcr.Property;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -26,6 +27,8 @@ import javax.jcr.Workspace;
 import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
+import javax.jcr.retention.RetentionManager;
+import javax.jcr.security.AccessControlManager;
 import javax.jcr.version.VersionException;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
@@ -311,6 +314,75 @@ public class SlideSession implements Session {
 
 	public void setToken(SlideToken token) {
 		this.token = token;
+	}
+
+	@Override
+	public Node getNodeByIdentifier(String id) throws ItemNotFoundException,
+			RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Node getNode(String absPath) throws PathNotFoundException,
+			RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Property getProperty(String absPath) throws PathNotFoundException,
+			RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean nodeExists(String absPath) throws RepositoryException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean propertyExists(String absPath) throws RepositoryException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void removeItem(String absPath) throws VersionException,
+			LockException, ConstraintViolationException, AccessDeniedException,
+			RepositoryException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean hasPermission(String absPath, String actions)
+			throws RepositoryException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean hasCapability(String methodName, Object target,
+			Object[] arguments) throws RepositoryException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public AccessControlManager getAccessControlManager()
+			throws UnsupportedRepositoryOperationException, RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public RetentionManager getRetentionManager()
+			throws UnsupportedRepositoryOperationException, RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

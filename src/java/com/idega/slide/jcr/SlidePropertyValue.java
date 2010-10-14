@@ -1,12 +1,14 @@
 package com.idega.slide.jcr;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import javax.jcr.Binary;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
@@ -159,6 +161,19 @@ public class SlidePropertyValue implements Value {
 	
 	public void setType(int type){
 		this.type=type;
+	}
+
+	@Override
+	public Binary getBinary() throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BigDecimal getDecimal() throws ValueFormatException,
+			RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

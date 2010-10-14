@@ -1,9 +1,11 @@
 package com.idega.slide.jcr;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.Calendar;
 
 import javax.jcr.AccessDeniedException;
+import javax.jcr.Binary;
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.Item;
 import javax.jcr.ItemExistsException;
@@ -256,6 +258,48 @@ public class SlideTransientProperty implements Property {
 			NoSuchNodeTypeException, RepositoryException {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void setValue(Binary value) throws ValueFormatException,
+			VersionException, LockException, ConstraintViolationException,
+			RepositoryException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setValue(BigDecimal value) throws ValueFormatException,
+			VersionException, LockException, ConstraintViolationException,
+			RepositoryException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Binary getBinary() throws ValueFormatException, RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BigDecimal getDecimal() throws ValueFormatException,
+			RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Property getProperty() throws ItemNotFoundException,
+			ValueFormatException, RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isMultiple() throws RepositoryException {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
