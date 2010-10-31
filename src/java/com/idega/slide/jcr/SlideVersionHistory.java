@@ -44,27 +44,29 @@ import javax.jcr.version.VersionIterator;
  * JCR Version implementation for Slide - NOT FINISHED
  * </p>
  *  Last modified: $Date: 2009/01/06 15:17:20 $ by $Author: tryggvil $
- * 
+ *
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
  * @version $Revision: 1.2 $
  */
 
 public class SlideVersionHistory implements VersionHistory {
 
-	
+
 	List<SlideVersion> versions;
 	private SlideNode slideNode;
-	
+
 	public SlideVersionHistory(SlideNode slideNode) {
 		this.slideNode=slideNode;
 	}
 
+	@Override
 	public void addVersionLabel(String versionName, String label,
 			boolean moveLabel) throws VersionException, RepositoryException {
 		// TODO Auto-generated method stub
 
 	}
 
+	@Override
 	public VersionIterator getAllVersions() throws RepositoryException {
 		if(versions==null){
 			versions=new ArrayList<SlideVersion>();
@@ -72,7 +74,7 @@ public class SlideVersionHistory implements VersionHistory {
 		if(versions.isEmpty()){
 			loadVersions(versions);
 		}
-		return new IteratorHelper(versions);
+		return new IteratorHelper<SlideVersion>(versions);
 	}
 
 	@SuppressWarnings("unused")
@@ -84,49 +86,58 @@ public class SlideVersionHistory implements VersionHistory {
 		}
 	}
 
+	@Override
 	public Version getRootVersion() throws RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public Version getVersion(String versionName) throws VersionException,
 			RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public Version getVersionByLabel(String label) throws RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public String[] getVersionLabels() throws RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public String[] getVersionLabels(Version version) throws VersionException,
 			RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public String getVersionableUUID() throws RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public boolean hasVersionLabel(String label) throws RepositoryException {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
+	@Override
 	public boolean hasVersionLabel(Version version, String label)
 			throws VersionException, RepositoryException {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
+	@Override
 	public void removeVersion(String versionName)
 			throws ReferentialIntegrityException, AccessDeniedException,
 			UnsupportedRepositoryOperationException, VersionException,
@@ -135,12 +146,14 @@ public class SlideVersionHistory implements VersionHistory {
 
 	}
 
+	@Override
 	public void removeVersionLabel(String label) throws VersionException,
 			RepositoryException {
 		// TODO Auto-generated method stub
 
 	}
 
+	@Override
 	public void addMixin(String mixinName) throws NoSuchNodeTypeException,
 			VersionException, ConstraintViolationException, LockException,
 			RepositoryException {
@@ -148,6 +161,7 @@ public class SlideVersionHistory implements VersionHistory {
 
 	}
 
+	@Override
 	public Node addNode(String relPath) throws ItemExistsException,
 			PathNotFoundException, VersionException,
 			ConstraintViolationException, LockException, RepositoryException {
@@ -155,6 +169,7 @@ public class SlideVersionHistory implements VersionHistory {
 		return null;
 	}
 
+	@Override
 	public Node addNode(String relPath, String primaryNodeTypeName)
 			throws ItemExistsException, PathNotFoundException,
 			NoSuchNodeTypeException, LockException, VersionException,
@@ -163,12 +178,14 @@ public class SlideVersionHistory implements VersionHistory {
 		return null;
 	}
 
+	@Override
 	public boolean canAddMixin(String mixinName)
 			throws NoSuchNodeTypeException, RepositoryException {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
+	@Override
 	public void cancelMerge(Version version) throws VersionException,
 			InvalidItemStateException, UnsupportedRepositoryOperationException,
 			RepositoryException {
@@ -176,6 +193,7 @@ public class SlideVersionHistory implements VersionHistory {
 
 	}
 
+	@Override
 	public Version checkin() throws VersionException,
 			UnsupportedRepositoryOperationException, InvalidItemStateException,
 			LockException, RepositoryException {
@@ -183,12 +201,14 @@ public class SlideVersionHistory implements VersionHistory {
 		return null;
 	}
 
+	@Override
 	public void checkout() throws UnsupportedRepositoryOperationException,
 			LockException, RepositoryException {
 		// TODO Auto-generated method stub
 
 	}
 
+	@Override
 	public void doneMerge(Version version) throws VersionException,
 			InvalidItemStateException, UnsupportedRepositoryOperationException,
 			RepositoryException {
@@ -196,12 +216,14 @@ public class SlideVersionHistory implements VersionHistory {
 
 	}
 
+	@Override
 	public Version getBaseVersion()
 			throws UnsupportedRepositoryOperationException, RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public String getCorrespondingNodePath(String workspaceName)
 			throws ItemNotFoundException, NoSuchWorkspaceException,
 			AccessDeniedException, RepositoryException {
@@ -209,128 +231,152 @@ public class SlideVersionHistory implements VersionHistory {
 		return null;
 	}
 
+	@Override
 	public NodeDefinition getDefinition() throws RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public int getIndex() throws RepositoryException {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
+	@Override
 	public Lock getLock() throws UnsupportedRepositoryOperationException,
 			LockException, AccessDeniedException, RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public NodeType[] getMixinNodeTypes() throws RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public Node getNode(String relPath) throws PathNotFoundException,
 			RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public NodeIterator getNodes() throws RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public NodeIterator getNodes(String namePattern) throws RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public Item getPrimaryItem() throws ItemNotFoundException,
 			RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public NodeType getPrimaryNodeType() throws RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public PropertyIterator getProperties() throws RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public PropertyIterator getProperties(String namePattern)
 			throws RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public Property getProperty(String relPath) throws PathNotFoundException,
 			RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public PropertyIterator getReferences() throws RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public String getUUID() throws UnsupportedRepositoryOperationException,
 			RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public VersionHistory getVersionHistory()
 			throws UnsupportedRepositoryOperationException, RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public boolean hasNode(String relPath) throws RepositoryException {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
+	@Override
 	public boolean hasNodes() throws RepositoryException {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
+	@Override
 	public boolean hasProperties() throws RepositoryException {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
+	@Override
 	public boolean hasProperty(String relPath) throws RepositoryException {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
+	@Override
 	public boolean holdsLock() throws RepositoryException {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
+	@Override
 	public boolean isCheckedOut() throws RepositoryException {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
+	@Override
 	public boolean isLocked() throws RepositoryException {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
+	@Override
 	public boolean isNodeType(String nodeTypeName) throws RepositoryException {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
+	@Override
 	public Lock lock(boolean isDeep, boolean isSessionScoped)
 			throws UnsupportedRepositoryOperationException, LockException,
 			AccessDeniedException, InvalidItemStateException,
@@ -339,6 +385,7 @@ public class SlideVersionHistory implements VersionHistory {
 		return null;
 	}
 
+	@Override
 	public NodeIterator merge(String srcWorkspace, boolean bestEffort)
 			throws NoSuchWorkspaceException, AccessDeniedException,
 			MergeException, LockException, InvalidItemStateException,
@@ -347,6 +394,7 @@ public class SlideVersionHistory implements VersionHistory {
 		return null;
 	}
 
+	@Override
 	public void orderBefore(String srcChildRelPath, String destChildRelPath)
 			throws UnsupportedRepositoryOperationException, VersionException,
 			ConstraintViolationException, ItemNotFoundException, LockException,
@@ -355,6 +403,7 @@ public class SlideVersionHistory implements VersionHistory {
 
 	}
 
+	@Override
 	public void removeMixin(String mixinName) throws NoSuchNodeTypeException,
 			VersionException, ConstraintViolationException, LockException,
 			RepositoryException {
@@ -362,6 +411,7 @@ public class SlideVersionHistory implements VersionHistory {
 
 	}
 
+	@Override
 	public void restore(String versionName, boolean removeExisting)
 			throws VersionException, ItemExistsException,
 			UnsupportedRepositoryOperationException, LockException,
@@ -370,6 +420,7 @@ public class SlideVersionHistory implements VersionHistory {
 
 	}
 
+	@Override
 	public void restore(Version version, boolean removeExisting)
 			throws VersionException, ItemExistsException,
 			UnsupportedRepositoryOperationException, LockException,
@@ -378,6 +429,7 @@ public class SlideVersionHistory implements VersionHistory {
 
 	}
 
+	@Override
 	public void restore(Version version, String relPath, boolean removeExisting)
 			throws PathNotFoundException, ItemExistsException,
 			VersionException, ConstraintViolationException,
@@ -387,6 +439,7 @@ public class SlideVersionHistory implements VersionHistory {
 
 	}
 
+	@Override
 	public void restoreByLabel(String versionLabel, boolean removeExisting)
 			throws VersionException, ItemExistsException,
 			UnsupportedRepositoryOperationException, LockException,
@@ -395,6 +448,7 @@ public class SlideVersionHistory implements VersionHistory {
 
 	}
 
+	@Override
 	public Property setProperty(String name, Value value)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -402,6 +456,7 @@ public class SlideVersionHistory implements VersionHistory {
 		return null;
 	}
 
+	@Override
 	public Property setProperty(String name, Value[] values)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -409,6 +464,7 @@ public class SlideVersionHistory implements VersionHistory {
 		return null;
 	}
 
+	@Override
 	public Property setProperty(String name, String[] values)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -416,6 +472,7 @@ public class SlideVersionHistory implements VersionHistory {
 		return null;
 	}
 
+	@Override
 	public Property setProperty(String name, String value)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -423,6 +480,7 @@ public class SlideVersionHistory implements VersionHistory {
 		return null;
 	}
 
+	@Override
 	public Property setProperty(String name, InputStream value)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -430,6 +488,7 @@ public class SlideVersionHistory implements VersionHistory {
 		return null;
 	}
 
+	@Override
 	public Property setProperty(String name, boolean value)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -437,6 +496,7 @@ public class SlideVersionHistory implements VersionHistory {
 		return null;
 	}
 
+	@Override
 	public Property setProperty(String name, double value)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -444,6 +504,7 @@ public class SlideVersionHistory implements VersionHistory {
 		return null;
 	}
 
+	@Override
 	public Property setProperty(String name, long value)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -451,6 +512,7 @@ public class SlideVersionHistory implements VersionHistory {
 		return null;
 	}
 
+	@Override
 	public Property setProperty(String name, Calendar value)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -458,6 +520,7 @@ public class SlideVersionHistory implements VersionHistory {
 		return null;
 	}
 
+	@Override
 	public Property setProperty(String name, Node value)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -465,6 +528,7 @@ public class SlideVersionHistory implements VersionHistory {
 		return null;
 	}
 
+	@Override
 	public Property setProperty(String name, Value value, int type)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -472,6 +536,7 @@ public class SlideVersionHistory implements VersionHistory {
 		return null;
 	}
 
+	@Override
 	public Property setProperty(String name, Value[] values, int type)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -479,6 +544,7 @@ public class SlideVersionHistory implements VersionHistory {
 		return null;
 	}
 
+	@Override
 	public Property setProperty(String name, String[] values, int type)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -486,6 +552,7 @@ public class SlideVersionHistory implements VersionHistory {
 		return null;
 	}
 
+	@Override
 	public Property setProperty(String name, String value, int type)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -493,6 +560,7 @@ public class SlideVersionHistory implements VersionHistory {
 		return null;
 	}
 
+	@Override
 	public void unlock() throws UnsupportedRepositoryOperationException,
 			LockException, AccessDeniedException, InvalidItemStateException,
 			RepositoryException {
@@ -500,6 +568,7 @@ public class SlideVersionHistory implements VersionHistory {
 
 	}
 
+	@Override
 	public void update(String srcWorkspaceName)
 			throws NoSuchWorkspaceException, AccessDeniedException,
 			LockException, InvalidItemStateException, RepositoryException {
@@ -507,75 +576,89 @@ public class SlideVersionHistory implements VersionHistory {
 
 	}
 
+	@Override
 	public void accept(ItemVisitor visitor) throws RepositoryException {
 		// TODO Auto-generated method stub
 
 	}
 
+	@Override
 	public Item getAncestor(int depth) throws ItemNotFoundException,
 			AccessDeniedException, RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public int getDepth() throws RepositoryException {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
+	@Override
 	public String getName() throws RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public Node getParent() throws ItemNotFoundException,
 			AccessDeniedException, RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public String getPath() throws RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public Session getSession() throws RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public boolean isModified() {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
+	@Override
 	public boolean isNew() {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
+	@Override
 	public boolean isNode() {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
+	@Override
 	public boolean isSame(Item otherItem) throws RepositoryException {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
+	@Override
 	public void refresh(boolean keepChanges) throws InvalidItemStateException,
 			RepositoryException {
 		// TODO Auto-generated method stub
 
 	}
 
+	@Override
 	public void remove() throws VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
 		// TODO Auto-generated method stub
 
 	}
 
+	@Override
 	public void save() throws AccessDeniedException, ItemExistsException,
 			ConstraintViolationException, InvalidItemStateException,
 			ReferentialIntegrityException, VersionException, LockException,
@@ -644,7 +727,7 @@ public class SlideVersionHistory implements VersionHistory {
 			throws NoSuchNodeTypeException, VersionException,
 			ConstraintViolationException, LockException, RepositoryException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -657,14 +740,14 @@ public class SlideVersionHistory implements VersionHistory {
 	public void removeSharedSet() throws VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void removeShare() throws VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -672,7 +755,7 @@ public class SlideVersionHistory implements VersionHistory {
 			throws UnsupportedRepositoryOperationException,
 			InvalidLifecycleTransitionException, RepositoryException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override

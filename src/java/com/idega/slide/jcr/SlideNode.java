@@ -73,23 +73,23 @@ import com.idega.util.IWTimestamp;
  * Main implementation for the JCR node object in Slide
  * </p>
  *  Last modified: $Date: 2009/01/06 15:17:20 $ by $Author: tryggvil $
- * 
+ *
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
  * @version $Revision: 1.6 $
  */
 public class SlideNode implements Node {
 
-	
+
 	private static final String SLASH = "/";
 	public static String PRIMARY_NODETYPE_FOLDER="nt:folder";
 	public static String PRIMARY_NODETYPE_FILE="nt:file";
 	public static String PRIMARY_NODETYPE_UNSTRUCTURED="nt:unstructured";
-	
+
 	public static String NODE_NAME_CONTENT="jcr:content";
-	
+
 	public static String PROPERTY_NAME_DATA="jcr:data";
 	public static String PROPERTY_NAME_PRIMARYTYPE="jcr:primaryType";
-	
+
 	private String path;
 	SlideSession slideSession;
 
@@ -109,46 +109,46 @@ public class SlideNode implements Node {
 	private String name;
 	boolean isNew=false;
 	private SlideVersionHistory slideVersionHistory;
-	
+
 	public static int LOGLEVEL_INFO=0;
 	public static int LOGLEVEL_DEBUG=1;
-	
-	public static int LOGLEVEL=LOGLEVEL_INFO;
-	
 
-	
+	public static int LOGLEVEL=LOGLEVEL_INFO;
+
+
+
 	/*public SlideNode(SlideSession slideSession, ObjectNode objectNode) {
 		//this(slideSession,path,create,null);
 		this.slideSession=slideSession;
 		this.objectNode=objectNode;
 	}*/
-	
+
 	public SlideNode(SlideSession slideSession, String absolutePath, boolean create) throws PathNotFoundException, ItemExistsException {
 		this(slideSession,absolutePath,create,null);
 	}
-	
+
 	public SlideNode(SlideSession slideSession, String absolutePath, boolean create, String type) throws PathNotFoundException, ItemExistsException {
 		this.slideSession=slideSession;
 		this.path = absolutePath;
 		if(type!=null){
 			this.type=type;
 		}
-		
+
 		initialize();
-		
+
 		if(create){
 			create(path,type);
 		}
 		else{
 			load(path);
 		}
-		
+
 	}
 
 	private void populateDefaultProperties(List<Property> properties) {
 		Property typeProperty = new SlideTransientProperty(this,PROPERTY_NAME_PRIMARYTYPE,this.type);
 		properties.add(typeProperty);
-		
+
 	}
 
 	private void initialize() {
@@ -156,7 +156,7 @@ public class SlideNode implements Node {
 		token = this.getSlideSession().getToken();
 		content = this.getSlideSession().getSlideRepository()
 				.getContent();
-		
+
 		this.name=path.substring(path.lastIndexOf(SLASH)+1);
 
 	}
@@ -179,26 +179,26 @@ public class SlideNode implements Node {
 					throw new ItemExistsException(e1);
 				}
 			//}
-			
+
 
 			if (lastRevision == null) {
 				lastRevision = new NodeRevisionNumber();
 			} else {
 				lastRevision = new NodeRevisionNumber(lastRevision, false);
 			}
-			
-				
-	
+
+
+
 				// Node revision descriptor
 				IWTimestamp now = IWTimestamp.RightNow();
 				revisionDescriptor = new NodeRevisionDescriptor(lastRevision,
 						NodeRevisionDescriptors.MAIN_BRANCH, new Vector(),
 						new Hashtable());
-				
+
 				if(type.equals(PRIMARY_NODETYPE_FILE)){
 					revisionDescriptor.setResourceType(CoreConstants.EMPTY);
 				}
-				
+
 				/*
 				 * revisionDescriptor.setResourceType(CoreConstants.EMPTY);
 				 */ revisionDescriptor.setSource(CoreConstants.EMPTY);
@@ -207,27 +207,27 @@ public class SlideNode implements Node {
 				 revisionDescriptor.setETag(computeEtag(path,
 				 revisionDescriptor));
 				 revisionDescriptor.setCreationDate(now.getDate());
-				 
-		
+
+
 				if(this.type.equals(PRIMARY_NODETYPE_FOLDER)){
 					//this.setProperty(Property, "<collection/>");
 					this.revisionDescriptor.setResourceType("<collection/>");
 				}
 				isNew=true;
-				
+
 				// Create content
 				//revisionContent = new NodeRevisionContent();
 				// revisionContent.setContent(stream);
-	
+
 				// Important to create NodeRevisionDescriptors separately to be
 				// able to tell it to use versioning
 				//if (lastRevision.toString().equals("1.0")) {
 				//	content.create(token, nodePath, true);
-	
+
 				//}
 				//content.create(token, nodePath, revisionDescriptor,
 				//		revisionContent);
-				
+
 		} catch (ObjectNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -288,16 +288,16 @@ public class SlideNode implements Node {
 				}*/
 				throw new PathNotFoundException(nodePath);
 			}
-				
+
 			String resourceType = revisionDescriptor.getResourceType();
-			
+
 			if(resourceType.contains("<collection/>")){
 				this.type=PRIMARY_NODETYPE_FOLDER;
 			}
 			else{
 				this.type=PRIMARY_NODETYPE_FILE;
 			}
-			
+
 
 		} catch (org.apache.slide.security.AccessDeniedException e) {
 			// TODO Auto-generated catch block
@@ -323,6 +323,7 @@ public class SlideNode implements Node {
 			return contentNode;
 	}
 
+	@Override
 	public void addMixin(String arg0) throws NoSuchNodeTypeException,
 			VersionException, ConstraintViolationException, LockException,
 			RepositoryException {
@@ -330,6 +331,7 @@ public class SlideNode implements Node {
 
 	}
 
+	@Override
 	public Node addNode(String path) throws ItemExistsException,
 			PathNotFoundException, VersionException,
 			ConstraintViolationException, LockException, RepositoryException {
@@ -337,6 +339,7 @@ public class SlideNode implements Node {
 		return addNode(path,"nt:unstructured");
 	}
 
+	@Override
 	public Node addNode(String path, String type) throws ItemExistsException,
 			PathNotFoundException, NoSuchNodeTypeException, LockException,
 			VersionException, ConstraintViolationException, RepositoryException {
@@ -351,11 +354,13 @@ public class SlideNode implements Node {
 		return node;
 	}
 
+	@Override
 	public boolean canAddMixin(String arg0) throws NoSuchNodeTypeException,
 			RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public void cancelMerge(Version arg0) throws VersionException,
 			InvalidItemStateException, UnsupportedRepositoryOperationException,
 			RepositoryException {
@@ -363,18 +368,21 @@ public class SlideNode implements Node {
 
 	}
 
+	@Override
 	public Version checkin() throws VersionException,
 			UnsupportedRepositoryOperationException, InvalidItemStateException,
 			LockException, RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public void checkout() throws UnsupportedRepositoryOperationException,
 			LockException, RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
+	@Override
 	public void doneMerge(Version arg0) throws VersionException,
 			InvalidItemStateException, UnsupportedRepositoryOperationException,
 			RepositoryException {
@@ -382,34 +390,41 @@ public class SlideNode implements Node {
 
 	}
 
+	@Override
 	public Version getBaseVersion()
 			throws UnsupportedRepositoryOperationException, RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public String getCorrespondingNodePath(String arg0)
 			throws ItemNotFoundException, NoSuchWorkspaceException,
 			AccessDeniedException, RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public NodeDefinition getDefinition() throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public int getIndex() throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public Lock getLock() throws UnsupportedRepositoryOperationException,
 			LockException, AccessDeniedException, RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public NodeType[] getMixinNodeTypes() throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public Node getNode(String path) throws PathNotFoundException,
 			RepositoryException {
 		//Specific handling for a slide content (file) node
@@ -457,16 +472,16 @@ public class SlideNode implements Node {
 		return nodePath;
 	}
 
+	@Override
 	public NodeIterator getNodes() throws RepositoryException {
-		List children = loadChildren();
-		return new IteratorHelper(children);
+		return new IteratorHelper<Node>(loadChildren());
 	}
 
-	private List loadChildren() {
+	private List<Node> loadChildren() {
 		if(this.nodes.isEmpty()){
 			Vector children = this.objectNode.getChildren();
 			for (Iterator iterator = children.iterator(); iterator.hasNext();) {
-				
+
 				String child =  (String) iterator.next();
 				String path = child;
 				SlideNode childNode;
@@ -480,7 +495,7 @@ public class SlideNode implements Node {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
+
 			}
 			if(this.type.equals(PRIMARY_NODETYPE_FILE)){
 				this.nodes.add(getContentNode());
@@ -489,15 +504,18 @@ public class SlideNode implements Node {
 		return this.nodes;
 	}
 
+	@Override
 	public NodeIterator getNodes(String arg0) throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public Item getPrimaryItem() throws ItemNotFoundException,
 			RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public NodeType getPrimaryNodeType() throws RepositoryException {
 		if(primaryNodeType==null){
 			primaryNodeType= new SlideNodeType(this);
@@ -505,15 +523,16 @@ public class SlideNode implements Node {
 		return primaryNodeType;
 	}
 
+	@Override
 	public PropertyIterator getProperties() throws RepositoryException {
 		if(this.getName().endsWith(".css")){
 			//boolean test=true;
 		}
-		List properties = loadProperties();
-		return new IteratorHelper(properties);
+		List<Property> properties = loadProperties();
+		return new IteratorHelper<Property>(properties);
 	}
 
-	private List loadProperties() {
+	private List<Property> loadProperties() {
 		if(this.properties.isEmpty()){
 				Enumeration enumeration = this.revisionDescriptor.enumerateProperties();
 				while (enumeration.hasMoreElements()) {
@@ -525,16 +544,18 @@ public class SlideNode implements Node {
 			}
 		return this.properties;
 	}
-	
+
+	@Override
 	public PropertyIterator getProperties(String arg0)
 			throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public Property getProperty(String name) throws PathNotFoundException,RepositoryException{
 		return getProperty(name,false);
 	}
-	
+
 	public Property getProperty(String name,boolean addProperty) throws PathNotFoundException,
 			RepositoryException {
 		PropertyIterator iter = getProperties();
@@ -545,9 +566,9 @@ public class SlideNode implements Node {
 			}
 		}
 		if(addProperty){
-			
+
 			//NodeProperty nodeProperty = new NodeProperty(name,null);
-			
+
 			SlideProperty newProperty = new SlideProperty(this,name);
 			//newProperty.setNew(true);
 			this.properties.add(newProperty);
@@ -558,15 +579,18 @@ public class SlideNode implements Node {
 		}
 	}
 
+	@Override
 	public PropertyIterator getReferences() throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public String getUUID() throws UnsupportedRepositoryOperationException,
 			RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public VersionHistory getVersionHistory()
 			throws UnsupportedRepositoryOperationException, RepositoryException {
 		if(slideVersionHistory==null){
@@ -575,38 +599,47 @@ public class SlideNode implements Node {
 		return slideVersionHistory;
 	}
 
+	@Override
 	public boolean hasNode(String arg0) throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public boolean hasNodes() throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public boolean hasProperties() throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public boolean hasProperty(String arg0) throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public boolean holdsLock() throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public boolean isCheckedOut() throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public boolean isLocked() throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public boolean isNodeType(String arg0) throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public Lock lock(boolean arg0, boolean arg1)
 			throws UnsupportedRepositoryOperationException, LockException,
 			AccessDeniedException, InvalidItemStateException,
@@ -614,6 +647,7 @@ public class SlideNode implements Node {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public NodeIterator merge(String arg0, boolean arg1)
 			throws NoSuchWorkspaceException, AccessDeniedException,
 			MergeException, LockException, InvalidItemStateException,
@@ -621,6 +655,7 @@ public class SlideNode implements Node {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public void orderBefore(String arg0, String arg1)
 			throws UnsupportedRepositoryOperationException, VersionException,
 			ConstraintViolationException, ItemNotFoundException, LockException,
@@ -629,6 +664,7 @@ public class SlideNode implements Node {
 
 	}
 
+	@Override
 	public void removeMixin(String arg0) throws NoSuchNodeTypeException,
 			VersionException, ConstraintViolationException, LockException,
 			RepositoryException {
@@ -636,6 +672,7 @@ public class SlideNode implements Node {
 
 	}
 
+	@Override
 	public void restore(String arg0, boolean arg1) throws VersionException,
 			ItemExistsException, UnsupportedRepositoryOperationException,
 			LockException, InvalidItemStateException, RepositoryException {
@@ -643,6 +680,7 @@ public class SlideNode implements Node {
 
 	}
 
+	@Override
 	public void restore(Version arg0, boolean arg1) throws VersionException,
 			ItemExistsException, UnsupportedRepositoryOperationException,
 			LockException, RepositoryException {
@@ -650,6 +688,7 @@ public class SlideNode implements Node {
 
 	}
 
+	@Override
 	public void restore(Version arg0, String arg1, boolean arg2)
 			throws PathNotFoundException, ItemExistsException,
 			VersionException, ConstraintViolationException,
@@ -659,6 +698,7 @@ public class SlideNode implements Node {
 
 	}
 
+	@Override
 	public void restoreByLabel(String arg0, boolean arg1)
 			throws VersionException, ItemExistsException,
 			UnsupportedRepositoryOperationException, LockException,
@@ -667,6 +707,7 @@ public class SlideNode implements Node {
 
 	}
 
+	@Override
 	public Property setProperty(String propertyName, Value value)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -675,6 +716,7 @@ public class SlideNode implements Node {
 		return property;
 	}
 
+	@Override
 	public Property setProperty(String propertyName, Value[] value)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -683,6 +725,7 @@ public class SlideNode implements Node {
 		return property;
 	}
 
+	@Override
 	public Property setProperty(String propertyName, String[] value)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -691,6 +734,7 @@ public class SlideNode implements Node {
 		return property;
 	}
 
+	@Override
 	public Property setProperty(String propertyName, String value)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -699,6 +743,7 @@ public class SlideNode implements Node {
 		return property;
 	}
 
+	@Override
 	public Property setProperty(String propertyName, InputStream value)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -707,6 +752,7 @@ public class SlideNode implements Node {
 		return property;
 	}
 
+	@Override
 	public Property setProperty(String propertyName, boolean value)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -715,6 +761,7 @@ public class SlideNode implements Node {
 		return property;
 	}
 
+	@Override
 	public Property setProperty(String propertyName, double value)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -723,6 +770,7 @@ public class SlideNode implements Node {
 		return property;
 	}
 
+	@Override
 	public Property setProperty(String propertyName, long value)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -731,6 +779,7 @@ public class SlideNode implements Node {
 		return property;
 	}
 
+	@Override
 	public Property setProperty(String propertyName, Calendar value)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -739,6 +788,7 @@ public class SlideNode implements Node {
 		return property;
 	}
 
+	@Override
 	public Property setProperty(String propertyName, Node value)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -747,6 +797,7 @@ public class SlideNode implements Node {
 		return property;
 	}
 
+	@Override
 	public Property setProperty(String propertyName, Value value, int type)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -756,6 +807,7 @@ public class SlideNode implements Node {
 		return property;
 	}
 
+	@Override
 	public Property setProperty(String propertyName, Value[] value, int type)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -765,6 +817,7 @@ public class SlideNode implements Node {
 		return property;
 	}
 
+	@Override
 	public Property setProperty(String propertyName, String[] value, int type)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -774,6 +827,7 @@ public class SlideNode implements Node {
 		return property;
 	}
 
+	@Override
 	public Property setProperty(String propertyName, String value, int type)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -783,6 +837,7 @@ public class SlideNode implements Node {
 		return property;
 	}
 
+	@Override
 	public void unlock() throws UnsupportedRepositoryOperationException,
 			LockException, AccessDeniedException, InvalidItemStateException,
 			RepositoryException {
@@ -790,6 +845,7 @@ public class SlideNode implements Node {
 
 	}
 
+	@Override
 	public void update(String arg0) throws NoSuchWorkspaceException,
 			AccessDeniedException, LockException, InvalidItemStateException,
 			RepositoryException {
@@ -797,62 +853,75 @@ public class SlideNode implements Node {
 
 	}
 
+	@Override
 	public void accept(ItemVisitor arg0) throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
+	@Override
 	public Item getAncestor(int arg0) throws ItemNotFoundException,
 			AccessDeniedException, RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public int getDepth() throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public String getName() throws RepositoryException {
 		return name;
 	}
 
+	@Override
 	public Node getParent() throws ItemNotFoundException,
 			AccessDeniedException, RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public String getPath() throws RepositoryException {
 		return path;
 	}
 
+	@Override
 	public Session getSession() throws RepositoryException {
 		return getSlideSession();
 	}
 
+	@Override
 	public boolean isModified() {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public boolean isNew() {
 		return this.isNew;
 	}
 
+	@Override
 	public boolean isNode() {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public boolean isSame(Item arg0) throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public void refresh(boolean arg0) throws InvalidItemStateException,
 			RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 
 	}
 
+	@Override
 	public void remove() throws VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
-		
+
 		try {
 			structure.remove(token, this.objectNode);
 		} catch (ObjectNotFoundException e) {
@@ -900,13 +969,14 @@ public class SlideNode implements Node {
 
 	}
 
+	@Override
 	public void save() throws AccessDeniedException, ItemExistsException,
 			ConstraintViolationException, InvalidItemStateException,
 			ReferentialIntegrityException, VersionException, LockException,
 			NoSuchNodeTypeException, RepositoryException {
-		
+
 		//if(this.isNew()){
-			
+
 			try {
 					String path = getPath();
 					// Important to create NodeRevisionDescriptors separately to be
@@ -914,7 +984,7 @@ public class SlideNode implements Node {
 					//if(lastRevision!=null){
 						if(isNew()){
 							if (lastRevision.toString().equals("1.0")) {
-									content.create(token, path, true);	
+									content.create(token, path, true);
 							}
 						}
 					//}
@@ -936,7 +1006,7 @@ public class SlideNode implements Node {
 					else{
 						content.create(token, path, revisionDescriptor, null);
 					}
-				
+
 			} catch (ObjectNotFoundException e) {
 				// TODO Auto-generated catch block
 				if(LOGLEVEL==LOGLEVEL_DEBUG){
@@ -963,7 +1033,7 @@ public class SlideNode implements Node {
 			}
 		//}
 		//TODO: Look at this, now commit is only done in Session.save().
-		
+
 		/*
 			this.getSlideSession().getSlideRepository().getNamespace().commit();
 		} catch (SecurityException e) {
@@ -1045,14 +1115,14 @@ public class SlideNode implements Node {
 	public void incrementRevisionNumber() {
 		//String strUri = getPath();
 		//Uri objectUri = this.getSlideSession().getSlideRepository().getNamespace().getUri(token, strUri);
-		
+
 			lastRevision = new NodeRevisionNumber(lastRevision, false);
 			// Node revision descriptor
 			//IWTimestamp now = IWTimestamp.RightNow();
 			NodeRevisionDescriptor newRevisionDescriptor = new NodeRevisionDescriptor(lastRevision,
 					NodeRevisionDescriptors.MAIN_BRANCH, new Vector(),
 					new Hashtable());
-			
+
 			Enumeration properties = revisionDescriptor.enumerateProperties();
 			while(properties.hasMoreElements()){
 				NodeProperty property = (NodeProperty) properties.nextElement();
@@ -1141,7 +1211,7 @@ public class SlideNode implements Node {
 			throws NoSuchNodeTypeException, VersionException,
 			ConstraintViolationException, LockException, RepositoryException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -1154,14 +1224,14 @@ public class SlideNode implements Node {
 	public void removeSharedSet() throws VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void removeShare() throws VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -1169,7 +1239,7 @@ public class SlideNode implements Node {
 			throws UnsupportedRepositoryOperationException,
 			InvalidLifecycleTransitionException, RepositoryException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Binary;
@@ -42,7 +43,7 @@ import org.apache.slide.content.NodeRevisionContent;
  * Wrapper for the specific jcr:content node against Slide
  * </p>
  *  Last modified: $Date: 2009/01/06 15:17:20 $ by $Author: tryggvil $
- * 
+ *
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
  * @version $Revision: 1.4 $
  */
@@ -60,19 +61,22 @@ public class SlideContentNode implements Node{
 		this.contentProperty=new SlideContentProperty(this);
 	}
 
+	@Override
 	public void addMixin(String mixinName) throws NoSuchNodeTypeException,
 			VersionException, ConstraintViolationException, LockException,
 			RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
-		
+
 	}
 
+	@Override
 	public Node addNode(String relPath) throws ItemExistsException,
 			PathNotFoundException, VersionException,
 			ConstraintViolationException, LockException, RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public Node addNode(String relPath, String primaryNodeTypeName)
 			throws ItemExistsException, PathNotFoundException,
 			NoSuchNodeTypeException, LockException, VersionException,
@@ -80,100 +84,119 @@ public class SlideContentNode implements Node{
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public boolean canAddMixin(String mixinName)
 			throws NoSuchNodeTypeException, RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public void cancelMerge(Version version) throws VersionException,
 			InvalidItemStateException, UnsupportedRepositoryOperationException,
 			RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
-		
+
 	}
 
+	@Override
 	public Version checkin() throws VersionException,
 			UnsupportedRepositoryOperationException, InvalidItemStateException,
 			LockException, RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public void checkout() throws UnsupportedRepositoryOperationException,
 			LockException, RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
-		
+
 	}
 
+	@Override
 	public void doneMerge(Version version) throws VersionException,
 			InvalidItemStateException, UnsupportedRepositoryOperationException,
 			RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
-		
+
 	}
 
+	@Override
 	public Version getBaseVersion()
 			throws UnsupportedRepositoryOperationException, RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public String getCorrespondingNodePath(String workspaceName)
 			throws ItemNotFoundException, NoSuchWorkspaceException,
 			AccessDeniedException, RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public NodeDefinition getDefinition() throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public int getIndex() throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public Lock getLock() throws UnsupportedRepositoryOperationException,
 			LockException, AccessDeniedException, RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public NodeType[] getMixinNodeTypes() throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public Node getNode(String relPath) throws PathNotFoundException,
 			RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public NodeIterator getNodes() throws RepositoryException {
-		return new IteratorHelper(new ArrayList());
+		return new IteratorHelper<Node>(new ArrayList<Node>());
 	}
 
+	@Override
 	public NodeIterator getNodes(String namePattern) throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public Item getPrimaryItem() throws ItemNotFoundException,
 			RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public NodeType getPrimaryNodeType() throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public PropertyIterator getProperties() throws RepositoryException {
-		ArrayList list = new ArrayList();
+		List<Property> list = new ArrayList<Property>();
 		if(this.contentProperty!=null){
 			list.add(this.contentProperty);
 		}
-		return new IteratorHelper(list);
+		return new IteratorHelper<Property>(list);
 	}
 
+	@Override
 	public PropertyIterator getProperties(String namePattern)
 			throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public Property getProperty(String relPath) throws PathNotFoundException,
 			RepositoryException {
 		if(relPath.equals(SlideNode.PROPERTY_NAME_DATA)){
@@ -184,52 +207,64 @@ public class SlideContentNode implements Node{
 		}
 	}
 
+	@Override
 	public PropertyIterator getReferences() throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public String getUUID() throws UnsupportedRepositoryOperationException,
 			RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public VersionHistory getVersionHistory()
 			throws UnsupportedRepositoryOperationException, RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public boolean hasNode(String relPath) throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public boolean hasNodes() throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public boolean hasProperties() throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public boolean hasProperty(String relPath) throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public boolean holdsLock() throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public boolean isCheckedOut() throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public boolean isLocked() throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public boolean isNodeType(String nodeTypeName) throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public Lock lock(boolean isDeep, boolean isSessionScoped)
 			throws UnsupportedRepositoryOperationException, LockException,
 			AccessDeniedException, InvalidItemStateException,
@@ -237,6 +272,7 @@ public class SlideContentNode implements Node{
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public NodeIterator merge(String srcWorkspace, boolean bestEffort)
 			throws NoSuchWorkspaceException, AccessDeniedException,
 			MergeException, LockException, InvalidItemStateException,
@@ -244,78 +280,89 @@ public class SlideContentNode implements Node{
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public void orderBefore(String srcChildRelPath, String destChildRelPath)
 			throws UnsupportedRepositoryOperationException, VersionException,
 			ConstraintViolationException, ItemNotFoundException, LockException,
 			RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
-		
+
 	}
 
+	@Override
 	public void removeMixin(String mixinName) throws NoSuchNodeTypeException,
 			VersionException, ConstraintViolationException, LockException,
 			RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
-		
+
 	}
 
+	@Override
 	public void restore(String versionName, boolean removeExisting)
 			throws VersionException, ItemExistsException,
 			UnsupportedRepositoryOperationException, LockException,
 			InvalidItemStateException, RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
-		
+
 	}
 
+	@Override
 	public void restore(Version version, boolean removeExisting)
 			throws VersionException, ItemExistsException,
 			UnsupportedRepositoryOperationException, LockException,
 			RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
-		
+
 	}
 
+	@Override
 	public void restore(Version version, String relPath, boolean removeExisting)
 			throws PathNotFoundException, ItemExistsException,
 			VersionException, ConstraintViolationException,
 			UnsupportedRepositoryOperationException, LockException,
 			InvalidItemStateException, RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
-		
+
 	}
 
+	@Override
 	public void restoreByLabel(String versionLabel, boolean removeExisting)
 			throws VersionException, ItemExistsException,
 			UnsupportedRepositoryOperationException, LockException,
 			InvalidItemStateException, RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
-		
+
 	}
 
+	@Override
 	public Property setProperty(String name, Value value)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public Property setProperty(String name, Value[] values)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public Property setProperty(String name, String[] values)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public Property setProperty(String name, String value)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
 		return this.fileNode.setProperty(name, value);
 	}
 
+	@Override
 	public Property setProperty(String name, InputStream value)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -331,24 +378,28 @@ public class SlideContentNode implements Node{
 		}
 	}
 
+	@Override
 	public Property setProperty(String name, boolean value)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public Property setProperty(String name, double value)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public Property setProperty(String name, long value)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
+	@Override
 	public Property setProperty(String name, Calendar value)
 			throws ValueFormatException, VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
@@ -389,19 +440,19 @@ public class SlideContentNode implements Node{
 			LockException, AccessDeniedException, InvalidItemStateException,
 			RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
-		
+
 	}
 
 	public void update(String srcWorkspaceName)
 			throws NoSuchWorkspaceException, AccessDeniedException,
 			LockException, InvalidItemStateException, RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
-		
+
 	}
 
 	public void accept(ItemVisitor visitor) throws RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
-		
+
 	}
 
 	public Item getAncestor(int depth) throws ItemNotFoundException,
@@ -449,20 +500,20 @@ public class SlideContentNode implements Node{
 	public void refresh(boolean keepChanges) throws InvalidItemStateException,
 			RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
-		
+
 	}
 
 	public void remove() throws VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
 		throw new UnsupportedOperationException("Method not implemented");
-		
+
 	}
 
 	public void save() throws AccessDeniedException, ItemExistsException,
 			ConstraintViolationException, InvalidItemStateException,
 			ReferentialIntegrityException, VersionException, LockException,
 			NoSuchNodeTypeException, RepositoryException {
-		
+
 
 		this.fileNode.save();
 	}
@@ -474,7 +525,7 @@ public class SlideContentNode implements Node{
 	public NodeRevisionContent getRevisionContent() {
 		return this.fileNode.revisionContent;
 	}
-	
+
 	public SlideNode getSlideNode(){
 		return this.fileNode;
 	}
@@ -539,7 +590,7 @@ public class SlideContentNode implements Node{
 			throws NoSuchNodeTypeException, VersionException,
 			ConstraintViolationException, LockException, RepositoryException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -552,14 +603,14 @@ public class SlideContentNode implements Node{
 	public void removeSharedSet() throws VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void removeShare() throws VersionException, LockException,
 			ConstraintViolationException, RepositoryException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -567,7 +618,7 @@ public class SlideContentNode implements Node{
 			throws UnsupportedRepositoryOperationException,
 			InvalidLifecycleTransitionException, RepositoryException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
