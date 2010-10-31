@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.UnsupportedRepositoryOperationException;
+import javax.jcr.observation.Event;
 import javax.jcr.observation.EventIterator;
 import javax.jcr.observation.EventListener;
 import javax.jcr.observation.EventListenerIterator;
@@ -22,17 +23,18 @@ import org.apache.slide.event.VetoException;
  * Trigger to map against the JCR Observation mechanism - not finished
  * </p>
  *  Last modified: $Date: 2009/01/06 15:17:20 $ by $Author: tryggvil $
- * 
+ *
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
  * @version $Revision: 1.2 $
  */
 public class SlideJCRChangeTrigger implements EventCollectionListener {
 
 	private SlideRepository slideRepository;
-	
+
+	@Override
 	public void collected(EventCollection events) {
 		List collectedEvents = events.getCollection();
-		List jcrEvents = new ArrayList();
+		List<Event> jcrEvents = new ArrayList<Event>();
 		for (Iterator i = collectedEvents.iterator(); i.hasNext();) {
 			EventCollection.Event event = (EventCollection.Event) i.next();
 			AbstractEventMethod method = event.getMethod();
@@ -42,23 +44,23 @@ public class SlideJCRChangeTrigger implements EventCollectionListener {
 
 				SlideJCREvent jcrEvent = new SlideJCREvent(event);
 				jcrEvents.add(jcrEvent);
-							
+
 			}
 		}
-		
+
 		//Repository repository = getRepository();
 		//Session session = getSession();
 		SlideRepository slideRepo=getSlideRepository();
-		
+
 		ObservationManager observationManager;
 		try {
 			if(slideRepo!=null){
 				observationManager = slideRepo.getDefaultObservationManager();
-	
+
 				EventListenerIterator iterator = observationManager.getRegisteredEventListeners();
 				while(iterator.hasNext()){
 					EventListener listener = iterator.nextEventListener();
-					EventIterator eventiterator = new IteratorHelper(jcrEvents);
+					EventIterator eventiterator = new IteratorHelper<Event>(jcrEvents);
 					listener.onEvent(eventiterator);
 				}
 			}
@@ -69,8 +71,8 @@ public class SlideJCRChangeTrigger implements EventCollectionListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
+
+
 	}
 
 	/*private Session getSession() {
@@ -83,10 +85,11 @@ public class SlideJCRChangeTrigger implements EventCollectionListener {
 		return null;
 	}*/
 
+	@Override
 	public void vetoableCollected(EventCollection collection)
 			throws VetoException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@SuppressWarnings("unused")

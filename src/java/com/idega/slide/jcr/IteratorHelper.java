@@ -6,12 +6,14 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
+import javax.jcr.observation.Event;
+import javax.jcr.observation.EventIterator;
 import javax.jcr.observation.EventListener;
 import javax.jcr.observation.EventListenerIterator;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionIterator;
 
-public class IteratorHelper<T> implements NodeIterator, EventListenerIterator, PropertyIterator, VersionIterator {
+public class IteratorHelper<T> implements NodeIterator, EventListenerIterator, PropertyIterator, VersionIterator, EventIterator {
 
 	private int position;
 	private List<T> items;
@@ -80,6 +82,11 @@ public class IteratorHelper<T> implements NodeIterator, EventListenerIterator, P
 	@Override
 	public Version nextVersion() {
 		return (Version) next();
+	}
+
+	@Override
+	public Event nextEvent() {
+		return (Event) next();
 	}
 
 }
