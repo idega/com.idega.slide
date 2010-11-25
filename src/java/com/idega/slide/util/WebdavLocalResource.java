@@ -33,6 +33,7 @@ import org.apache.slide.security.NodePermission;
 import org.apache.slide.structure.ObjectNotFoundException;
 import org.apache.webdav.lib.Ace;
 import org.apache.webdav.lib.Property;
+import org.apache.webdav.lib.PropertyName;
 import org.apache.webdav.lib.WebdavResource;
 import org.apache.webdav.lib.WebdavResources;
 import org.apache.webdav.lib.properties.AclProperty;
@@ -510,5 +511,21 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 		}
 		
 		return descriptor;
+	}
+	
+	@Override
+	public boolean proppatchMethod(PropertyName propertyName, String propertyValue, boolean action) throws HttpException, IOException {
+		if (propertyName == null) {
+			return false;
+		}
+		
+		try {
+			NodeRevisionDescriptor descriptor = getRevisionDescriptor();
+			descriptor.setProperty(propertyName.getLocalName(), propertyName.getNamespaceURI(), propertyValue);
+			return true;
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, "Error setting property " + propertyName + " with value " + propertyValue + " for " + httpURL.getPath(), e);
+		}
+		return super.proppatchMethod(propertyName, propertyValue, action);
 	}
 }
