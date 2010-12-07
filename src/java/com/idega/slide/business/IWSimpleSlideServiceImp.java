@@ -845,6 +845,10 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 				return true;
 			}
 		} catch (Throwable t) {
+			if (t instanceof ObjectNotFoundException) {
+				deletetDefinitionFile(((ObjectNotFoundException) t).getObjectUri());
+			}
+			
 			error = true;
 			LOGGER.log(Level.WARNING, "Error creating structure: " + path, t);
 			return false;
@@ -871,8 +875,12 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			putValueIntoCache(CACHE_RESOURCE_DESCRIPTOR_NAME, THREE_MINUTES, path, descriptor);
 			return true;
 		} catch (Throwable t) {
+			if (t instanceof ObjectNotFoundException) {
+				deletetDefinitionFile(((ObjectNotFoundException) t).getObjectUri());
+			}
+			
 			error = true;
-			LOGGER.log(Level.WARNING, "Error creating descriptor: " + path + " - " + t.getMessage());
+			LOGGER.log(Level.WARNING, "Error creating descriptor: " + path + " - " + t.getMessage(), t);
 		} finally {
 			if (error) {
 				rollbackTransaction(namespace);
