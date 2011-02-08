@@ -27,6 +27,7 @@ import com.idega.slide.SlideConstants;
 import com.idega.slide.business.IWSlideService;
 import com.idega.slide.util.WebdavExtendedResource;
 import com.idega.util.CoreConstants;
+import com.idega.util.CoreUtil;
 
 /**
  * 
@@ -53,7 +54,7 @@ public class SlideFileURIHandler implements FileURIHandler {
 			if (stream == null) {
 				WebdavExtendedResource resource = getWebdavExtendedResource(uri);
 				if (resource == null || !resource.exists()) {
-					throw new IllegalArgumentException("Expected webdav resource was not found by uri provided =" + uri);
+					throw new IllegalArgumentException("Expected Webdav resource was not found by provided URI: " + uri + " (" + getRealPath(uri, true) + ")");
 				} else {
 					stream = resource.getMethodData();
 				}
@@ -87,26 +88,17 @@ public class SlideFileURIHandler implements FileURIHandler {
 	}
 	
 	private IWSlideService getIWSlideService() throws IBOLookupException {
-		
 		try {
-			return (IWSlideService) IBOLookup.getServiceInstance(getIWApplicationContext(), IWSlideService.class);
+			return IBOLookup.getServiceInstance(getIWApplicationContext(), IWSlideService.class);
 		} catch (IBOLookupException e) {
-			Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Error getting IWSlideService");
+			Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Error getting IWSlideService", e);
 			throw e;
 		}
 	}
 	
 	private synchronized IWApplicationContext getIWApplicationContext() {
-		
-		IWApplicationContext iwac;
-		IWContext iwc = IWContext.getCurrentInstance();
-		
-		if(iwc != null)
-			iwac = iwc;
-		else
-			iwac = IWMainApplication.getDefaultIWApplicationContext();
-		
-	    return iwac;
+		IWContext iwc = CoreUtil.getIWContext();
+	    return iwc == null ? IWMainApplication.getDefaultIWApplicationContext() : iwc;
 	}
 
 	private String getRealPath(URI uri, boolean decode) throws UnsupportedEncodingException {
@@ -133,7 +125,6 @@ public class SlideFileURIHandler implements FileURIHandler {
 	}
 	
 	public FileInfo getFileInfo(URI uri) {
-		
 		try {
 			final WebdavExtendedResource resource = getWebdavExtendedResource(uri);
 			final String fileName = resource.getDisplayName();
@@ -144,7 +135,6 @@ public class SlideFileURIHandler implements FileURIHandler {
 			fi.setContentLength(contentLength);
 			
 			return fi;
-			
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
