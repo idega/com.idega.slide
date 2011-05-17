@@ -352,13 +352,17 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 
 	@Override
 	public InputStream getMethodData(String path) throws HttpException, IOException {
+		InputStream stream = null;
 		try {
-			return getSlideAPI().getInputStream(path);
+			stream = getSlideAPI().getInputStream(path);
 		} catch (Exception e) {
 			LOGGER.log(Level.WARNING, "Error getting input stream from: ".concat(path), e);
 		}
 		
-		return super.getMethodData(path);
+		if (stream == null)
+			stream = super.getMethodData(path);
+		
+		return stream;
 	}
 	
 	@Override
