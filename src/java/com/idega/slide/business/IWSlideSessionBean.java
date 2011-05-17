@@ -17,6 +17,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.rmi.RemoteException;
 import java.util.Enumeration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpSessionBindingEvent;
 
@@ -407,7 +409,7 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	
 	private boolean hasPermission(String resourcePath, Privilege privilege, boolean decoded) throws RemoteException {
 		try {
-			return getSecurity().hasPermission(getSlideToken(),getObjectNode(resourcePath),getActionNode(privilege));
+			return getSecurity().hasPermission(getSlideToken(), getObjectNode(resourcePath), getActionNode(privilege));
 		} catch (ObjectNotFoundException e) {
 			if (decoded) {
 				e.printStackTrace();
@@ -419,9 +421,10 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 					return false;
 				}
 			}
-		}
-		catch (ServiceAccessException e) {
-			e.printStackTrace();
+		} catch (ServiceAccessException e) {
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Error resolving permission for resource '" + resourcePath + "', privilege: " + privilege, e);
+		} catch (Exception e) {
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Error resolving permission for resource '" + resourcePath + "', privilege: " + privilege, e);
 		}
 		return false;
 	}
