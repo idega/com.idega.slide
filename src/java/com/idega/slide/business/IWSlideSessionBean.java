@@ -408,6 +408,11 @@ public class IWSlideSessionBean extends IBOSessionBean implements IWSlideSession
 	}
 	
 	private boolean hasPermission(String resourcePath, Privilege privilege, boolean decoded) throws RemoteException {
+		if (StringUtil.isEmpty(resourcePath) || privilege == null) {
+			Logger.getLogger(getClass().getName()).warning("Either resource path is not defined ('" + resourcePath + "') or the privilege is not defined: " + privilege);
+			return false;
+		}
+		
 		try {
 			return getSecurity().hasPermission(getSlideToken(), getObjectNode(resourcePath), getActionNode(privilege));
 		} catch (ObjectNotFoundException e) {
