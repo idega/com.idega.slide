@@ -245,12 +245,12 @@ public class IWSlideAuthenticator extends BaseFilter{
 	 * @throws HttpException
 	 */
 	private void updateRolesForUser(HttpServletRequest request, LoggedOnInfo lInfo) throws HttpException, RemoteException, IOException {
-		//	Folders for user always should be generated
-		generateUserFolders(request);
-		
 		IWMainApplication iwma = getIWMainApplication(request);
 		boolean doUpdateRoles = iwma.getSettings().getBoolean(PROPERTY_UPDATE_ROLES, Boolean.TRUE);
 		if (doUpdateRoles && lInfo != null && lInfo.getAttribute("iw_slide_roles_updated") == null) {
+			//	Folders for user always should be generated -> Moved inside if statement, causing huge overhead on servers with multiple accounts...
+			generateUserFolders(request);
+			
 			AuthenticationBusiness business = getAuthenticationBusiness(request);
 			business.updateRoleMembershipForUser(lInfo.getLogin(), lInfo.getUserRoles(), null);
 			lInfo.setAttribute("iw_slide_roles_updated", Boolean.TRUE);
