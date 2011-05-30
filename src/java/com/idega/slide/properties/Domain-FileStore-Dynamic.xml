@@ -589,7 +589,8 @@
 		<extractor classname="org.apache.slide.extractor.PDFExtractor" uri="/files/" />
 <!--PDF extractors-->
 <!--Office extractors-->
-		<extractor classname="org.apache.slide.extractor.OfficeExtractor" uri="/files">
+		<!--
+		<extractor classname="org.apache.slide.extractor.IWOfficeExtractor" uri="/files">
 			<configuration>
 				<instruction property="author" id="SummaryInformation-0-4" />
 				<instruction property="application" id="SummaryInformation-0-18" />
@@ -598,6 +599,7 @@
 		<extractor classname="org.apache.slide.extractor.MSWordExtractor" uri="/files" />
 		<extractor classname="org.apache.slide.extractor.MSExcelExtractor" uri="/files" />
 		<extractor classname="org.apache.slide.extractor.MSPowerPointExtractor" uri="/files" />
+		-->
 <!--Office extractors-->
 
 	<!--Idega addons-->

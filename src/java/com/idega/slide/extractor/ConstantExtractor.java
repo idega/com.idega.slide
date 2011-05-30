@@ -16,9 +16,12 @@
 package com.idega.slide.extractor;
 
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
 import org.apache.slide.common.PropertyName;
 import org.apache.slide.content.NodeRevisionDescriptor;
 import org.apache.slide.content.NodeRevisionDescriptors;
@@ -27,6 +30,8 @@ import org.apache.slide.extractor.ExtractorException;
 import org.apache.slide.util.conf.Configurable;
 import org.apache.slide.util.conf.Configuration;
 import org.apache.slide.util.conf.ConfigurationException;
+
+import com.idega.util.CoreConstants;
 
 /**
  * 
@@ -38,7 +43,7 @@ import org.apache.slide.util.conf.ConfigurationException;
  */
 public class ConstantExtractor extends AbstractPropertyExtractor implements Configurable
 {
-	private Map properties = new HashMap();
+	private Map<PropertyName, String> properties = new HashMap<PropertyName, String>();
     
     public ConstantExtractor(String namespace, String uri, String contentType) {
         super(namespace, uri, contentType);
@@ -46,23 +51,27 @@ public class ConstantExtractor extends AbstractPropertyExtractor implements Conf
 
    
 
-    public Map extract(NodeRevisionDescriptors descriptors, NodeRevisionDescriptor descriptor, InputStream content) throws ExtractorException {
+    @Override
+	public Map<PropertyName, String> extract(NodeRevisionDescriptors descriptors, NodeRevisionDescriptor descriptor, InputStream content) throws ExtractorException {
 		return this.properties;
 	}
     
     public void configure(Configuration configuration) throws ConfigurationException {
-        Enumeration instructions = configuration.getConfigurations("instruction");
+        Enumeration<?> instructions = configuration.getConfigurations("instruction");
+        if (instructions == null)
+        	return;
         
-        
-        while (instructions.hasMoreElements()) {
-            Configuration instruction = (Configuration)instructions.nextElement();
-            PropertyName propertyName = new PropertyName(
-            		instruction.getAttribute("property"),
-					instruction.getAttribute("namespace", "DAV:"));
+        List<?> instrs = Collections.list(instructions);
+        for (Object instr: instrs) {
+        	if (!(instr instanceof Configuration))
+        		continue;
+        	
+            Configuration instruction = (Configuration) instr;
+            @SuppressWarnings("deprecation")
+			PropertyName propertyName = new PropertyName(instruction.getAttribute("property"), instruction.getAttribute("namespace", "DAV:"));
             
-            String value = instruction.getAttribute("value","");
-            
-            this.properties.put(propertyName,value);
+            String value = instruction.getAttribute("value", CoreConstants.EMPTY);
+            this.properties.put(propertyName, value);
         }
 	}
 }
