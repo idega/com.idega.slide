@@ -201,6 +201,10 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 		            Element element = doc.createElement("collection");
 		            property = new LockDiscoveryProperty(response,element);*/
 		            throw new RuntimeException("LockDiscoveryProperty not yet implemented for: " + getPath());
+		        } else if (CREATIONDATE.equals(localName)) {
+		        	setCreationDate((String) p.getValue());
+		        } else if (GETLASTMODIFIED.equals(localName)) {
+		        	setGetLastModified((String) p.getValue());
 		        } else {
 		          	LocalProperty lProperty = new LocalProperty(response);
 			        property = lProperty;
@@ -243,7 +247,7 @@ public class WebdavLocalResource extends WebdavExtendedResource {
 			return null;
 		}
 	}
-	
+
 	private Enumeration<LocalResponse> propfindMethod() {
 		try {
 			return propfindMethod(getPath(), 1);
