@@ -3,7 +3,12 @@ package com.idega.slide.business;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectInputStream.GetField;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
@@ -20,7 +25,6 @@ import org.springframework.stereotype.Service;
 import com.idega.business.IBOLookup;
 import com.idega.business.IBOLookupException;
 import com.idega.core.file.util.MimeTypeUtil;
-import com.idega.idegaweb.IWApplicationContext;
 import com.idega.idegaweb.IWMainApplication;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.util.CoreConstants;
@@ -41,20 +45,20 @@ import com.idega.util.messages.MessageResourceImportanceLevel;
  */
 @Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class IWSlideResourceBundle extends IWResourceBundle implements MessageResource {
+public class IWSlideResourceBundle extends IWResourceBundle implements MessageResource, Serializable {
 	
-	private final Logger logger;
+	private static final long serialVersionUID = -4849846267697372361L;
+
+	private static final Logger LOGGER = Logger.getLogger(IWSlideResourceBundle.class.getName());
 	
-	private static final String LOCALISATION_PATH = "/files/cms/bundles/";
-	private static final String NON_BUNDLE_LOCALISATION_FILE_NAME = "Localizable_no_bundle";
-	private static final String BUNDLE_LOCALISATION_FILE_NAME = "Localizable";
-	private static final String NON_BUNDLE_LOCALISATION_FILE_EXTENSION = ".strings";
-	
-	public static final String RESOURCE_IDENTIFIER = "slide_resource";
+	private static final String LOCALISATION_PATH = "/files/cms/bundles/",
+								NON_BUNDLE_LOCALISATION_FILE_NAME = "Localizable_no_bundle",
+								BUNDLE_LOCALISATION_FILE_NAME = "Localizable",
+								NON_BUNDLE_LOCALISATION_FILE_EXTENSION = ".strings",
+								RESOURCE_IDENTIFIER = "slide_resource";
 
 	public IWSlideResourceBundle() throws IOException {
 		super();
-		logger = Logger.getLogger(getClass().getName());
 	}
 	
 	@Override
@@ -76,7 +80,9 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 			localizationProps.load(slideSourceStream);
 		}
 		
-		setLookup(new TreeMap(localizationProps));
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		Map<String, String> props = new TreeMap(localizationProps);
+		setLookup(props);
 	
 		IOUtil.closeInputStream(slideSourceStream);
 	}
@@ -94,14 +100,13 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 			
 			return service.getInputStream(resourcePath);
 		} catch (Exception e) {
-			logger.log(Level.WARNING, "Error getting InputStream for: " + resourcePath, e);
+			LOGGER.log(Level.WARNING, "Error getting InputStream for: " + resourcePath, e);
 		}
 		return null;
 	}
 	
 	@Override
 	public synchronized void storeState() {
-
 		Properties props = new SortedProperties();
 		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 		OutputStream out = null;
@@ -118,15 +123,15 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 			}
 
 			try {
-				props.store(byteStream, "");
+				props.store(byteStream, CoreConstants.EMPTY);
 			} catch (IOException e) {
-				logger.log(Level.WARNING, "Can't store properties to ByteArrayOutputStream", e);
+				LOGGER.log(Level.WARNING, "Can't store properties to ByteArrayOutputStream", e);
 			}
 		}
 
 		InputStream stream = getResourceInputStream(getLocalizableFilePath());
 		if (stream == null) {
-			logger.warning("Can't save localization file '" + getLocalizableFilePath() + "' to repository - unable to create empty file!");
+			LOGGER.warning("Can't save localization file '" + getLocalizableFilePath() + "' to repository - unable to create empty file!");
 			return;
 		} else {
 			IOUtil.close(stream);
@@ -137,7 +142,7 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 			out = service.getOutputStream(getLocalizableFilePath());
 			out.write(byteStream.toByteArray());
 		} catch (Exception e) {
-			logger.log(Level.WARNING, "Can't save localization file '" + getLocalizableFilePath() + "' to repository", e);
+			LOGGER.log(Level.WARNING, "Can't save localization file '" + getLocalizableFilePath() + "' to repository", e);
 			throw new RuntimeException(e);
 		} finally {
 			IOUtil.close(out);
@@ -145,7 +150,6 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 		}
 	}
 	
-	//TODO check "null" value
 	@Override
 	public String getLocalizedString(String key) {
 		Object returnObj = getLookup().get(key);
@@ -167,11 +171,7 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 	 */
 	@Override
 	protected boolean checkBundleLocalizedString(String key, String value) {
-		if(StringUtil.isEmpty( (String)handleGetObject(key)) ) {
-			return false;
-		} else {
-			return true;
-		}
+		return !StringUtil.isEmpty((String) handleGetObject(key));
 	}
 	
 	private String getLocalizableFilePath() {
@@ -206,9 +206,9 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 	
 	private IWSlideService getIWSlideService() throws IBOLookupException {
 		try {
-			return IBOLookup.getServiceInstance(getIWApplicationContext(), IWSlideService.class);
+			return IBOLookup.getServiceInstance(IWMainApplication.getDefaultIWApplicationContext(), IWSlideService.class);
 		} catch (IBOLookupException e) {
-			logger.log(Level.SEVERE, "Error getting IWSlideService");
+			LOGGER.log(Level.SEVERE, "Error getting IWSlideService");
 			throw e;
 		}
 	}
@@ -222,12 +222,6 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 			return false;
 		}
 		return true;
-	}
-
-	private IWApplicationContext getIWApplicationContext() {
-		IWApplicationContext iwac = IWMainApplication
-				.getDefaultIWApplicationContext();
-		return iwac;
 	}
 
 	/**
@@ -251,14 +245,14 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 	
 	@Override
 	public void setMessages(Map<Object, Object> values) {
-		
-		for(Object key : values.keySet()) {
+		for (Object key : values.keySet()) {
 			setString(String.valueOf(key), String.valueOf(values.get(key)));
 		}
 		
 		storeState();
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public Set<String> getAllLocalisedKeys() {
 		return getLookup().keySet();
@@ -268,5 +262,28 @@ public class IWSlideResourceBundle extends IWResourceBundle implements MessageRe
 	public void removeMessage(Object key) {
 		getLookup().remove(key);
 		storeState();
+	}
+	
+	private void writeObject(ObjectOutputStream out) throws IOException {
+		out.writeBoolean(isAutoInsert());
+		out.writeObject(getBundleIdentifier());
+		out.writeObject(getLocale());
+		out.writeObject(getLookup());
+		out.writeObject(getLevel());
+		return;
+	}
+	
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		try {
+			GetField fields = in.readFields();
+			fields.get("autoInsert", Boolean.TRUE);
+			fields.get("bundleIdentifier", MessageResource.NO_BUNDLE);
+			fields.get("locale", Locale.ENGLISH);
+			fields.get("lookup", Collections.emptyMap());
+			fields.get("usagePriorityLevel", MessageResourceImportanceLevel.FIRST_ORDER);
+		} catch (IllegalArgumentException e) {
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, "Error reading objects from the stream: " + in, e);
+		}
 	}
 }
