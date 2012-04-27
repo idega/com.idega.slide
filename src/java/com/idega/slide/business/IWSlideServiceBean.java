@@ -206,7 +206,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 				server = server.substring(7, server.length());
 			}
 			if (server.startsWith("https://")) {
-				if (getIWMainApplication().getSettings().getBoolean("slide.allow.local.https", Boolean.TRUE)) {
+				if (getIWMainApplication().getSettings().getBoolean("slide.allow.local.https")) {
 					// https protocol when to slide is only enabled when this property is set
 					https = true;
 				}
