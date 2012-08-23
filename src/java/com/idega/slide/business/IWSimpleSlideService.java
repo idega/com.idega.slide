@@ -1,6 +1,7 @@
 package com.idega.slide.business;
 
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.Enumeration;
 
 import org.apache.slide.content.NodeRevisionDescriptor;
@@ -18,7 +19,7 @@ import com.idega.user.data.User;
 *
 * Last modified: $Date: 2009/05/08 08:08:46 $ by: $Author: valdas $
 */
-public interface IWSimpleSlideService {
+public interface IWSimpleSlideService extends Serializable {
 
 	public boolean checkExistance(String pathToFile) throws Exception;
 	

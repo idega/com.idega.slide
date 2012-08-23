@@ -147,7 +147,7 @@ public class RepositoryTest {
 				outstream.write(buffer);
 			}
 			
-
+			outstream.close();
 		}
 		catch(PathNotFoundException ne){
 			//Create the file if it does not exist:
