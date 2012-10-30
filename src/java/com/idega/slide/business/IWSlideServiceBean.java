@@ -12,6 +12,7 @@ package com.idega.slide.business;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -77,6 +78,8 @@ import com.idega.slide.util.WebdavRootResource;
 import com.idega.slide.webdavservlet.DomainConfig;
 import com.idega.slide.webdavservlet.WebdavExtendedServlet;
 import com.idega.util.CoreConstants;
+import com.idega.util.CoreUtil;
+import com.idega.util.FileUtil;
 import com.idega.util.IOUtil;
 import com.idega.util.IWTimestamp;
 import com.idega.util.ListUtil;
@@ -479,7 +482,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 
 		try {
 			String pathToCheck = ((path.startsWith(getWebdavServerURI())) ? path : getURI(path));
-			Enumeration prop = getWebdavExternalResourceAuthenticatedAsRoot().propfindMethod(pathToCheck, WebdavResource.DISPLAYNAME);
+			Enumeration<?> prop = getWebdavExternalResourceAuthenticatedAsRoot().propfindMethod(pathToCheck, WebdavResource.DISPLAYNAME);
 			return !(prop == null || !prop.hasMoreElements());
 		} catch (HttpException e) {
 			if (e.getReasonCode() == WebdavStatus.SC_NOT_FOUND) {
@@ -937,25 +940,58 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 */
 	private boolean uploadFile(String uploadPath, String fileName, String contentType, InputStream stream, boolean closeStream) {
 		if (StringUtil.isEmpty(uploadPath) || StringUtil.isEmpty(fileName) || stream == null) {
-			LOGGER.warning("Unable to upload file: invalid parameters provided: upload path: " + uploadPath + ", file name: " + fileName + ", stream: " + stream);
+			LOGGER.warning("Unable to upload file: invalid parameters provided: upload path: " + uploadPath + ", file name: " + fileName +
+					", stream: " + stream);
 			return false;
 		}
 
+		ByteArrayOutputStream tmp = null;
+		byte[] memory = null;
+		if (IWMainApplication.getDefaultIWMainApplication().getSettings().getBoolean("slide.copy_stream_for_upload", true)) {
+			try {
+				tmp = new ByteArrayOutputStream();
+				FileUtil.streamToOutputStream(stream, tmp);
+				memory = tmp.toByteArray();
+			} catch (Exception e) {
+			} finally {
+				if (memory != null && closeStream)
+					IOUtil.close(stream);
+				IOUtil.close(tmp);
+			}
+		}
+
+		boolean success = false;
+		stream = memory == null ? stream : new ByteArrayInputStream(memory);
 		UploadWorker uw = new UploadWorker(this, uploadPath, fileName, contentType, stream, closeStream);
 		try {
 			Thread uploader = new Thread(uw);
 			uploader.run();	//	We want "synchronous" execution
-			return uw.isWorkFinishedSuccessfully();
+			success = uw.isWorkFinishedSuccessfully();
 		} catch (Throwable t) {
-			LOGGER.log(Level.WARNING, "Error while uploading: ".concat(uploadPath).concat(fileName), t);
+			String message = "Error while uploading: ".concat(uploadPath).concat(fileName);
+			LOGGER.log(Level.WARNING, message, t);
+			CoreUtil.sendExceptionNotification(message, t);
 		} finally {
 			removeFromQueue(uploadPath, uw.getWorkId());
 
-			if (closeStream) {
+			if (success && closeStream)
 				IOUtil.close(stream);
-			}
 		}
-		return Boolean.FALSE;
+		if (success)
+			return Boolean.TRUE;
+
+		try {
+			stream = memory == null ? stream : new ByteArrayInputStream(memory);
+			return CoreUtil.doWriteFileToRepository(uploadPath, fileName, stream);
+		} catch (IOException e) {
+			String message = "Error writing to the repository (" + uploadPath + fileName + ") using files system";
+			LOGGER.log(Level.WARNING, message, e);
+			CoreUtil.sendExceptionNotification(message, e);
+			return false;
+		} finally {
+			if (closeStream)
+				IOUtil.close(stream);
+		}
 	}
 
 	boolean isBusyWorker(String path, String workId) {
@@ -1599,18 +1635,23 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 	 */
 	@Override
 	public InputStream getInputStream(String path) throws IOException {
-		IWSimpleSlideService simpleSlideService = getSimpleSlideService();
 		InputStream stream = null;
-		if (simpleSlideService != null) {
+		IWSimpleSlideService simpleSlideService = getSimpleSlideService();
+		if (simpleSlideService != null)
 			stream = simpleSlideService.getInputStream(path);
-		}
 
 		if (!IOUtil.isStreamValid(stream)) {
 			IOUtil.close(stream);
 
 			WebdavResource resource = getWebdavExternalResourceAuthenticatedAsRoot(path);
-			return getInputStream(resource);
+			stream = getInputStream(resource);
 		}
+		if (stream != null)
+			return stream;
+
+		File tmp = CoreUtil.getFileFromRepository(path.concat("_1.0"));
+		if (tmp != null && tmp.exists())
+			stream = new FileInputStream(tmp);
 
 		return stream;
 	}
