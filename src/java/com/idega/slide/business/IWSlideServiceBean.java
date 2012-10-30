@@ -968,9 +968,7 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 			uploader.run();	//	We want "synchronous" execution
 			success = uw.isWorkFinishedSuccessfully();
 		} catch (Throwable t) {
-			String message = "Error while uploading: ".concat(uploadPath).concat(fileName);
-			LOGGER.log(Level.WARNING, message, t);
-			CoreUtil.sendExceptionNotification(message, t);
+			LOGGER.log(Level.WARNING, "Error while uploading: ".concat(uploadPath).concat(fileName), t);
 		} finally {
 			removeFromQueue(uploadPath, uw.getWorkId());
 
