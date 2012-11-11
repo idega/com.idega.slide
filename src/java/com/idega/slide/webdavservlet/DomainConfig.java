@@ -48,6 +48,9 @@ import com.idega.idegaweb.IWMainApplication;
 import com.idega.io.MemoryFileBuffer;
 import com.idega.io.MemoryInputStream;
 import com.idega.io.MemoryOutputStream;
+import com.idega.slide.SlideConstants;
+import com.idega.util.CoreConstants;
+import com.idega.util.IOUtil;
 
 /**
  * <p>
@@ -155,7 +158,15 @@ public class DomainConfig {
 						InputStream configurationInputStream=null;
 						if(getStoreType().equals(TYPE_TXFILE)){
 							if(usingVariableBase){
-								configurationInputStream = this.getClass().getClassLoader().getResourceAsStream(STORES_CLASSPATH+STORE_FILESTORE_DYNAMIC_FILENAME);
+								configurationInputStream = IOUtil
+									.getStreamFromJar(
+										SlideConstants.BUNDLE_IDENTIFIER, 
+										CoreConstants
+											.PROPERTIES_FOLDER_NAME_IN_JAR
+											+ CoreConstants.SLASH
+											+ STORE_FILESTORE_DYNAMIC_FILENAME
+									);
+//										this.getClass().getClassLoader().getResourceAsStream(STORES_CLASSPATH+STORE_FILESTORE_DYNAMIC_FILENAME);
 								
 								MemoryFileBuffer memory = new MemoryFileBuffer();
 								MemoryOutputStream memoryOut = new MemoryOutputStream(memory);
@@ -283,8 +294,8 @@ public class DomainConfig {
         replaceConfigfileStream(input,outConfigWriter, filterChain);
 	}
 	
-    private Map getProperties() {
-    	Map properties = new HashMap();
+    private Map<String, String> getProperties() {
+    	Map<String, String> properties = new HashMap<String, String>();
     	properties.put(SLIDE_BASEPATH_PROPERTY,basePath);
 		return properties;
 	}
@@ -323,7 +334,7 @@ public class DomainConfig {
 		    ChainReaderHelper helper = new ChainReaderHelper();
 		    helper.setBufferSize(8192);
 		    helper.setPrimaryReader(new BufferedReader(new InputStreamReader(configInputStream)));
-		    Vector filterChains = new Vector();
+		    Vector<org.apache.tools.ant.types.FilterChain> filterChains = new Vector<org.apache.tools.ant.types.FilterChain>();
 		    filterChains.add(filterChain);
 		    helper.setFilterChains(filterChains);
 		    in = new BufferedReader(helper.getAssembledReader());
@@ -381,9 +392,9 @@ public class DomainConfig {
      * @param filterChain The filterchain to use
      * @param map The map
      */
-    public void addTokensToFilterChain(FilterChain filterChain, Map map)
+    public void addTokensToFilterChain(FilterChain filterChain, Map<String, String> map)
     {
-        Iterator iterator = map.keySet().iterator();
+        Iterator<String> iterator = map.keySet().iterator();
         while (iterator.hasNext())
         {
             String key = (String) iterator.next();
