@@ -980,7 +980,13 @@ public class IWSlideServiceBean extends IBOServiceBean implements IWSlideService
 
 		try {
 			stream = memory == null ? stream : new ByteArrayInputStream(memory);
-			return CoreUtil.doWriteFileToRepository(uploadPath, fileName, stream);
+			success = CoreUtil.doWriteFileToRepository(uploadPath, fileName, stream);
+			if (success) {
+				getLogger().info("Wrote file " + fileName + " to " + uploadPath + " using files system");
+			} else {
+				getLogger().warning("Failed to write file " + fileName + " to " + uploadPath + " using files system");
+			}
+			return success;
 		} catch (IOException e) {
 			String message = "Error writing to the repository (" + uploadPath + fileName + ") using files system";
 			LOGGER.log(Level.WARNING, message, e);
