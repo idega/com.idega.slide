@@ -26,24 +26,28 @@ import com.idega.slide.data.SlideFileHome;
 /**
  *  An implementation of ICFileSystem to handle files in the SLide repository.
  *  Abstracts users from using the Slide API making it easier to change
- *  repository implementation. 
- * 
+ *  repository implementation.
+ *
  *  Last modified: $Date: 2005/06/02 12:05:10 $ by $Author: gummi $
- * 
+ *
  * @author <a href="mailto:aron@idega.com">aron</a>
  * @version $Revision: 1.5 $
  */
 public class SlideFileSystemBean extends IBOServiceBean implements ICFileSystem , SlideFileSystem{
 
+	private static final long serialVersionUID = 806641888220638803L;
+
 	/* (non-Javadoc)
 	 * @see com.idega.core.file.business.ICFileSystem#getFileIconURI(com.idega.core.file.data.ICFile)
 	 */
+	@Override
 	public String getFileIconURI(ICFile file) throws RemoteException {
 		return getIconURIByMimeType(file.getMimeType());
 	}
 	/* (non-Javadoc)
 	 * @see com.idega.core.file.business.ICFileSystem#getIconURIByMimeType(java.lang.String)
 	 */
+	@Override
 	public String getIconURIByMimeType(String mimeType) throws RemoteException {
 		FileIconSupplier iconSupplier = FileIconSupplier.getInstance();
 		return iconSupplier.getFileIconURIByMimeType(mimeType);
@@ -51,14 +55,16 @@ public class SlideFileSystemBean extends IBOServiceBean implements ICFileSystem 
     /* (non-Javadoc)
      * @see com.idega.core.file.business.ICFileSystem#initialize()
      */
-    public void initialize() throws RemoteException {
-        
+    @Override
+	public void initialize() throws RemoteException {
+
     }
 
     /* (non-Javadoc)
      * @see com.idega.core.file.business.ICFileSystem#getFileURI(com.idega.core.file.data.ICFile)
      */
-    public String getFileURI(ICFile file) throws RemoteException {
+    @Override
+	public String getFileURI(ICFile file) throws RemoteException {
         if(file instanceof SlideFile) {
             return getSlideService().getWebdavServerURI()+((SlideFile)file).getExternalURL();
         }
@@ -68,7 +74,8 @@ public class SlideFileSystemBean extends IBOServiceBean implements ICFileSystem 
     /* (non-Javadoc)
      * @see com.idega.core.file.business.ICFileSystem#getFileURI(int)
      */
-    public String getFileURI(int fileId) throws RemoteException {
+    @Override
+	public String getFileURI(int fileId) throws RemoteException {
         try {
             ICFile file = ((SlideFileHome)IDOLookup.getHome(SlideFile.class)).findByPrimaryKey(new Integer(fileId));
             return getFileURI(file);
@@ -78,13 +85,14 @@ public class SlideFileSystemBean extends IBOServiceBean implements ICFileSystem 
         }
         return null;
     }
-    
+
     private IWSlideService getSlideService() throws IBOLookupException{
-        return (IWSlideService)getServiceInstance(IWSlideService.class);
+        return getServiceInstance(IWSlideService.class);
     }
 	/* (non-Javadoc)
 	 * @see com.idega.core.file.business.ICFileSystem#getFileURI(int, java.lang.String)
 	 */
+	@Override
 	public String getFileURI(int fileId, String datasource) throws RemoteException {
 		// TODO Auto-generated method stub
 		return getFileURI(fileId);
