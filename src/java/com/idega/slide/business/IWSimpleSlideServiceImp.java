@@ -806,7 +806,9 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 				namespace.rollback();
 			}
 		} catch (Throwable e) {
-			LOGGER.log(Level.WARNING, "Cannot rollback user transaction", e);
+			if (isNeededToPrintSlideExceptions()) {
+				LOGGER.log(Level.WARNING, "Cannot rollback user transaction", e);
+			}
 			return false;
 		} finally {
 			finishTransaction(namespace, SlideAction.ROLLBACK);
