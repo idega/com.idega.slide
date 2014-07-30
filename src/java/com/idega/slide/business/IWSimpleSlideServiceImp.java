@@ -206,6 +206,7 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			return false;
 		}
 
+		boolean error = false;
 		SlideToken token = getContentToken();
 		try {
 			NodeRevisionNumber lastRevision = null;
@@ -261,17 +262,30 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 			putValueIntoCache(CACHE_RESOURCE_EXISTANCE_NAME, -1, uploadPath, Boolean.TRUE);
 			putValueIntoCache(CACHE_RESOURCE_DESCRIPTOR_NAME, THREE_MINUTES, uploadPath, revisionDescriptor);
 			return true;
-		} catch(Throwable t) {
-			LOGGER.log(Level.WARNING, "Error while uploading: " + uploadPath, t);
+		} catch (Throwable t) {
+			error = true;
+			if (isNeededToPrintSlideExceptions()) {
+				LOGGER.log(Level.WARNING, "Error while uploading: " + uploadPath, t);
+			} else {
+				LOGGER.warning("Error while uploading: " + uploadPath);
+			}
 			rollbackTransaction(namespace);
 		} finally {
 			if (closeStream) {
 				IOUtil.closeInputStream(stream);
 			}
-			commitTransaction(namespace);
+			if (error) {
+				rollbackTransaction(namespace);
+			} else {
+				commitTransaction(namespace);
+			}
 		}
 
 		return false;
+	}
+
+	private boolean isNeededToPrintSlideExceptions() {
+		return getApplication().getSettings().getBoolean("slide.print_errors", Boolean.FALSE);
 	}
 
 	@Override
@@ -815,7 +829,9 @@ public class IWSimpleSlideServiceImp extends DefaultSpringBean implements IWSimp
 				namespace.commit();
 			}
 		} catch (Throwable e) {
-			LOGGER.log(Level.WARNING, "Cannot finish user transaction", e);
+			if (isNeededToPrintSlideExceptions()) {
+				LOGGER.log(Level.WARNING, "Cannot finish user transaction", e);
+			}
 			return false;
 		} finally {
 			finishTransaction(namespace, SlideAction.COMMIT);
